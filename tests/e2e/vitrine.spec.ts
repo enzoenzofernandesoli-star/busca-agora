@@ -62,8 +62,10 @@ test.describe("vitrine", () => {
     const opcao = page.getByRole("option", { name: /Smartwatch/ });
     await expect(opcao).toBeVisible();
     await busca.press("ArrowDown");
+    await expect(opcao).toHaveAttribute("aria-selected", "true");
     await busca.press("Enter");
-    await expect(page).toHaveURL(/\/p\/smartwatch/);
+    // First dev compile of the product page can be slow under parallel load.
+    await expect(page).toHaveURL(/\/p\/smartwatch/, { timeout: 20_000 });
   });
 
   test("página de produto: variantes, estoque e compra desabilitada", async ({
