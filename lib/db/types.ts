@@ -62,6 +62,24 @@ export type Database = {
           },
         ];
       };
+      auth_rate_limits: {
+        Row: {
+          chave: string;
+          janela_inicio: string;
+          tentativas: number;
+        };
+        Insert: {
+          chave: string;
+          janela_inicio: string;
+          tentativas?: number;
+        };
+        Update: {
+          chave?: string;
+          janela_inicio?: string;
+          tentativas?: number;
+        };
+        Relationships: [];
+      };
       brands: {
         Row: {
           created_at: string;
@@ -903,8 +921,13 @@ export type Database = {
       };
     };
     Functions: {
+      delete_account: { Args: { p_user_id: string }; Returns: undefined };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
+      hit_rate_limit: {
+        Args: { p_chave: string; p_janela_segundos: number; p_max: number };
+        Returns: boolean;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       next_order_number: { Args: Record<PropertyKey, never>; Returns: string };
       order_transition_allowed: {
