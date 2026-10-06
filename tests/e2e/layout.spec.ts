@@ -11,7 +11,7 @@ test.describe("layout da loja", () => {
       page.getByRole("img", { name: "Busca Agora" }).first(),
     ).toBeVisible();
 
-    const busca = page.getByRole("searchbox", { name: "Buscar na loja" });
+    const busca = page.getByRole("combobox", { name: "Buscar na loja" });
     await expect(busca.locator("visible=true")).toHaveCount(1);
 
     const bottomNav = page.getByRole("navigation", {
@@ -32,7 +32,7 @@ test.describe("layout da loja", () => {
   test("busca envia o termo para /busca", async ({ page }) => {
     await page.goto("/");
     const busca = page
-      .getByRole("searchbox", { name: "Buscar na loja" })
+      .getByRole("combobox", { name: "Buscar na loja" })
       .locator("visible=true");
     await busca.fill("fone");
     await busca.press("Enter");

@@ -131,3 +131,100 @@ export function DropIcon(props: IconProps) {
     </Svg>
   );
 }
+
+/** Electronics category art (headphones). */
+export function HeadphonesIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.5} {...props}>
+      <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+      <rect x="3" y="14" width="4" height="7" rx="1.5" />
+      <rect x="17" y="14" width="4" height="7" rx="1.5" />
+    </Svg>
+  );
+}
+
+/** Cosmetics category art (bottle). */
+export function BottleIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.5} {...props}>
+      <rect x="7" y="9" width="10" height="12.5" rx="3" />
+      <path d="M10 9V6h4v3" />
+      <path d="M9.5 4h5" />
+      <path d="M10 14h4" />
+    </Svg>
+  );
+}
+
+export function WatchIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.5} {...props}>
+      <rect x="6" y="6" width="12" height="12" rx="3.5" />
+      <path d="M9 6l.8-3.5h4.4L15 6M9 18l.8 3.5h4.4L15 18" />
+      <path d="M12 9.5V12l1.8 1.2" />
+    </Svg>
+  );
+}
+
+export function PixIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.9} {...props}>
+      <path d="M12 2.8l9.2 9.2-9.2 9.2L2.8 12z" />
+      <path d="M8 12h8" />
+    </Svg>
+  );
+}
+
+export function CardIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.9} {...props}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path d="M2.5 10h19M6.5 15h4" />
+    </Svg>
+  );
+}
+
+export function TruckIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.9} {...props}>
+      <path d="M2.5 6h11v10h-11zM13.5 9.5h4l3 3.5V16h-7" />
+      <circle cx="6.5" cy="17.5" r="1.8" />
+      <circle cx="17" cy="17.5" r="1.8" />
+    </Svg>
+  );
+}
+
+export function ExchangeIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={1.9} {...props}>
+      <path d="M4 9a8 8 0 0 1 14.5-3M20 4v4h-4" />
+      <path d="M20 15a8 8 0 0 1-14.5 3M4 20v-4h4" />
+    </Svg>
+  );
+}
+
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={2.2} {...props}>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </Svg>
+  );
+}
+
+export function ShieldCheckIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={2.2} {...props}>
+      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" />
+      <path d="M9 12l2 2 4-4" />
+    </Svg>
+  );
+}
+
+export function ReceiptIcon(props: IconProps) {
+  return (
+    <Svg strokeWidth={2.2} {...props}>
+      <path d="M6 2.5h9l4 4v15H6z" />
+      <path d="M9 12h7M9 16h7" />
+    </Svg>
+  );
+}

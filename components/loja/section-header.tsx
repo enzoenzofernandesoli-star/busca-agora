@@ -12,6 +12,9 @@ type SectionHeaderProps = {
   /** Tailwind bg class for a color square before the eyebrow. */
   eyebrowSquare?: string;
   link?: { href: string; label: string };
+  /** Shorter title/link label for < md (docs/design/Celular-Home.dc.html). */
+  mobileTitle?: string;
+  mobileLinkLabel?: string;
   className?: string;
 };
 
@@ -22,6 +25,8 @@ export function SectionHeader({
   eyebrowColor = "text-ultramar",
   eyebrowSquare,
   link,
+  mobileTitle,
+  mobileLinkLabel,
   className,
 }: SectionHeaderProps) {
   return (
@@ -52,7 +57,14 @@ export function SectionHeader({
           id={id}
           className="m-0 font-display text-[22px] font-extrabold md:text-[34px] md:tracking-[-0.02em]"
         >
-          {title}
+          {mobileTitle ? (
+            <>
+              <span className="md:hidden">{mobileTitle}</span>
+              <span className="hidden md:inline">{title}</span>
+            </>
+          ) : (
+            title
+          )}
         </h2>
       </div>
       {link ? (
@@ -60,7 +72,14 @@ export function SectionHeader({
           href={link.href}
           className="inline-flex min-h-11 items-center text-sm font-bold text-ultramar hover:text-noite md:text-[15px]"
         >
-          {link.label}
+          {mobileLinkLabel ? (
+            <>
+              <span className="md:hidden">{mobileLinkLabel}</span>
+              <span className="hidden md:inline">{link.label}</span>
+            </>
+          ) : (
+            link.label
+          )}
           <span aria-hidden="true" className="hidden md:inline">
             &nbsp;→
           </span>
