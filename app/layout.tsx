@@ -26,6 +26,12 @@ export const metadata: Metadata = {
   },
   description:
     "Eletrônicos e cosméticos selecionados, com frete calculado no seu CEP e nota fiscal em todo pedido.",
+  // Default share image: app/opengraph-image.png (logo + slogan).
+  openGraph: {
+    siteName: "Busca Agora",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {
