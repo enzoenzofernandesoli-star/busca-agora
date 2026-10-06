@@ -82,9 +82,9 @@ Tokens (colocar no Tailwind como cores nomeadas):
 ## 5. Fluxo de um pedido
 
 1. Cliente monta o carrinho e calcula o frete no CEP (Melhor Envio).
-2. Checkout: endereço → frete → CPF → forma de pagamento. Servidor recalcula tudo e cria o pedido `pending_payment` com cópias de nome, CPF, endereço, preços e NCM.
+2. Checkout: endereço → frete → CPF → forma de pagamento. Servidor recalcula tudo e cria o pedido `pending_payment` com cópias de nome, CPF, endereço, preços e NCM, e reserva o estoque (`reserve_stock`; faltou estoque, o pedido não é criado).
 3. Servidor cria a preferência no Mercado Pago (Checkout Pro) com `external_reference` = id do pedido.
-4. Webhook do Mercado Pago → valida assinatura → consulta o pagamento → se aprovado: transação que baixa o estoque e marca `paid`.
+4. Webhook do Mercado Pago → valida assinatura → consulta o pagamento → se aprovado: marca `paid` (o estoque já foi reservado na criação do pedido, passo 2).
 5. Fila `jobs` dispara em ordem: e-mail + Telegram → emitir NF-e → comprar e gerar etiqueta no Melhor Envio (com a chave da nota) → gerar PDF do resumo → mandar 3 impressões ao PrintNode (resumo, DANFE simplificada, etiqueta, todos 10x15).
 6. Webhook do Melhor Envio atualiza rastreio → `shipped` → `delivered`, com e-mail ao cliente em cada etapa.
 7. Pix não pago em 30 min e boleto não pago em 3 dias: pedido `canceled`, reserva de estoque devolvida.
@@ -116,7 +116,7 @@ Se a NF-e automática estiver desligada (`NFE_ENABLED=false`, enquanto não houv
 | `webhook_logs` | origem, external_id, payload, processed_at; único (origem, external_id) | só servidor |
 | `settings` | razão social, cnpj, ie, endereço de origem, regime tributário, printer_id | só admin |
 
-- A baixa de estoque é uma função Postgres (`security definer`) numa transação, com `select ... for update`.
+- A reserva de estoque acontece na criação do pedido (decisão de 06/10): função Postgres `reserve_stock` (`security definer`) numa transação, com `select ... for update`, idempotente. O cancelamento devolve com `restore_stock`.
 - `custo_cents` NUNCA vai para o navegador (usar view pública sem essa coluna).
 - Testes de RLS obrigatórios: cliente A não lê pedido, endereço nem nota do cliente B.
 
