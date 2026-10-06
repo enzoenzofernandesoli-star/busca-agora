@@ -1,0 +1,19 @@
+# dependências e build
+node_modules/
+.next/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+
+# segredos: NUNCA vão pro GitHub
+.env
+.env*.local
+.env.production
+
+# sistema
+.DS_Store
+Thumbs.db
+*.log
+.vercel

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Busca Agora · Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Sora:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5FA}
+a{color:#3324F5}a:hover{color:#0A0F3D}
+.ba-card{transition:transform .18s ease,box-shadow .18s ease}
+.ba-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(10,15,61,.10)}
+.ba-nav a{color:#FFFFFF;text-decoration:none}
+.ba-nav a:hover{color:#C6FF3D}
+.ba-foot a{color:#B9BDE8;text-decoration:none}
+.ba-foot a:hover{color:#FFFFFF}
+.ba-btn-lime:hover{background:#D4FF6A}
+.ba-btn-ghost:hover{background:rgba(255,255,255,.12)}
+.ba-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+input::placeholder{color:#6B7094}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F5FA; color: #0A0F3D; font-family: 'DM Sans', system-ui, sans-serif">
+
+<div style="background: #0A0F3D; color: #DCDFFF; font-size: 13px">
+<div style="max-width: 1280px; margin: 0 auto; padding: 9px 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 40px">
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #C6FF3D"></span>Pix aprovado na hora</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #7ADFFF"></span>Frete calculado no seu CEP</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FF9AC8"></span>Troca em até 7 dias</span>
+</div>
+</div>
+
+<header style="background: #3324F5; color: #FFFFFF">
+<div style="max-width: 1280px; margin: 0 auto; padding: 20px 32px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 20px 32px">
+<a href="Main.dc.html" aria-label="Busca Agora, página inicial" style="display: block; flex: none"><img src="/brand/logo-d-branco.svg" alt="Busca Agora" style="height: 38px; width: auto; display: block"></a>
+<form role="search" style="flex: 1 1 420px; display: flex; min-width: 0; background: #FFFFFF; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 0 rgba(10,15,61,.15)">
+<label for="busca" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Buscar na loja</label>
+<input id="busca" type="search" placeholder="Busque fones, smartwatches, skincare..." style="flex: 1; min-width: 0; border: 0; outline: none; padding: 0 20px; height: 52px; font-family: 'DM Sans', sans-serif; font-size: 16px; color: #0A0F3D; background: transparent">
+<button type="button" aria-label="Buscar" style="flex: none; width: 60px; height: 52px; border: 0; background: #C6FF3D; color: #0A0F3D; cursor: pointer; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L21 21"></path></svg>
+</button>
+</form>
+<nav aria-label="Conta" style="display: flex; align-items: center; gap: 28px; flex: none">
+<a href="#" style="display: flex; align-items: center; gap: 10px; color: #FFFFFF; text-decoration: none; min-height: 44px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>
+<span style="display: flex; flex-direction: column; line-height: 1.2"><span style="font-size: 12px; color: #DCDFFF">Olá, faça seu</span><span style="font-size: 15px; font-weight: 700">login</span></span>
+</a>
+<a href="#" style="display: flex; flex-direction: column; line-height: 1.2; color: #FFFFFF; text-decoration: none; min-height: 44px; justify-content: center"><span style="font-size: 12px; color: #DCDFFF">Acompanhe</span><span style="font-size: 15px; font-weight: 700">Meus pedidos</span></a>
+<a href="Checkout.dc.html" aria-label="Carrinho com 2 itens" style="position: relative; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.12); color: #FFFFFF">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h13l-1.5 8.5a2 2 0 0 1-2 1.5H9.2a2 2 0 0 1-2-1.6L5 3H2.5"></path><circle cx="9.5" cy="20.5" r="1.2"></circle><circle cx="16.5" cy="20.5" r="1.2"></circle></svg>
+<span style="position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 11px; background: #C6FF3D; color: #0A0F3D; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span>
+</a>
+</nav>
+</div>
+<div class="ba-nav" style="max-width: 1280px; margin: 0 auto; padding: 14px 32px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; font-size: 15px">
+<button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.28); background: transparent; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+<span>Enviar para <b>informe seu CEP</b></span>
+</button>
+<nav aria-label="Categorias" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px">
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>Categorias</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #7ADFFF"></span>Eletrônicos</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #FF9AC8"></span>Cosméticos</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #C6FF3D"></span>Ofertas</a>
+<a href="#">Mais buscados</a>
+<a href="#">Rastrear pedido</a>
+</nav>
+<a href="Celular-Home.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #C6FF3D">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"></rect><path d="M11 18.5h2"></path></svg>Instale no celular</a>
+</div>
+</header>
+
+<main style="max-width: 1280px; margin: 0 auto; padding: 32px 32px 72px; display: flex; flex-direction: column; gap: 40px">
+
+<section aria-label="Destaques" style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 2 1 600px; min-width: 0; position: relative; overflow: hidden; background: #0A0F3D; color: #FFFFFF; border-radius: 28px; padding: 56px; box-sizing: border-box; min-height: 440px; display: flex; flex-wrap: wrap; align-items: center; gap: 40px">
+<div style="position: absolute; right: -120px; top: -140px; width: 420px; height: 420px; border-radius: 50%; border: 64px solid #3324F5; opacity: .55; box-sizing: border-box"></div>
+<div style="position: relative; flex: 1 1 340px; display: flex; flex-direction: column; gap: 24px; align-items: flex-start">
+<span style="display: inline-flex; padding: 6px 14px; border-radius: 999px; background: #C6FF3D; color: #0A0F3D; font-size: 13px; font-weight: 700; letter-spacing: .06em">NOVIDADES TODA SEMANA</span>
+<h1 style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(44px, 5.4vw, 76px); line-height: .98; letter-spacing: -0.035em">Buscou?<br><span style="color: #C6FF3D">Tá aqui.</span></h1>
+<p style="margin: 0; max-width: 420px; font-size: 18px; line-height: 1.55; color: #DCDFFF">Eletrônicos e cosméticos selecionados, com frete calculado no seu CEP e nota fiscal em todo pedido.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a class="ba-btn-lime" href="#" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; border-radius: 14px; background: #C6FF3D; color: #0A0F3D; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 16px; text-decoration: none">Ver ofertas</a>
+<a class="ba-btn-ghost" href="#" style="display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.4); color: #FFFFFF; font-weight: 700; font-size: 16px; text-decoration: none">Mais buscados</a>
+</div>
+</div>
+<div style="position: relative; flex: 0 1 300px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div style="aspect-ratio: 1; border-radius: 24px; background: #7ADFFF; display: flex; align-items: center; justify-content: center; color: #0A0F3D">
+<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"></path><rect x="3" y="14" width="4" height="7" rx="1.5"></rect><rect x="17" y="14" width="4" height="7" rx="1.5"></rect></svg>
+</div>
+<div style="aspect-ratio: 1; border-radius: 24px; background: #FF9AC8; display: flex; align-items: center; justify-content: center; color: #0A0F3D; transform: translateY(24px)">
+<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="9" width="10" height="12.5" rx="3"></rect><path d="M10 9V6h4v3"></path><path d="M9.5 4h5"></path><path d="M10 14h4"></path></svg>
+</div>
+<div style="aspect-ratio: 1; border-radius: 24px; background: #3324F5; display: flex; align-items: center; justify-content: center; color: #FFFFFF">
+<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="3.5"></rect><path d="M9 6l.8-3.5h4.4L15 6M9 18l.8 3.5h4.4L15 18"></path><path d="M12 9.5V12l1.8 1.2"></path></svg>
+</div>
+<div style="aspect-ratio: 1; border-radius: 24px; background: #C6FF3D; display: flex; align-items: center; justify-content: center; color: #0A0F3D; transform: translateY(24px)">
+<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L21 21"></path></svg>
+</div>
+</div>
+</div>
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 24px">
+<a href="#" style="flex: 1; min-height: 208px; border-radius: 28px; background: #7ADFFF; color: #0A0F3D; padding: 32px; box-sizing: border-box; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden">
+<svg style="position: absolute; right: -10px; bottom: -14px; opacity: .22" width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#0A0F3D" stroke-width="1.2" stroke-linecap="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"></path><rect x="3" y="14" width="4" height="7" rx="1.5"></rect><rect x="17" y="14" width="4" height="7" rx="1.5"></rect></svg>
+<span style="font-size: 13px; font-weight: 700; letter-spacing: .08em">CATEGORIA</span>
+<span style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Eletrônicos</span><span style="font-size: 15px; line-height: 1.4; max-width: 220px">Fones, relógios, caixas de som e carregadores</span></span>
+<span style="font-weight: 700; font-size: 15px">Ver tudo →</span>
+</a>
+<a href="#" style="flex: 1; min-height: 208px; border-radius: 28px; background: #FF9AC8; color: #0A0F3D; padding: 32px; box-sizing: border-box; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden">
+<svg style="position: absolute; right: 0px; bottom: -14px; opacity: .22" width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="#0A0F3D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="9" width="10" height="12.5" rx="3"></rect><path d="M10 9V6h4v3"></path><path d="M9.5 4h5"></path></svg>
+<span style="font-size: 13px; font-weight: 700; letter-spacing: .08em">CATEGORIA</span>
+<span style="display: flex; flex-direction: column; gap: 6px"><span style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Cosméticos</span><span style="font-size: 15px; line-height: 1.4; max-width: 220px">Skincare, cabelo, corpo e proteção solar</span></span>
+<span style="font-weight: 700; font-size: 15px">Ver tudo →</span>
+</a>
+</div>
+</section>
+
+<section aria-label="Vantagens" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px">
+<sc-for list="{{beneficios}}" as="b" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 16px; background: #FFFFFF; border: 1px solid #E3E5F2; border-radius: 20px; padding: 20px 22px">
+<span style="flex: none; width: 48px; height: 48px; border-radius: 14px; background: #ECEBFF; color: #3324F5; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{b.pix}}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l9.2 9.2-9.2 9.2L2.8 12z"></path><path d="M8 12h8"></path></svg></sc-if>
+<sc-if value="{{b.cartao}}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M2.5 10h19M6.5 15h4"></path></svg></sc-if>
+<sc-if value="{{b.frete}}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6h11v10h-11zM13.5 9.5h4l3 3.5V16h-7"></path><circle cx="6.5" cy="17.5" r="1.8"></circle><circle cx="17" cy="17.5" r="1.8"></circle></svg></sc-if>
+<sc-if value="{{b.troca}}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9a8 8 0 0 1 14.5-3M20 4v4h-4"></path><path d="M20 15a8 8 0 0 1-14.5 3M4 20v-4h4"></path></svg></sc-if>
+</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 16px">{{b.titulo}}</span><span style="font-size: 14px; color: #4A4F70">{{b.texto}}</span></span>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="mais-buscados" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: .1em; color: #3324F5">O QUE TODO MUNDO ESTÁ BUSCANDO</span>
+<h2 id="mais-buscados" style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 34px; letter-spacing: -0.02em">Mais buscados</h2>
+</div>
+<a href="#" style="font-weight: 700; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center">Ver todos →</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px">
+<sc-for list="{{maisBuscados}}" as="p" hint-placeholder-count="5">
+<a class="ba-card" href="Produto.dc.html" style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 22px; overflow: hidden; text-decoration: none; color: #0A0F3D; border: 1px solid #E3E5F2">
+<div style="position: relative; height: 210px; background: {{p.tile}}; display: flex; align-items: center; justify-content: center; color: {{p.ink}}">
+<sc-if value="{{p.ele}}" hint-placeholder-val="{{ true }}"><svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3"></rect><path d="M9 2.5v2.5M15 2.5v2.5M9 19v2.5M15 19v2.5M2.5 9h2.5M2.5 15h2.5M19 9h2.5M19 15h2.5"></path><rect x="9" y="9" width="6" height="6" rx="1"></rect></svg></sc-if>
+<sc-if value="{{p.cos}}" hint-placeholder-val="{{ false }}"><svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"></path><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"></path></svg></sc-if>
+<span style="position: absolute; left: 14px; bottom: 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: {{p.ink}}; opacity: .7">FOTO DO PRODUTO</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 20px">
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #4A4F70"><span style="width: 8px; height: 8px; border-radius: 2px; background: {{p.cor}}"></span>{{p.cat}}</span>
+<span class="ba-name" style="font-size: 16px; line-height: 1.35; min-height: 43px">{{p.nome}}</span>
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.02em">{{p.preco}}</span>
+<span style="font-size: 13px; color: #4A4F70">em até 12x no cartão</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section aria-label="Instale no celular" style="position: relative; overflow: hidden; background: #3324F5; color: #FFFFFF; border-radius: 28px; padding: 44px 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px">
+<div style="position: absolute; left: -90px; bottom: -160px; width: 340px; height: 340px; border-radius: 50%; border: 48px solid rgba(255,255,255,0.07); box-sizing: border-box"></div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 14px; max-width: 560px">
+<h2 style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 34px; letter-spacing: -0.02em; line-height: 1.1">A Busca Agora no seu celular, <span style="color: #C6FF3D">sem baixar nada.</span></h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.55; color: #DCDFFF">Ícone na tela inicial, abre em tela cheia e seus pedidos sempre à mão.</p>
+<a class="ba-btn-lime" href="Celular-Home.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 24px; border-radius: 14px; background: #C6FF3D; color: #0A0F3D; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; text-decoration: none">Como instalar</a>
+</div>
+<div style="position: relative; width: 168px; height: 168px; border-radius: 40px; background: #0A0F3D; display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(10,15,61,.35)">
+<img src="/brand/logo-e-branco.svg" alt="Ícone do app Busca Agora" style="width: 124px; height: auto; display: block">
+</div>
+</section>
+
+<section aria-labelledby="cosmeticos" style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: .1em; color: #B0306E"><span style="width: 10px; height: 10px; border-radius: 3px; background: #FF9AC8"></span>COSMÉTICOS</span>
+<h2 id="cosmeticos" style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 34px; letter-spacing: -0.02em">Sua rotina de cuidados</h2>
+</div>
+<a href="#" style="font-weight: 700; font-size: 15px; min-height: 44px; display: inline-flex; align-items: center">Ver cosméticos →</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px">
+<sc-for list="{{cosmeticos}}" as="p" hint-placeholder-count="5">
+<a class="ba-card" href="Produto.dc.html" style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 22px; overflow: hidden; text-decoration: none; color: #0A0F3D; border: 1px solid #E3E5F2">
+<div style="position: relative; height: 210px; background: #FFF0F7; display: flex; align-items: center; justify-content: center; color: #B0306E">
+<svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"></path><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"></path></svg>
+<span style="position: absolute; left: 14px; bottom: 12px; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #B0306E; opacity: .7">FOTO DO PRODUTO</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 16px 18px 20px">
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #4A4F70"><span style="width: 8px; height: 8px; border-radius: 2px; background: #FF9AC8"></span>Cosméticos</span>
+<span class="ba-name" style="font-size: 16px; line-height: 1.35; min-height: 43px">{{p.nome}}</span>
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.02em">{{p.preco}}</span>
+<span style="font-size: 13px; color: #4A4F70">em até 12x no cartão</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+</main>
+
+<footer class="ba-foot" style="background: #0A0F3D; color: #DCDFFF">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 28px; display: flex; flex-direction: column; gap: 40px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<img src="/brand/logo-d-branco.svg" alt="Busca Agora" style="height: 32px; width: auto; align-self: flex-start">
+<p style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 18px; color: #FFFFFF">Buscou? <span style="color: #C6FF3D">Tá aqui.</span></p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; color: #FFFFFF">Institucional</span>
+<a href="#">Sobre a Busca Agora</a><a href="#">Contato</a><a href="#">Termos de uso</a><a href="#">Política de privacidade</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; color: #FFFFFF">Ajuda</span>
+<a href="#">Rastrear pedido</a><a href="#">Meus pedidos</a><a href="#">Trocas e devoluções</a><a href="#">Formas de pagamento</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; color: #FFFFFF">Pague com</span>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span style="padding: 6px 12px; border-radius: 8px; border: 1px solid #2A3070; font-size: 13px; font-weight: 700; color: #FFFFFF">Pix</span>
+<span style="padding: 6px 12px; border-radius: 8px; border: 1px solid #2A3070; font-size: 13px; font-weight: 700; color: #FFFFFF">Cartão de crédito</span>
+<span style="padding: 6px 12px; border-radius: 8px; border: 1px solid #2A3070; font-size: 13px; font-weight: 700; color: #FFFFFF">Boleto</span>
+</div>
+<span style="font-size: 13px; color: #B9BDE8">Pagamento processado com segurança pelo Mercado Pago.</span>
+</div>
+</div>
+<div style="border-top: 1px solid #1F2560; padding-top: 22px; font-size: 13px; line-height: 1.6; color: #9A9FCC">Busca Agora · [RAZÃO SOCIAL] · CNPJ [00.000.000/0000-00] · [ENDEREÇO COMPLETO] · [E-MAIL DE CONTATO]</div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2960}}'>
+class Component extends DCLogic {
+renderVals() {
+const ele = { cat: 'Eletrônicos', cor: '#7ADFFF', tile: '#E6F8FF', ink: '#08708F', ele: true, cos: false };
+const cos = { cat: 'Cosméticos', cor: '#FF9AC8', tile: '#FFF0F7', ink: '#B0306E', ele: false, cos: true };
+return {
+beneficios: [
+{ titulo: 'Pix na hora', texto: 'Pagamento aprovado em segundos', pix: true },
+{ titulo: 'Até 12x no cartão', texto: 'Com a segurança do Mercado Pago', cartao: true },
+{ titulo: 'Frete no seu CEP', texto: 'Prazo e valor antes de pagar', frete: true },
+{ titulo: 'Troca em até 7 dias', texto: 'Arrependeu? A gente resolve', troca: true }
+],
+maisBuscados: [
+Object.assign({ nome: 'Fone Bluetooth com microfone e cancelamento de ruído', preco: 'R$ 89,90' }, ele),
+Object.assign({ nome: 'Smartwatch com monitor de batimentos', preco: 'R$ 129,90' }, ele),
+Object.assign({ nome: 'Sérum facial com vitamina C 30 ml', preco: 'R$ 49,90' }, cos),
+Object.assign({ nome: 'Caixa de som portátil à prova d’água', preco: 'R$ 149,90' }, ele),
+Object.assign({ nome: 'Protetor solar facial FPS 50 com cor', preco: 'R$ 59,90' }, cos)
+],
+cosmeticos: [
+{ nome: 'Hidratante corporal 400 ml', preco: 'R$ 39,90' },
+{ nome: 'Kit skincare: limpeza, tônico e hidratante', preco: 'R$ 119,90' },
+{ nome: 'Máscara capilar de reconstrução 300 g', preco: 'R$ 44,90' },
+{ nome: 'Óleo corporal com ácido hialurônico', preco: 'R$ 54,90' },
+{ nome: 'Água micelar 200 ml', preco: 'R$ 29,90' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Busca Agora · Abertura</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Sora:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#3324F5}
+a{color:#C6FF3D}a:hover{color:#FFFFFF}
+@keyframes ba-up{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes ba-fade{from{opacity:0}to{opacity:1}}
+@keyframes ba-grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ba-ring{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.ba-logo{animation:ba-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
+.ba-slogan{animation:ba-up .8s cubic-bezier(.2,.8,.2,1) .75s both}
+.ba-sub{animation:ba-fade .8s ease 1.05s both}
+.ba-bar{transform-origin:left center;animation:ba-grow 1.4s cubic-bezier(.6,0,.2,1) .5s both}
+.ba-cta{animation:ba-up .7s cubic-bezier(.2,.8,.2,1) 1.9s both}
+.ba-ring{animation:ba-ring 1.6s cubic-bezier(.2,.8,.2,1) both}
+.ba-tag{transform-origin:left center;animation:ba-grow .7s cubic-bezier(.2,.8,.2,1) both}
+.ba-enter{transition:transform .15s ease,background .15s ease}
+.ba-enter:hover{transform:translateY(-2px);background:#D4FF6A;color:#0A0F3D}
+</style>
+</helmet>
+<div style="position: relative; overflow: hidden; height: 100vh; min-height: 640px; box-sizing: border-box; background: #3324F5; color: #FFFFFF; font-family: 'DM Sans', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px">
+<div class="ba-ring" style="position: absolute; right: -180px; top: -220px; width: 640px; height: 640px; border-radius: 50%; border: 90px solid rgba(255,255,255,0.06); box-sizing: border-box"></div>
+<div class="ba-ring" style="position: absolute; left: -260px; bottom: -320px; width: 760px; height: 760px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); box-sizing: border-box; animation-delay: .3s"></div>
+<div style="position: absolute; left: 48px; top: 44px; display: flex; gap: 8px">
+<div class="ba-tag" style="width: 44px; height: 10px; border-radius: 3px; background: #7ADFFF; animation-delay: .2s"></div>
+<div class="ba-tag" style="width: 44px; height: 10px; border-radius: 3px; background: #FF9AC8; animation-delay: .35s"></div>
+<div class="ba-tag" style="width: 44px; height: 10px; border-radius: 3px; background: #C6FF3D; animation-delay: .5s"></div>
+</div>
+<div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 36px; max-width: 760px; width: 100%; text-align: center">
+<img class="ba-logo" src="/brand/logo-d-branco.svg" alt="Busca Agora" style="width: min(600px, 86vw); height: auto; display: block">
+<h1 class="ba-slogan" style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: clamp(36px, 5vw, 64px); line-height: 1; letter-spacing: -0.03em">Buscou? <span style="color: #C6FF3D">Tá aqui.</span></h1>
+<p class="ba-sub" style="margin: 0; font-size: 20px; line-height: 1.5; color: #DCDFFF">Eletrônicos e cosméticos, do clique até a sua porta.</p>
+<div style="width: 240px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.18); overflow: hidden">
+<div class="ba-bar" style="width: 100%; height: 100%; background: #C6FF3D; border-radius: 4px"></div>
+</div>
+<a class="ba-cta ba-enter" href="Home.dc.html" style="display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 32px; border-radius: 999px; background: #C6FF3D; color: #0A0F3D; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 18px; text-decoration: none">Entrar na loja
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+</a>
+</div>
+<p class="ba-sub" style="position: absolute; bottom: 32px; left: 0; right: 0; margin: 0; text-align: center; font-size: 14px; letter-spacing: 0.08em; color: #B9BDE8">BUSCAAGORA.COM.BR</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

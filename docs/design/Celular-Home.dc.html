@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Busca Agora · Home no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Sora:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5FA}
+a{color:#3324F5}a:hover{color:#0A0F3D}
+.ba-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ba-scroll{scrollbar-width:none}
+.ba-scroll::-webkit-scrollbar{display:none}
+input::placeholder{color:#6B7094}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 2240px; overflow: hidden; background: #F4F5FA; color: #0A0F3D; font-family: 'DM Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="background: #3324F5; color: #FFFFFF; padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<a href="Celular-Abertura.dc.html" aria-label="Busca Agora, início" style="display: block"><img src="/brand/logo-d-branco.svg" alt="Busca Agora" style="height: 26px; width: auto; display: block"></a>
+<a href="Checkout.dc.html" aria-label="Carrinho com 2 itens" style="position: relative; width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.12); color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h13l-1.5 8.5a2 2 0 0 1-2 1.5H9.2a2 2 0 0 1-2-1.6L5 3H2.5"></path><circle cx="9.5" cy="20.5" r="1.2"></circle><circle cx="16.5" cy="20.5" r="1.2"></circle></svg>
+<span style="position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; border-radius: 10px; background: #C6FF3D; color: #0A0F3D; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span>
+</a>
+</div>
+<form role="search" style="display: flex; background: #FFFFFF; border-radius: 14px; overflow: hidden">
+<label for="busca-m" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Buscar na loja</label>
+<input id="busca-m" type="search" placeholder="O que você está buscando?" style="flex: 1; min-width: 0; border: 0; outline: none; padding: 0 16px; height: 48px; font-family: 'DM Sans', sans-serif; font-size: 16px; color: #0A0F3D">
+<button type="button" aria-label="Buscar" style="width: 52px; height: 48px; border: 0; background: #C6FF3D; color: #0A0F3D; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="M15.5 15.5L21 21"></path></svg></button>
+</form>
+<button type="button" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0; border: 0; background: transparent; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 14px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 0 0-14 0c0 5.5 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Enviar para <b>informe seu CEP</b> ›</button>
+</header>
+
+<nav class="ba-scroll" aria-label="Categorias" style="display: flex; gap: 8px; overflow-x: auto; padding: 16px 16px 4px">
+<a href="#" style="flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E3E5F2; color: #0A0F3D; font-size: 14px; font-weight: 700; text-decoration: none"><span style="width: 9px; height: 9px; border-radius: 3px; background: #7ADFFF"></span>Eletrônicos</a>
+<a href="#" style="flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E3E5F2; color: #0A0F3D; font-size: 14px; font-weight: 700; text-decoration: none"><span style="width: 9px; height: 9px; border-radius: 3px; background: #FF9AC8"></span>Cosméticos</a>
+<a href="#" style="flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E3E5F2; color: #0A0F3D; font-size: 14px; font-weight: 700; text-decoration: none"><span style="width: 9px; height: 9px; border-radius: 3px; background: #C6FF3D"></span>Ofertas</a>
+<a href="#" style="flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E3E5F2; color: #0A0F3D; font-size: 14px; font-weight: 700; text-decoration: none">Mais buscados</a>
+</nav>
+
+<main style="flex: 1; display: flex; flex-direction: column; gap: 24px; padding: 12px 16px 24px">
+<section style="position: relative; overflow: hidden; background: #0A0F3D; color: #FFFFFF; border-radius: 24px; padding: 28px 24px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start">
+<div style="position: absolute; right: -80px; top: -90px; width: 240px; height: 240px; border-radius: 50%; border: 40px solid #3324F5; opacity: .6; box-sizing: border-box"></div>
+<span style="position: relative; padding: 5px 12px; border-radius: 999px; background: #C6FF3D; color: #0A0F3D; font-size: 12px; font-weight: 700; letter-spacing: .06em">NOVIDADES TODA SEMANA</span>
+<h1 style="position: relative; margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.03em">Buscou?<br><span style="color: #C6FF3D">Tá aqui.</span></h1>
+<p style="position: relative; margin: 0; font-size: 15px; line-height: 1.5; color: #DCDFFF">Frete calculado no seu CEP e nota fiscal em todo pedido.</p>
+<a href="#" style="position: relative; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 14px; background: #C6FF3D; color: #0A0F3D; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; text-decoration: none">Ver ofertas</a>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<a href="#" style="min-height: 132px; border-radius: 22px; background: #7ADFFF; color: #0A0F3D; padding: 18px; box-sizing: border-box; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"></path><rect x="3" y="14" width="4" height="7" rx="1.5"></rect><rect x="17" y="14" width="4" height="7" rx="1.5"></rect></svg>
+<span style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 19px">Eletrônicos</span>
+</a>
+<a href="#" style="min-height: 132px; border-radius: 22px; background: #FF9AC8; color: #0A0F3D; padding: 18px; box-sizing: border-box; text-decoration: none; display: flex; flex-direction: column; justify-content: space-between">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="9" width="10" height="12.5" rx="3"></rect><path d="M10 9V6h4v3"></path><path d="M9.5 4h5"></path></svg>
+<span style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 19px">Cosméticos</span>
+</a>
+</section>
+
+<section class="ba-scroll" aria-label="Vantagens" style="display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 0 16px">
+<span style="flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E3E5F2; font-size: 13px; font-weight: 700"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3324F5"></span>Pix na hora</span>
+<span style="flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E3E5F2; font-size: 13px; font-weight: 700"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3324F5"></span>Até 12x no cartão</span>
+<span style="flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E3E5F2; font-size: 13px; font-weight: 700"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3324F5"></span>Troca em até 7 dias</span>
+</section>
+
+<section aria-labelledby="mb-m" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between"><h2 id="mb-m" style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 22px">Mais buscados</h2><a href="#" style="font-size: 14px; font-weight: 700">Ver todos</a></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{maisBuscados}}" as="p" hint-placeholder-count="4">
+<a href="Produto.dc.html" style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 18px; overflow: hidden; text-decoration: none; color: #0A0F3D; border: 1px solid #E3E5F2">
+<div style="height: 150px; background: {{p.tile}}; color: {{p.ink}}; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{p.ele}}" hint-placeholder-val="{{ true }}"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3"></rect><path d="M9 2.5v2.5M15 2.5v2.5M9 19v2.5M15 19v2.5M2.5 9h2.5M2.5 15h2.5M19 9h2.5M19 15h2.5"></path><rect x="9" y="9" width="6" height="6" rx="1"></rect></svg></sc-if>
+<sc-if value="{{p.cos}}" hint-placeholder-val="{{ false }}"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"></path><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"></path></svg></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 14px">
+<span class="ba-name" style="font-size: 14px; line-height: 1.35; min-height: 38px">{{p.nome}}</span>
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 19px">{{p.preco}}</span>
+<span style="font-size: 12px; color: #4A4F70">em até 12x no cartão</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section style="background: #3324F5; color: #FFFFFF; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="flex: none; width: 60px; height: 60px; border-radius: 16px; background: #0A0F3D; display: flex; align-items: center; justify-content: center"><img src="/brand/logo-e-branco.svg" alt="" style="width: 46px; height: auto"></span>
+<span style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 18px; line-height: 1.2">Coloque a Busca Agora na sua tela inicial</span>
+</div>
+<ol style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.7; color: #DCDFFF">
+<li>Toque em <b style="color: #FFFFFF">Compartilhar</b> (iPhone) ou no menu <b style="color: #FFFFFF">⋮</b> (Android)</li>
+<li>Escolha <b style="color: #FFFFFF">Adicionar à tela inicial</b></li>
+</ol>
+<button type="button" style="min-height: 48px; border-radius: 14px; border: 0; background: #C6FF3D; color: #0A0F3D; font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px">Instalar agora</button>
+</section>
+
+<section aria-labelledby="cos-m" style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between"><h2 id="cos-m" style="margin: 0; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 22px">Cosméticos</h2><a href="#" style="font-size: 14px; font-weight: 700">Ver todos</a></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{cosmeticos}}" as="p" hint-placeholder-count="2">
+<a href="Produto.dc.html" style="display: flex; flex-direction: column; background: #FFFFFF; border-radius: 18px; overflow: hidden; text-decoration: none; color: #0A0F3D; border: 1px solid #E3E5F2">
+<div style="height: 150px; background: #FFF0F7; color: #B0306E; display: flex; align-items: center; justify-content: center"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"></path><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"></path></svg></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 14px">
+<span class="ba-name" style="font-size: 14px; line-height: 1.35; min-height: 38px">{{p.nome}}</span>
+<span style="font-family: 'Sora', sans-serif; font-weight: 700; font-size: 19px">{{p.preco}}</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+
+<p style="margin: 8px 0 0; font-size: 12px; line-height: 1.6; color: #4A4F70; text-align: center">Busca Agora · CNPJ [00.000.000/0000-00]<br><a href="#">Termos</a> · <a href="#">Privacidade</a> · <a href="#">Trocas</a></p>
+</main>
+
+<nav aria-label="Navegação principal" style="flex: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E3E5F2; padding: 8px 4px 22px">
+<a href="Celular-Home.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 700; color: #3324F5; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5L12 3.5l8.5 7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"></path></svg>Início</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #4A4F70; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="2"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="2"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="2"></rect></svg>Categorias</a>
+<a href="Checkout.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #4A4F70; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h13l-1.5 8.5a2 2 0 0 1-2 1.5H9.2a2 2 0 0 1-2-1.6L5 3H2.5"></path><circle cx="9.5" cy="20.5" r="1.2"></circle><circle cx="16.5" cy="20.5" r="1.2"></circle></svg>Carrinho</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #4A4F70; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"></path><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"></path></svg>Pedidos</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #4A4F70; text-decoration: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Conta</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2240}}'>
+class Component extends DCLogic {
+renderVals() {
+const ele = { tile: '#E6F8FF', ink: '#08708F', ele: true, cos: false };
+const cos = { tile: '#FFF0F7', ink: '#B0306E', ele: false, cos: true };
+return {
+maisBuscados: [
+Object.assign({ nome: 'Fone Bluetooth com microfone', preco: 'R$ 89,90' }, ele),
+Object.assign({ nome: 'Smartwatch com monitor de batimentos', preco: 'R$ 129,90' }, ele),
+Object.assign({ nome: 'Sérum facial com vitamina C 30 ml', preco: 'R$ 49,90' }, cos),
+Object.assign({ nome: 'Caixa de som portátil à prova d’água', preco: 'R$ 149,90' }, ele)
+],
+cosmeticos: [
+{ nome: 'Protetor solar facial FPS 50', preco: 'R$ 59,90' },
+{ nome: 'Hidratante corporal 400 ml', preco: 'R$ 39,90' }
+]
+};
+}
+}
+</script>
+</body>
+</html>
