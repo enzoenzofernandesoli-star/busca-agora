@@ -37,7 +37,7 @@ test.describe("acessibilidade do layout", () => {
   }) => {
     await page.goto("/");
     const busca = page
-      .getByRole("searchbox", { name: "Buscar na loja" })
+      .getByRole("combobox", { name: "Buscar na loja" })
       .locator("visible=true");
     const form = page.getByRole("search").locator("visible=true");
 

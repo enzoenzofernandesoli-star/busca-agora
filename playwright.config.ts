@@ -9,9 +9,28 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
+  // Seeds the local Supabase with the 6 sample products (idempotent).
+  globalSetup: "./tests/e2e/global-setup.ts",
   use: {
     baseURL,
     trace: "on-first-retry",
+    // Returning visitor by default: the opening animation only plays on the
+    // first visit and has its own test (vitrine.spec.ts).
+    storageState: {
+      cookies: [
+        {
+          name: "ba_visto",
+          value: "1",
+          domain: "localhost",
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: false,
+          sameSite: "Lax",
+        },
+      ],
+      origins: [],
+    },
   },
   projects: [
     {
