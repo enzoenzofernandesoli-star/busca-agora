@@ -3,8 +3,9 @@ import Link from "next/link";
 import { CartButton } from "@/components/loja/cart-button";
 import { CategoryNav } from "@/components/loja/category-nav";
 import { CepButton } from "@/components/loja/cep-button";
-import { PhoneIcon, UserIcon } from "@/components/loja/icons";
+import { PhoneIcon } from "@/components/loja/icons";
 import { LogoD } from "@/components/loja/logo";
+import { AccountLink } from "@/components/loja/account-link";
 import { SearchForm } from "@/components/loja/search-form";
 import { CategoryChip } from "@/components/loja/category-chip";
 import { navCategories } from "@/lib/site";
@@ -32,16 +33,7 @@ function HeaderDesktop({ cartCount }: HeaderProps) {
           className="flex-[1_1_420px]"
         />
         <nav aria-label="Conta" className="flex flex-none items-center gap-7">
-          <Link
-            href="/entrar"
-            className="flex min-h-11 items-center gap-2.5 text-white no-underline hover:text-white"
-          >
-            <UserIcon size={26} />
-            <span className="flex flex-col leading-[1.2]">
-              <span className="text-xs text-lavanda">Olá, faça seu</span>
-              <span className="text-[15px] font-bold">login</span>
-            </span>
-          </Link>
+          <AccountLink />
           <Link
             href="/conta/pedidos"
             className="flex min-h-11 flex-col justify-center leading-[1.2] text-white no-underline hover:text-white"
