@@ -20,7 +20,9 @@ export function CategoryChip({
     <Link
       href={href}
       className={cn(
-        "inline-flex min-h-10 flex-none items-center gap-2 rounded-full border border-borda bg-white px-3.5 text-sm font-bold text-noite no-underline hover:border-ultramar hover:text-noite",
+        // 40px visual (design); ::before is laid out from the padding box (38px
+        // inside the 1px border), so 3px above/below gives a 44px touch target
+        "relative inline-flex min-h-10 flex-none items-center gap-2 rounded-full border border-borda bg-white px-3.5 text-sm font-bold text-noite no-underline before:absolute before:inset-x-0 before:-inset-y-[3px] hover:border-ultramar hover:text-noite",
         className,
       )}
     >

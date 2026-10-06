@@ -16,7 +16,8 @@ export function CepButton({ variant, cep }: CepButtonProps) {
       className={cn(
         "inline-flex cursor-pointer items-center bg-transparent font-sans text-sm text-white",
         desktop
-          ? "min-h-10 gap-2 rounded-[10px] border border-white/28 pr-3.5 pl-2.5 hover:bg-white/10"
+          ? // 40px visual (design); 3px hit area above/below the 38px padding box = 44px
+            "relative min-h-10 gap-2 rounded-[10px] border border-white/28 pr-3.5 pl-2.5 before:absolute before:inset-x-0 before:-inset-y-[3px] hover:bg-white/10"
           : "min-h-11 gap-1.5 self-start border-0 p-0",
       )}
     >

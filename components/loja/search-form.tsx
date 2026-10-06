@@ -22,7 +22,8 @@ export function SearchForm({
       action="/busca"
       method="get"
       className={cn(
-        "flex min-w-0 overflow-hidden rounded-[14px] bg-white",
+        // The input hides its own outline; the form shows the focus ring instead.
+        "flex min-w-0 overflow-hidden rounded-[14px] bg-white has-[input:focus-visible]:outline-3 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-lima has-[input:focus-visible]:outline-solid",
         desktop && "shadow-[0_2px_0_rgba(10,15,61,.15)]",
         className,
       )}

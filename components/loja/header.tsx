@@ -21,7 +21,7 @@ function HeaderDesktop({ cartCount }: HeaderProps) {
         <Link
           href="/"
           aria-label="Busca Agora, página inicial"
-          className="block flex-none"
+          className="flex min-h-11 flex-none items-center"
         >
           <LogoD height={38} priority />
         </Link>
@@ -72,7 +72,11 @@ function HeaderMobile({ cartCount }: HeaderProps) {
   return (
     <div className="flex flex-col gap-3.5 px-4 pt-[18px] pb-4 md:hidden">
       <div className="flex items-center justify-between">
-        <Link href="/" aria-label="Busca Agora, início" className="block">
+        <Link
+          href="/"
+          aria-label="Busca Agora, início"
+          className="flex min-h-11 items-center"
+        >
           <LogoD height={26} priority />
         </Link>
         <CartButton count={cartCount} variant="mobile" />

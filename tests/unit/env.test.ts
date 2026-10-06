@@ -60,6 +60,24 @@ describe("parseServerEnv", () => {
   });
 });
 
+describe("SENTRY_DSN", () => {
+  it("is optional", () => {
+    expect(parseServerEnv(minimum).SENTRY_DSN).toBeUndefined();
+  });
+
+  it("must be a URL when set", () => {
+    expect(() =>
+      parseServerEnv({ ...minimum, SENTRY_DSN: "nao-e-url" }),
+    ).toThrow(/SENTRY_DSN/);
+    expect(
+      parseServerEnv({
+        ...minimum,
+        SENTRY_DSN: "https://chave-falsa@o0.ingest.sentry.io/0",
+      }).SENTRY_DSN,
+    ).toBeDefined();
+  });
+});
+
 describe("requireEnv", () => {
   it("returns the value when set", () => {
     const requireEnv = createRequireEnv(

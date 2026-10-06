@@ -10,7 +10,7 @@ export default function LojaLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="flex min-h-dvh flex-col pb-[calc(78px+env(safe-area-inset-bottom))] md:pb-0">
+    <div className="flex min-h-dvh flex-col pb-[calc(56px+max(22px,env(safe-area-inset-bottom)))] md:pb-0">
       <TopBar />
       <Header cartCount={CART_COUNT} />
       <MobileCategoryChips />

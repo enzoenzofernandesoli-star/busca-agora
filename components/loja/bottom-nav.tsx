@@ -53,7 +53,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-borda bg-white px-1 pt-2 pb-[max(14px,env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-borda bg-white px-1 pt-2 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
     >
       {items.map(({ label, href, Icon, match }) => {
         const active = match(pathname);

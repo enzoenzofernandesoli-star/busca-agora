@@ -61,7 +61,11 @@ export const serverEnvSchema = publicEnvSchema.extend({
   RESEND_API_KEY: optionalString,
   TELEGRAM_BOT_TOKEN: optionalString,
   TELEGRAM_CHAT_ID: optionalString,
-  SENTRY_DSN: optionalString,
+  // Optional by decision (Sentry stays off without it), but must be a URL when set.
+  SENTRY_DSN: z.preprocess(
+    emptyToUndefined,
+    z.url({ error: "precisa ser uma URL válida (DSN do Sentry)" }).optional(),
+  ),
   CRON_SECRET: optionalString,
 });
 
