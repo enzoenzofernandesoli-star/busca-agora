@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execSync } from "node:child_process";
 
 import type { TestProject } from "vitest/node";
 
@@ -10,9 +10,8 @@ import type { TestProject } from "vitest/node";
 export default function setup(project: TestProject) {
   let output: string;
   try {
-    output = execFileSync("npx", ["supabase", "status", "-o", "json"], {
+    output = execSync("npx supabase status -o json", {
       encoding: "utf8",
-      shell: process.platform === "win32",
       stdio: ["ignore", "pipe", "pipe"],
     });
   } catch {
