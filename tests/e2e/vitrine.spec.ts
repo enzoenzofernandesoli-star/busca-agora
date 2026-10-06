@@ -93,6 +93,17 @@ test.describe("vitrine", () => {
     expect(jsonLd).toContain('"price":"89.90"');
   });
 
+  test("página além da última volta para a última página", async ({ page }) => {
+    await page.goto("/c/eletronicos?pagina=99");
+    // Lands on the last page that exists (page 1 has no ?pagina); how many
+    // pages depends on the rows other test suites left in the local DB.
+    await expect(page).toHaveURL(/\/c\/eletronicos(\?pagina=[1-9]\d?)?$/);
+    await expect(
+      page.getByText("0 produtos encontrados", { exact: true }),
+    ).toHaveCount(0);
+    await expect(page.locator("main ul li").first()).toBeVisible();
+  });
+
   test("404 com a marca para URL e produto inexistentes", async ({ page }) => {
     for (const url of ["/nao-existe", "/p/nao-existe", "/c/roupas"]) {
       const res = await page.goto(url);
