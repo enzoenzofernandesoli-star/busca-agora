@@ -922,6 +922,7 @@ export type Database = {
     };
     Functions: {
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
+      delete_address: { Args: { p_address_id: string }; Returns: undefined };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
       hit_rate_limit: {
@@ -940,6 +941,20 @@ export type Database = {
       prefix_tsquery: { Args: { p_text: string }; Returns: unknown };
       reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
       restore_stock: { Args: { p_order_id: string }; Returns: undefined };
+      save_address: {
+        Args: {
+          p_address_id?: string;
+          p_bairro: string;
+          p_cep: string;
+          p_cidade: string;
+          p_complemento?: string;
+          p_numero: string;
+          p_principal: boolean;
+          p_rua: string;
+          p_uf: string;
+        };
+        Returns: string;
+      };
       search_products: {
         Args: {
           p_categoria?: string;
@@ -971,6 +986,7 @@ export type Database = {
           total: number;
         }[];
       };
+      set_main_address: { Args: { p_address_id: string }; Returns: undefined };
       set_order_status: {
         Args: {
           p_detalhe?: Json;

@@ -109,7 +109,7 @@ export async function saveAddress(
   _state: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  const user = await requireUser("/conta/enderecos");
+  await requireUser("/conta/enderecos");
   const parsed = addressSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return {
@@ -119,35 +119,29 @@ export async function saveAddress(
     };
   }
   const { id, principal, ...campos } = parsed.data;
+
+  // One database transaction (save_address): the main address only moves
+  // after the target is confirmed to exist and belong to this customer.
   const supabase = await createClient();
-
-  // The first address is always the main one.
-  const { count } = await supabase
-    .from("addresses")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
-  const virarPrincipal = principal || (count ?? 0) === 0;
-
-  // Only one main address (unique index): unset the others first.
-  if (virarPrincipal) {
-    const unset = await supabase
-      .from("addresses")
-      .update({ principal: false })
-      .eq("user_id", user.id)
-      .eq("principal", true);
-    if (unset.error) return GENERIC_ERROR;
+  const { error } = await supabase.rpc("save_address", {
+    p_address_id: id,
+    p_cep: campos.cep,
+    p_rua: campos.rua,
+    p_numero: campos.numero,
+    p_complemento: campos.complemento,
+    p_bairro: campos.bairro,
+    p_cidade: campos.cidade,
+    p_uf: campos.uf,
+    p_principal: principal,
+  });
+  if (error) {
+    return error.message === "address_not_found"
+      ? {
+          ok: false,
+          message: "Esse endereço não existe mais. Atualize a página.",
+        }
+      : { ...GENERIC_ERROR, values: echoValues(formData) };
   }
-
-  const row = {
-    ...campos,
-    complemento: campos.complemento ?? null,
-    principal: virarPrincipal,
-    user_id: user.id,
-  };
-  const { error } = id
-    ? await supabase.from("addresses").update(row).eq("id", id)
-    : await supabase.from("addresses").insert(row);
-  if (error) return GENERIC_ERROR;
 
   revalidatePath("/conta/enderecos");
   return { ok: true, message: "Endereço salvo." };
@@ -155,52 +149,29 @@ export async function saveAddress(
 
 const idSchema = z.object({ id: z.uuid() });
 
-export async function deleteAddress(formData: FormData): Promise<void> {
-  const user = await requireUser("/conta/enderecos");
+// Plain form actions (no state). "address_not_found" only means a stale
+// page, which the revalidated list fixes; anything else is a real error.
+async function addressRpc(
+  fn: "delete_address" | "set_main_address",
+  formData: FormData,
+): Promise<void> {
+  await requireUser("/conta/enderecos");
   const parsed = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return;
   const supabase = await createClient();
-  const { data: removido } = await supabase
-    .from("addresses")
-    .delete()
-    .eq("id", parsed.data.id)
-    .select("principal")
-    .maybeSingle();
-
-  // Keep one main address when the main one is deleted.
-  if (removido?.principal) {
-    const { data: outro } = await supabase
-      .from("addresses")
-      .select("id")
-      .eq("user_id", user.id)
-      .order("created_at")
-      .limit(1)
-      .maybeSingle();
-    if (outro) {
-      await supabase
-        .from("addresses")
-        .update({ principal: true })
-        .eq("id", outro.id);
-    }
+  const { error } = await supabase.rpc(fn, { p_address_id: parsed.data.id });
+  if (error && error.message !== "address_not_found") {
+    throw new Error(`${fn}: ${error.message}`);
   }
   revalidatePath("/conta/enderecos");
 }
 
+export async function deleteAddress(formData: FormData): Promise<void> {
+  await addressRpc("delete_address", formData);
+}
+
 export async function setMainAddress(formData: FormData): Promise<void> {
-  const user = await requireUser("/conta/enderecos");
-  const parsed = idSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return;
-  const supabase = await createClient();
-  await supabase
-    .from("addresses")
-    .update({ principal: false })
-    .eq("user_id", user.id)
-    .eq("principal", true);
-  await supabase
-    .from("addresses")
-    .update({ principal: true })
-    .eq("id", parsed.data.id);
-  revalidatePath("/conta/enderecos");
+  await addressRpc("set_main_address", formData);
 }
 
 export async function deleteAccount(
