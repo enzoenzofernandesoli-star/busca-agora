@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { CatalogResults } from "@/components/loja/catalog-results";
-import { parseFilters } from "@/lib/catalog/filters";
+import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
 
 export async function generateMetadata(
@@ -22,6 +23,9 @@ export default async function BuscaPage(props: PageProps<"/busca">) {
     searchCatalog(filters),
     getBrands(),
   ]);
+  if (result.foraDoIntervalo) {
+    redirect(filtersHref("/busca", filters, { pagina: result.paginas }));
+  }
 
   return (
     <>

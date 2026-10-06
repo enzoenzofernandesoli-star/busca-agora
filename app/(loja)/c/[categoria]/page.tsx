@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { CatalogResults } from "@/components/loja/catalog-results";
-import { parseFilters } from "@/lib/catalog/filters";
+import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
 import { categoryStyles, type CategorySlug } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,11 @@ export default async function CategoriaPage(
     searchCatalog(filters, categoria),
     getBrands(categoria),
   ]);
+  if (result.foraDoIntervalo) {
+    redirect(
+      filtersHref(`/c/${categoria}`, filters, { pagina: result.paginas }),
+    );
+  }
   const cat = categoryStyles[categoria];
 
   return (

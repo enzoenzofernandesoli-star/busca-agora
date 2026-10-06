@@ -134,30 +134,55 @@ export type SearchResult = {
   produtos: ProductSummary[];
   total: number;
   paginas: number;
+  /**
+   * The requested page is past the last one (old shared link, catalog
+   * shrank). Pages redirect to the last valid page instead of showing
+   * "0 produtos".
+   */
+  foraDoIntervalo: boolean;
 };
 
 export async function searchCatalog(
   filters: CatalogFilters,
   categoria?: CategorySlug,
 ): Promise<SearchResult> {
-  const { data, error } = await catalogClient().rpc("search_products", {
+  const supabase = catalogClient();
+  const params = {
     p_q: filters.q,
     p_categoria: categoria,
     p_marca: filters.marca,
     p_preco_min: filters.minCents,
     p_preco_max: filters.maxCents,
     p_ordem: filters.ordem,
-    p_pagina: filters.pagina,
     p_por_pagina: PAGE_SIZE,
     p_filtro: filters.filtro,
+  };
+  const { data, error } = await supabase.rpc("search_products", {
+    ...params,
+    p_pagina: filters.pagina,
   });
   if (error) fail("search", error);
   const rows = data ?? [];
-  const total = Number(rows[0]?.total ?? 0);
+
+  let total = Number(rows[0]?.total ?? 0);
+  // The total travels on each row (count(*) over ()), so an empty page past
+  // the end says nothing about it: ask for the first row to learn it.
+  if (rows.length === 0 && filters.pagina > 1) {
+    const first = await supabase.rpc("search_products", {
+      ...params,
+      p_pagina: 1,
+      p_por_pagina: 1,
+    });
+    if (first.error) fail("search total", first.error);
+    total = Number(first.data?.[0]?.total ?? 0);
+  }
+
+  const paginas = Math.max(1, Math.ceil(total / PAGE_SIZE));
   return {
     produtos: toSummaries(rows),
     total,
-    paginas: Math.max(1, Math.ceil(total / PAGE_SIZE)),
+    paginas,
+    foraDoIntervalo: rows.length === 0 && total > 0 && filters.pagina > paginas,
   };
 }
 
