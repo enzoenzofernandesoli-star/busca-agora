@@ -921,6 +921,23 @@ export type Database = {
       };
     };
     Functions: {
+      cart_add: {
+        Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
+        Returns: number;
+      };
+      cart_max_quantity: { Args: { p_variant_id: string }; Returns: number };
+      cart_merge: {
+        Args: { p_session_id: string; p_user_id: string };
+        Returns: undefined;
+      };
+      cart_resolve: {
+        Args: { p_session_id?: string; p_user_id?: string };
+        Returns: string;
+      };
+      cart_set_quantity: {
+        Args: { p_cart_id: string; p_item_id: string; p_quantidade: number };
+        Returns: number;
+      };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
       f_unaccent: { Args: { "": string }; Returns: string };
