@@ -122,7 +122,9 @@ create function public.search_products(
   p_preco_max integer default null,
   p_ordem text default 'relevancia',
   p_pagina integer default 1,
-  p_por_pagina integer default 24
+  p_por_pagina integer default 24,
+  -- 'ofertas' (has a crossed-out price) or 'mais-buscados' (featured)
+  p_filtro text default null
 )
 returns table (
   id uuid,
@@ -165,6 +167,8 @@ as $$
       and (p_marca is null or l.marca_slug = p_marca)
       and (p_preco_min is null or l.preco_cents >= p_preco_min)
       and (p_preco_max is null or l.preco_cents <= p_preco_max)
+      and (p_filtro is distinct from 'ofertas' or l.preco_de_cents > l.preco_cents)
+      and (p_filtro is distinct from 'mais-buscados' or l.destaque)
   )
   select
     b.id, b.slug, b.nome, b.destaque, b.created_at,
@@ -204,6 +208,15 @@ $$;
 
 grant execute on function public.f_unaccent(text) to anon, authenticated, service_role;
 grant execute on function public.prefix_tsquery(text) to anon, authenticated, service_role;
-grant execute on function public.search_products(text, text, text, integer, integer, text, integer, integer)
+grant execute on function public.search_products(text, text, text, integer, integer, text, integer, integer, text)
   to anon, authenticated, service_role;
 grant execute on function public.suggest_products(text) to anon, authenticated, service_role;
+
+-- Variants keep the order they were registered in (e.g. Preto, Branco, Azul):
+-- expose created_at in the public view (columns can only be appended).
+create or replace view public.product_variants_public
+with (security_invoker = on) as
+  select
+    id, product_id, sku, nome, preco_cents, preco_de_cents, estoque, peso_g,
+    altura_cm, largura_cm, comprimento_cm, ean, created_at
+  from public.product_variants;

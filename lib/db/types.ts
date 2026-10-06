@@ -842,6 +842,7 @@ export type Database = {
         Row: {
           altura_cm: number | null;
           comprimento_cm: number | null;
+          created_at: string | null;
           ean: string | null;
           estoque: number | null;
           id: string | null;
@@ -856,6 +857,7 @@ export type Database = {
         Insert: {
           altura_cm?: number | null;
           comprimento_cm?: number | null;
+          created_at?: string | null;
           ean?: string | null;
           estoque?: number | null;
           id?: string | null;
@@ -870,6 +872,7 @@ export type Database = {
         Update: {
           altura_cm?: number | null;
           comprimento_cm?: number | null;
+          created_at?: string | null;
           ean?: string | null;
           estoque?: number | null;
           id?: string | null;
@@ -917,6 +920,7 @@ export type Database = {
       search_products: {
         Args: {
           p_categoria?: string;
+          p_filtro?: string;
           p_marca?: string;
           p_ordem?: string;
           p_pagina?: number;
