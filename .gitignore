@@ -17,3 +17,10 @@ test-results/
 Thumbs.db
 *.log
 .vercel
+
+# next.js / typescript
+*.tsbuildinfo
+next-env.d.ts
+*.pem
+.pnp.*
+npm-debug.log*
