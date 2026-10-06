@@ -529,6 +529,13 @@ export type Database = {
             foreignKeyName: "product_images_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_images_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
             referencedRelation: "products";
             referencedColumns: ["id"];
           },
@@ -591,6 +598,13 @@ export type Database = {
             foreignKeyName: "product_variants_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_variants_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
             referencedRelation: "products";
             referencedColumns: ["id"];
           },
@@ -600,6 +614,7 @@ export type Database = {
         Row: {
           ativo: boolean;
           brand_id: string | null;
+          busca: unknown;
           category_id: string;
           cfop: string;
           created_at: string;
@@ -615,6 +630,7 @@ export type Database = {
         Insert: {
           ativo?: boolean;
           brand_id?: string | null;
+          busca?: never;
           category_id: string;
           cfop?: string;
           created_at?: string;
@@ -630,6 +646,7 @@ export type Database = {
         Update: {
           ativo?: boolean;
           brand_id?: string | null;
+          busca?: never;
           category_id?: string;
           cfop?: string;
           created_at?: string;
@@ -801,6 +818,26 @@ export type Database = {
       };
     };
     Views: {
+      product_listing: {
+        Row: {
+          categoria_nome: string | null;
+          categoria_slug: string | null;
+          created_at: string | null;
+          destaque: boolean | null;
+          estoque: number | null;
+          id: string | null;
+          imagem_alt: string | null;
+          imagem_url: string | null;
+          marca_nome: string | null;
+          marca_slug: string | null;
+          nome: string | null;
+          preco_cents: number | null;
+          preco_de_cents: number | null;
+          preco_max_cents: number | null;
+          slug: string | null;
+        };
+        Relationships: [];
+      };
       product_variants_public: {
         Row: {
           altura_cm: number | null;
@@ -849,6 +886,13 @@ export type Database = {
             foreignKeyName: "product_variants_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_variants_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
             referencedRelation: "products";
             referencedColumns: ["id"];
           },
@@ -856,6 +900,7 @@ export type Database = {
       };
     };
     Functions: {
+      f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       next_order_number: { Args: Record<PropertyKey, never>; Returns: string };
@@ -866,8 +911,39 @@ export type Database = {
         };
         Returns: boolean;
       };
+      prefix_tsquery: { Args: { p_text: string }; Returns: unknown };
       reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
       restore_stock: { Args: { p_order_id: string }; Returns: undefined };
+      search_products: {
+        Args: {
+          p_categoria?: string;
+          p_marca?: string;
+          p_ordem?: string;
+          p_pagina?: number;
+          p_por_pagina?: number;
+          p_preco_max?: number;
+          p_preco_min?: number;
+          p_q?: string;
+        };
+        Returns: {
+          categoria_nome: string;
+          categoria_slug: string;
+          created_at: string;
+          destaque: boolean;
+          estoque: number;
+          id: string;
+          imagem_alt: string;
+          imagem_url: string;
+          marca_nome: string;
+          marca_slug: string;
+          nome: string;
+          preco_cents: number;
+          preco_de_cents: number;
+          preco_max_cents: number;
+          slug: string;
+          total: number;
+        }[];
+      };
       set_order_status: {
         Args: {
           p_detalhe?: Json;
@@ -875,6 +951,14 @@ export type Database = {
           p_status: Database["public"]["Enums"]["order_status"];
         };
         Returns: undefined;
+      };
+      suggest_products: {
+        Args: { p_q: string };
+        Returns: {
+          categoria_slug: string;
+          nome: string;
+          slug: string;
+        }[];
       };
     };
     Enums: {
