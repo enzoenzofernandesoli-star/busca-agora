@@ -99,15 +99,23 @@ export async function createVariant(opts: {
   return { productId: product.id, variantId: variant.id };
 }
 
-/** pending_payment order with one item, created as the server would. */
+/**
+ * pending_payment order, created as the server would. One item by default;
+ * pass `items` for several, or an empty list for none.
+ */
 export async function createOrder(opts: {
   userId: string | null;
-  variantId: string;
+  variantId?: string;
   quantidade?: number;
+  items?: { variantId: string; quantidade: number }[];
 }): Promise<{ id: string; numero: string }> {
   const admin = serviceClient();
-  const quantidade = opts.quantidade ?? 1;
-  const subtotal = 8990 * quantidade;
+  const items =
+    opts.items ??
+    (opts.variantId
+      ? [{ variantId: opts.variantId, quantidade: opts.quantidade ?? 1 }]
+      : []);
+  const subtotal = items.reduce((sum, item) => sum + 8990 * item.quantidade, 0);
 
   const { data: order, error } = await admin
     .from("orders")
@@ -125,17 +133,35 @@ export async function createOrder(opts: {
     .single();
   if (error) throw error;
 
-  const { error: itemError } = await admin.from("order_items").insert({
-    order_id: order.id,
-    variant_id: opts.variantId,
-    nome: "Produto de teste",
-    sku: "SKU",
-    ncm: "85171231",
-    preco_cents: 8990,
-    quantidade,
-  });
-  if (itemError) throw itemError;
+  if (items.length > 0) {
+    const { error: itemError } = await admin.from("order_items").insert(
+      items.map((item) => ({
+        order_id: order.id,
+        variant_id: item.variantId,
+        nome: "Produto de teste",
+        sku: "SKU",
+        ncm: "85171231",
+        preco_cents: 8990,
+        quantidade: item.quantidade,
+      })),
+    );
+    if (itemError) throw itemError;
+  }
 
+  return order;
+}
+
+/** Order with its stock already reserved. */
+export async function createReservedOrder(opts: {
+  userId: string | null;
+  variantId: string;
+  quantidade?: number;
+}): Promise<{ id: string; numero: string }> {
+  const order = await createOrder(opts);
+  const { error } = await serviceClient().rpc("reserve_stock", {
+    p_order_id: order.id,
+  });
+  if (error) throw error;
   return order;
 }
 

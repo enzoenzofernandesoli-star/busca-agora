@@ -856,7 +856,9 @@ export type Database = {
       };
     };
     Functions: {
+      format_order_number: { Args: { p_n: number }; Returns: string };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      next_order_number: { Args: Record<PropertyKey, never>; Returns: string };
       order_transition_allowed: {
         Args: {
           p_from: Database["public"]["Enums"]["order_status"];
