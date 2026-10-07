@@ -18,6 +18,10 @@ const LIMITS = {
   "recuperar:email": { max: 3, janelaSegundos: 60 * 60 },
   // Shipping quotes call a paid third-party API.
   "frete:ip": { max: 40, janelaSegundos: 5 * 60 },
+  // Public tracking: guessing someone else's order number + e-mail.
+  "rastreio:ip": { max: 10, janelaSegundos: 15 * 60 },
+  "rastreio:pedido": { max: 5, janelaSegundos: 15 * 60 },
+  "devolucao:usuario": { max: 5, janelaSegundos: 60 * 60 },
 } as const;
 
 export type RateLimitKind = keyof typeof LIMITS;

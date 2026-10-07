@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
+import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/loja/empty-state";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/db/server";
@@ -15,7 +17,6 @@ const dataBR = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Sao_Paulo",
 });
 
-// Simple list for now; order detail and tracking arrive in phase 7.
 export default async function PedidosPage() {
   const user = await requireUser("/conta/pedidos");
   const supabase = await createClient();
@@ -41,19 +42,24 @@ export default async function PedidosPage() {
       ) : (
         <ul className="m-0 flex list-none flex-col gap-3 p-0">
           {pedidos.map((p) => (
-            <li
-              key={p.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-borda bg-white p-5"
-            >
-              <span className="flex flex-col">
-                <b className="font-display">{p.numero}</b>
-                <span className="text-sm text-texto-2">
-                  {dataBR.format(new Date(p.created_at))}
+            <li key={p.id}>
+              <Link
+                href={`/conta/pedidos/${p.numero}`}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-borda bg-white p-5 text-noite no-underline hover:border-ultramar"
+              >
+                <span className="flex flex-col gap-1">
+                  <b className="font-display">{p.numero}</b>
+                  <span className="text-sm text-texto-2">
+                    {dataBR.format(new Date(p.created_at))}
+                  </span>
                 </span>
-              </span>
-              <span className="font-display font-bold">
-                {formatBRL(p.total_cents)}
-              </span>
+                <span className="flex items-center gap-3">
+                  <StatusBadge status={p.status} />
+                  <span className="font-display font-bold">
+                    {formatBRL(p.total_cents)}
+                  </span>
+                </span>
+              </Link>
             </li>
           ))}
         </ul>
