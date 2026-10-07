@@ -18,7 +18,7 @@ export default function PedidoRecebido(props: PedidoRecebidoProps) {
   const text = {
     pix: "Pague o Pix em até 30 minutos para garantir seus produtos. Se o prazo passar, o pedido é cancelado e nada é cobrado.",
     boleto:
-      "Pague o boleto em até 3 dias úteis. A compensação leva até 2 dias úteis.",
+      "Pague o boleto em até 3 dias. Depois disso o pedido é cancelado e nada é cobrado. A compensação leva até 2 dias úteis.",
     card: "Estamos confirmando o pagamento com o cartão. Você recebe outro e-mail assim que for aprovado.",
   };
   return (

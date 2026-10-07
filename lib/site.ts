@@ -1,5 +1,5 @@
 // Static store config for phase 0. Categories move to the `categories` table
-// (phase 1) and legal data to `settings` (phase 9).
+// (phase 1); legal data lives in `settings` (lib/store-info.ts, phase 9).
 
 export type CategorySlug = "eletronicos" | "cosmeticos";
 
@@ -27,14 +27,6 @@ export const navCategories: { label: string; href: string; cor?: string }[] = [
   { label: "Ofertas", href: "/busca?filtro=ofertas", cor: "bg-lima" },
   { label: "Mais buscados", href: "/busca?filtro=mais-buscados" },
 ];
-
-export const legal = {
-  marca: "Busca Agora",
-  razaoSocial: "[RAZÃO SOCIAL]",
-  cnpj: "[00.000.000/0000-00]",
-  endereco: "[ENDEREÇO COMPLETO]",
-  email: "[E-MAIL DE CONTATO]",
-};
 
 /** Set by proxy.ts on the Home when the visitor has no ba_visto cookie. */
 export const FIRST_VISIT_HEADER = "x-ba-primeira-visita";

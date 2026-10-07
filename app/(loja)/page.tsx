@@ -17,6 +17,7 @@ import {
 import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
+import { InstallCard } from "@/components/pwa/install-card";
 import {
   getActiveBanners,
   getHomeShowcase,
@@ -279,9 +280,20 @@ function ProductGrid({
 
 function InstallApp() {
   return (
+    <>
+      {/* Phone: knows the platform (native button on Android, steps on
+          iPhone) and hides once installed. Desktop keeps the design block. */}
+      <InstallCard className="md:hidden" />
+      <InstallAppDesktop />
+    </>
+  );
+}
+
+function InstallAppDesktop() {
+  return (
     <section
       aria-labelledby="instalar"
-      className="relative flex flex-col gap-3.5 overflow-hidden rounded-3xl bg-ultramar p-[22px] text-white md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-8 md:rounded-[28px] md:px-14 md:py-11"
+      className="relative hidden flex-col gap-3.5 overflow-hidden rounded-3xl bg-ultramar p-[22px] text-white md:flex md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-8 md:rounded-[28px] md:px-14 md:py-11"
     >
       <div
         aria-hidden="true"
