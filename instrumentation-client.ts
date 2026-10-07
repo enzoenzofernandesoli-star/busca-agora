@@ -1,15 +1,21 @@
-import * as Sentry from "@sentry/nextjs";
-
 import { sentryBaseOptions } from "./sentry.shared";
+
+type SentryModule = typeof import("@sentry/nextjs");
 
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-// No DSN: Sentry stays off, without errors or warnings.
+// Loaded after the page is interactive and only when a DSN exists: the SDK
+// is the largest script of the store and must not delay the first paint.
+let sentry: SentryModule | undefined;
 if (dsn) {
-  Sentry.init({
-    ...sentryBaseOptions,
-    dsn,
+  void import("@sentry/nextjs").then((mod) => {
+    mod.init({ ...sentryBaseOptions, dsn });
+    sentry = mod;
   });
 }
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export function onRouterTransitionStart(
+  ...args: Parameters<SentryModule["captureRouterTransitionStart"]>
+) {
+  sentry?.captureRouterTransitionStart(...args);
+}

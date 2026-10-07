@@ -5,33 +5,19 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { UserIcon } from "@/components/loja/icons";
-import { createClient } from "@/lib/db/client";
+import { firstNameFromCookies } from "@/lib/auth/session-cookie";
 
-// Header greeting. Read in the browser (session cookie, no network call) so
-// the store pages stay cacheable for everyone. Display only: account pages
-// check the session on the server.
+// Header greeting, read from the session cookie in the browser so the store
+// pages stay cacheable for everyone. Display only: account pages check the
+// session on the server.
 export function AccountLink() {
   const [nome, setNome] = useState<string | null>(null);
-  // Login and logout happen on the server (actions + redirect), which the
-  // browser client does not hear about: re-read the cookie on navigation.
+  // Login and logout happen on the server (actions + redirect): re-read the
+  // cookie on every navigation.
   const pathname = usePathname();
 
   useEffect(() => {
-    const supabase = createClient();
-    function fromSession(meta: Record<string, unknown> | undefined) {
-      const raw = meta?.nome ?? meta?.full_name ?? meta?.name;
-      const first = typeof raw === "string" ? raw.trim().split(/\s+/)[0] : "";
-      return first || "cliente";
-    }
-    supabase.auth.getSession().then(({ data }) => {
-      setNome(
-        data.session ? fromSession(data.session.user.user_metadata) : null,
-      );
-    });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setNome(session ? fromSession(session.user.user_metadata) : null);
-    });
-    return () => data.subscription.unsubscribe();
+    setNome(firstNameFromCookies(document.cookie));
   }, [pathname]);
 
   return (
