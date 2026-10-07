@@ -191,3 +191,67 @@ describe("cart functions", () => {
     expect(error).not.toBeNull();
   });
 });
+
+describe("cart hardening (review of PR #7)", () => {
+  it("customers cannot write their cart directly", async () => {
+    const c = await createCustomer("carrinho-dml");
+    const cart = (await admin().rpc("cart_resolve", { p_user_id: c.id }))
+      .data as string;
+    const { variantId } = await createVariant({ estoque: 3 });
+
+    const insert = await c.client
+      .from("cart_items")
+      .insert({ cart_id: cart, variant_id: variantId, quantidade: 999 });
+    expect(insert.error?.code).toBe("42501");
+
+    await admin().rpc("cart_add", {
+      p_cart_id: cart,
+      p_variant_id: variantId,
+      p_quantidade: 1,
+    });
+    const update = await c.client
+      .from("cart_items")
+      .update({ quantidade: 999 })
+      .eq("cart_id", cart);
+    expect(update.error?.code).toBe("42501");
+    const del = await c.client.from("carts").delete().eq("id", cart);
+    expect(del.error?.code).toBe("42501");
+
+    // Reading the own cart still works through RLS.
+    const read = await c.client
+      .from("cart_items")
+      .select("quantidade")
+      .eq("cart_id", cart);
+    expect(read.data).toEqual([{ quantidade: 1 }]);
+  });
+
+  it("adds and quantity changes on the same cart never deadlock", async () => {
+    const cart = await guestCart();
+    const { variantId } = await createVariant({ estoque: 10 });
+    await admin().rpc("cart_add", {
+      p_cart_id: cart,
+      p_variant_id: variantId,
+      p_quantidade: 1,
+    });
+    const [item] = await lines(cart);
+
+    const calls = Array.from({ length: 30 }, (_, i) =>
+      i % 2 === 0
+        ? admin().rpc("cart_add", {
+            p_cart_id: cart,
+            p_variant_id: variantId,
+            p_quantidade: 1,
+          })
+        : admin().rpc("cart_set_quantity", {
+            p_cart_id: cart,
+            p_item_id: item!.id,
+            p_quantidade: 2,
+          }),
+    );
+    const results = await Promise.all(calls);
+    const errors = results
+      .map((r) => r.error?.message)
+      .filter((m) => m && m !== "item_not_found");
+    expect(errors).toEqual([]);
+  });
+});

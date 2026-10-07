@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CartCountSync } from "@/components/carrinho/cart-count-sync";
 import { CartLine } from "@/components/carrinho/cart-line";
 import { CartSummary } from "@/components/carrinho/cart-summary";
 import { EmptyState } from "@/components/loja/empty-state";
@@ -20,6 +21,7 @@ export default async function CarrinhoPage() {
 
   return (
     <>
+      <CartCountSync count={cart.quantidadeItens} />
       <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
         Carrinho
       </h1>

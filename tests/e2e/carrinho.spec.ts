@@ -67,6 +67,10 @@ test.describe("carrinho", () => {
     await expect(page.getByText("R$ 259,80").first()).toBeVisible({
       timeout: 15_000,
     });
+    // The header badge follows quantity changes, not only additions.
+    await expect(
+      page.getByRole("link", { name: "Carrinho com 2 itens" }).first(),
+    ).toBeAttached();
 
     await page.getByLabel(/CEP/).fill("20040002");
     await page.getByRole("button", { name: "Calcular" }).click();
@@ -77,6 +81,9 @@ test.describe("carrinho", () => {
     await expect(page.getByText("Seu carrinho está vazio")).toBeVisible({
       timeout: 15_000,
     });
+    await expect(
+      page.getByRole("link", { name: "Carrinho vazio" }).first(),
+    ).toBeAttached();
   });
 
   test("CEP inválido mostra mensagem clara", async ({ page }) => {
