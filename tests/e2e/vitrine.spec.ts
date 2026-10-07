@@ -182,6 +182,41 @@ test.describe("abertura (splash)", () => {
     await expect(splash).toHaveCount(0, { timeout: 300 });
   });
 
+  test("recarregar não repete a abertura, mesmo sem JavaScript", async ({
+    browser,
+  }) => {
+    // The proxy sets the cookie on the HTTP response itself.
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    const first = await page.goto("http://localhost:3100/");
+    expect(await first?.text()).toContain("Abertura da Busca Agora");
+    const again = await page.reload();
+    expect(await again?.text()).not.toContain("Abertura da Busca Agora");
+    await context.close();
+  });
+
+  test("voltar para a home pelo menu não repete a abertura", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const splash = page.getByRole("dialog", {
+      name: "Abertura da Busca Agora",
+    });
+    await expect(splash).toHaveCount(0, { timeout: 5_000 });
+
+    await page.goto("/c/eletronicos");
+    await page
+      .getByRole("link", { name: /^Busca Agora, (página inicial|início)$/ })
+      .locator("visible=true")
+      .first()
+      .click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Buscou\?/ }),
+    ).toBeVisible();
+    await expect(splash).toHaveCount(0);
+  });
+
   test("nunca aparece em link direto de produto", async ({ page }) => {
     await page.goto(FONE);
     await expect(
