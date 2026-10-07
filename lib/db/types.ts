@@ -80,6 +80,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      banners: {
+        Row: {
+          ativo: boolean;
+          created_at: string;
+          id: string;
+          imagem_path: string;
+          imagem_url: string;
+          link: string | null;
+          ordem: number;
+          titulo: string;
+          updated_at: string;
+        };
+        Insert: {
+          ativo?: boolean;
+          created_at?: string;
+          id?: string;
+          imagem_path: string;
+          imagem_url: string;
+          link?: string | null;
+          ordem?: number;
+          titulo?: string;
+          updated_at?: string;
+        };
+        Update: {
+          ativo?: boolean;
+          created_at?: string;
+          id?: string;
+          imagem_path?: string;
+          imagem_url?: string;
+          link?: string | null;
+          ordem?: number;
+          titulo?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       brands: {
         Row: {
           created_at: string;
@@ -921,6 +957,8 @@ export type Database = {
       };
     };
     Functions: {
+      admin_dashboard: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_save_product: { Args: { p_product: Json }; Returns: Json };
       cart_add: {
         Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
         Returns: number;

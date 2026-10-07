@@ -337,3 +337,26 @@ export async function getAllProductSlugs(): Promise<
     updatedAt: row.updated_at,
   }));
 }
+
+export type HomeBanner = {
+  id: string;
+  titulo: string;
+  imagemUrl: string;
+  link: string | null;
+};
+
+/** Active home banners, in order (RLS shows only the active ones). */
+export async function getActiveBanners(): Promise<HomeBanner[]> {
+  const { data, error } = await catalogClient()
+    .from("banners")
+    .select("id, titulo, imagem_url, link")
+    .order("ordem")
+    .limit(5);
+  if (error) fail("banners", error);
+  return (data ?? []).map((b) => ({
+    id: b.id,
+    titulo: b.titulo,
+    imagemUrl: b.imagem_url,
+    link: b.link,
+  }));
+}

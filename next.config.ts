@@ -1,11 +1,15 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
-import { supabaseStoragePatterns } from "./lib/images";
+import { isLocalSupabase, supabaseStoragePatterns } from "./lib/images";
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseStoragePatterns(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+    ),
+    // Local development only (Supabase on 127.0.0.1); off for real projects.
+    dangerouslyAllowLocalIP: isLocalSupabase(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
     ),
   },
