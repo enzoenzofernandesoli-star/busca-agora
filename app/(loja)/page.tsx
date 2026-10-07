@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
 import { EmptyState } from "@/components/loja/empty-state";
 import {
@@ -18,6 +18,7 @@ import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
 import { getHomeShowcase, type ProductSummary } from "@/lib/catalog/queries";
+import { FIRST_VISIT_HEADER } from "@/lib/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -301,13 +302,15 @@ function InstallApp() {
 }
 
 export default async function HomePage(props: PageProps<"/">) {
-  const [{ maisBuscados, cosmeticos }, cookieStore, searchParams] =
-    await Promise.all([getHomeShowcase(), cookies(), props.searchParams]);
+  const [{ maisBuscados, cosmeticos }, requestHeaders, searchParams] =
+    await Promise.all([getHomeShowcase(), headers(), props.searchParams]);
 
-  // Opening animation: first visit (no cookie) or opened as the installed
-  // app (start_url ?origem=pwa). Never on deep links: only this page has it.
+  // Opening animation: first visit (proxy.ts saw no ba_visto cookie) or
+  // opened as the installed app (start_url ?origem=pwa). Never on deep
+  // links: only this page has it.
   const showSplash =
-    !cookieStore.has("ba_visto") || searchParams.origem === "pwa";
+    requestHeaders.get(FIRST_VISIT_HEADER) === "1" ||
+    searchParams.origem === "pwa";
 
   return (
     <>

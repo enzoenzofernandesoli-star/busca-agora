@@ -35,3 +35,6 @@ export const legal = {
   endereco: "[ENDEREÇO COMPLETO]",
   email: "[E-MAIL DE CONTATO]",
 };
+
+/** Set by proxy.ts on the Home when the visitor has no ba_visto cookie. */
+export const FIRST_VISIT_HEADER = "x-ba-primeira-visita";
