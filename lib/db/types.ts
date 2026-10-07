@@ -772,33 +772,48 @@ export type Database = {
       settings: {
         Row: {
           cnpj: string | null;
+          cpf_vendedor: string | null;
+          email_contato: string | null;
+          endereco_empresa: string | null;
           endereco_origem: Json | null;
+          horario_atendimento: string | null;
           id: boolean;
           ie: string | null;
           printer_id: string | null;
           razao_social: string | null;
           regime_tributario: string | null;
           updated_at: string;
+          whatsapp: string | null;
         };
         Insert: {
           cnpj?: string | null;
+          cpf_vendedor?: string | null;
+          email_contato?: string | null;
+          endereco_empresa?: string | null;
           endereco_origem?: Json | null;
+          horario_atendimento?: string | null;
           id?: boolean;
           ie?: string | null;
           printer_id?: string | null;
           razao_social?: string | null;
           regime_tributario?: string | null;
           updated_at?: string;
+          whatsapp?: string | null;
         };
         Update: {
           cnpj?: string | null;
+          cpf_vendedor?: string | null;
+          email_contato?: string | null;
+          endereco_empresa?: string | null;
           endereco_origem?: Json | null;
+          horario_atendimento?: string | null;
           id?: boolean;
           ie?: string | null;
           printer_id?: string | null;
           razao_social?: string | null;
           regime_tributario?: string | null;
           updated_at?: string;
+          whatsapp?: string | null;
         };
         Relationships: [];
       };
@@ -1089,6 +1104,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      store_info: { Args: Record<PropertyKey, never>; Returns: Json };
       suggest_products: {
         Args: { p_q: string };
         Returns: {

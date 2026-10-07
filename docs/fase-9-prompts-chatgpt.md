@@ -1,6 +1,6 @@
-# Fase 9 — prompts para o ChatGPT (G26 a G30)
+# Fase 9 — prompts para o ChatGPT (G27 a G30)
 
-Mesmo esquema: uma conversa por prompt. Ele **só cria os arquivos listados**, não mexe em nenhum outro, não instala nada, não faz commit nem push, e no fim te passa o resumo. Branch atual: `fase-9-acabamento`. Os 5 são independentes (G27 usa o layout do G26: se ele chegar antes, tudo bem, o contrato está descrito).
+Mesmo esquema: uma conversa por prompt. Ele **só cria os arquivos listados**, não mexe em nenhum outro, não instala nada, não faz commit nem push, e no fim te passa o resumo. Branch atual: `fase-9-acabamento`. Os 4 são independentes. O G26 (layout legal, Termos e Privacidade) ficou com o Claude Code (decisão de 08/10); o layout `components/legal/legal-page.tsx` já existe.
 
 Bloco de contexto (já incluído em cada prompt):
 
@@ -10,36 +10,12 @@ Bloco de contexto (já incluído em cada prompt):
 
 ---
 
-## G26 — Layout legal, Termos e Privacidade
-
-```
-[cole o bloco de contexto]
-
-Tarefa: crie components/legal/legal-page.tsx, app/(loja)/termos/page.tsx e app/(loja)/privacidade/page.tsx.
-
-1) components/legal/legal-page.tsx (Server Component):
-export function LegalPage({ titulo, atualizadoEm, children, aviso }: { titulo: string; atualizadoEm: string /* "08/10/2026" */; children: React.ReactNode; aviso?: boolean })
-- Coluna de leitura de no máximo 760px centralizada, h1 com o título, linha "Atualizado em {data}" em texto-2.
-- Se aviso: faixa (cartão rosa-tile, texto rosa-ink, ícone de traço) "Versão inicial, em revisão. Pode mudar antes da abertura da loja."
-- Conteúdo num cartão branco; estilize os filhos com classes descendentes do Tailwind ([&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-8, [&_p]:leading-relaxed [&_p]:text-[16px], listas com marcador, [&_a]:text-ultramar [&_a]:font-bold) para os textos virem como HTML simples (h2, p, ul, li, a, strong).
-- Também exporte function StoreIdentity({ info }: { info: StoreInfo }): bloco com marca, vendedor, documento, endereço, e-mail (mailto) e WhatsApp (link https://wa.me/{digitos}, texto formatado "+55 11 99999-8888"), mostrando "[a preencher]" nos nulos.
-
-2) /termos (Termos de uso) e /privacidade (Política de privacidade, LGPD): export default async function que chama getStoreInfo() e usa LegalPage com aviso, atualizadoEm "08/10/2026". export const metadata com title e description curtas.
-Conteúdo (português claro, sem juridiquês desnecessário, seções com h2):
-- Termos: quem somos (StoreIdentity); conta e cadastro (dados verdadeiros, maiores de 18 ou com responsável, senha pessoal); preços e estoque (preço vale no momento da compra, erro evidente de preço pode cancelar o pedido com devolução integral); pagamento (Pix, cartão e boleto pelo Mercado Pago; a loja não vê nem guarda dados do cartão; Pix vence em 30 min e boleto em 3 dias úteis, depois o pedido é cancelado); entrega (prazo e frete mostrados antes de pagar, contam a partir da confirmação do pagamento; rastreio em Meus pedidos e em /rastreio); trocas e devoluções (link para /trocas, direito de arrependimento de 7 dias do CDC art. 49); nota fiscal; uso do site (proibido uso automatizado abusivo, fraude); responsabilidade; alterações dos termos; foro (domicílio do consumidor, como manda o CDC); contato.
-- Privacidade: quais dados coletamos (cadastro: nome, e-mail, CPF, telefone, endereços; compra: itens, valores, pagamento informado pelo Mercado Pago sem dados do cartão; navegação: cookies necessários); para que usamos (cumprir o pedido, emitir nota, entregar, avisar por e-mail, segurança/antifraude, obrigações legais); bases legais da LGPD (execução de contrato, obrigação legal, legítimo interesse para segurança); com quem compartilhamos (Mercado Pago para pagamento, Melhor Envio e transportadoras para entrega, emissor de nota fiscal, provedor de e-mail, hospedagem; nunca vendemos dados); por quanto tempo guardamos (pedidos e notas: 5 anos por obrigação fiscal; conta: até você excluir); cookies (seção com <h2 id="cookies">; só necessários: sessão de login, carrinho, se já viu a abertura, aviso de cookies; sem anúncios ou rastreio de terceiros); seus direitos (acesso, correção, exclusão — a conta pode ser excluída em Minha conta —, portabilidade, informação; pelo e-mail de contato); segurança; encarregado/contato (StoreIdentity); mudanças na política.
-
-Entregue os 3 arquivos completos.
-```
-
----
-
 ## G27 — Trocas, Sobre e Contato
 
 ```
 [cole o bloco de contexto]
 
-Use o layout que já existe (ou vai existir) em components/legal/legal-page.tsx:
+Use o layout que já existe em components/legal/legal-page.tsx (leia o arquivo antes):
 - LegalPage({ titulo, atualizadoEm, children, aviso? }) — página de leitura com cartão; estiliza h2, p, ul, li, a, strong vindos como HTML simples.
 - StoreIdentity({ info }) — bloco com os dados da loja.
 
