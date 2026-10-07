@@ -1021,6 +1021,10 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      cleanup_old_data: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
       enqueue_job: {

@@ -61,8 +61,11 @@ export default async function PrivacyPage() {
         </li>
       </ul>
       <p>
-        Não coletamos dados sensíveis (saúde, religião, biometria etc.) e não
-        usamos seus dados para criar perfis de publicidade.
+        Não pedimos dados sensíveis (saúde, religião, biometria etc.). Se você
+        contar algo assim ao pedir uma troca (por exemplo, uma reação a um
+        cosmético), usamos só para resolver aquela troca, com acesso restrito à
+        equipe de atendimento. Não usamos seus dados para criar perfis de
+        publicidade.
       </p>
 
       <h2 id="finalidades">Para que usamos e com qual base legal</h2>
@@ -123,8 +126,10 @@ export default async function PrivacyPage() {
       </ul>
       <p>
         <strong>Nunca vendemos seus dados.</strong> Os avisos internos que a
-        equipe recebe (por exemplo, no Telegram) trazem só o número do pedido, o
-        valor e a cidade, sem seu nome, CPF ou contato.
+        equipe recebe no celular (pelo Telegram) trazem só o número do pedido, o
+        valor, a cidade e, num pedido de troca, o motivo escolhido na lista. Seu
+        nome, CPF, contato e o que você escreveu no pedido de troca não vão
+        nesses avisos: ficam só no painel da loja.
       </p>
 
       <h2 id="internacional">Dados guardados fora do Brasil</h2>
@@ -138,8 +143,10 @@ export default async function PrivacyPage() {
       <h2 id="prazos">Por quanto tempo guardamos</h2>
       <ul>
         <li>
-          <strong>Pedidos e notas fiscais:</strong> 5 anos depois da compra,
-          como exige a lei fiscal.
+          <strong>Pedidos e notas fiscais:</strong> pelo menos 5 anos depois da
+          compra, como exige a lei fiscal. Depois desse prazo, os dados pessoais
+          dos pedidos antigos são apagados ou anonimizados quando você pedir, ou
+          na revisão anual que fazemos.
         </li>
         <li>
           <strong>Conta, endereços e carrinho:</strong> enquanto a conta
@@ -149,11 +156,12 @@ export default async function PrivacyPage() {
         </li>
         <li>
           <strong>Marcas de segurança (IP e e-mail embaralhados):</strong>
-          minutos ou horas, só o tempo do limite de tentativas.
+          apagadas automaticamente em até 2 dias.
         </li>
         <li>
-          <strong>Carrinho sem conta:</strong> some quando você limpa os cookies
-          do navegador.
+          <strong>Carrinho sem conta:</strong> se você limpar os cookies, o site
+          deixa de achar o carrinho; ele é apagado automaticamente depois de 30
+          dias sem uso.
         </li>
       </ul>
 

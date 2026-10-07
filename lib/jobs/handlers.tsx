@@ -147,7 +147,9 @@ async function latestReturnRequest(orderId: string) {
   return {
     tipo: d.tipo === "troca" ? ("troca" as const) : ("devolucao" as const),
     motivo: RETURN_REASONS[motivo] ?? RETURN_REASONS.outro,
-    detalhe: String(d.detalhe ?? ""),
+    // The customer's own words may carry personal data: they stay in the
+    // admin (order history), never in the chat.
+    detalhe: "O relato do cliente está no histórico do pedido, no admin.",
   };
 }
 

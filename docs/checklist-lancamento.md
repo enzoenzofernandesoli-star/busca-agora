@@ -29,3 +29,8 @@ Decisão de 07/10: a conta de produção fica no nome do Enzo (CPF), que também
 - [ ] Domínio `buscaagora.com.br` apontado para a Vercel e Site URL no Supabase.
 - [ ] Supabase Auth: URLs de redirecionamento, política de senha e, se quiser, login com Google.
 - [ ] PrintNode, Resend e Telegram (fases 6 e 7).
+
+## Rotina depois de abrir (prometido na Política de privacidade)
+
+- [ ] Uma vez por ano: apagar ou anonimizar os dados pessoais dos pedidos com mais de 5 anos (nome, CPF, endereço, e-mail), mantendo valores e itens. Atender na hora quem pedir antes disso, se o prazo fiscal já passou.
+- [ ] Pedidos de titular (acesso, correção, exclusão, portabilidade) pelo e-mail do SAC: responder em até 15 dias.

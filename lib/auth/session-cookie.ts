@@ -16,6 +16,16 @@ function decodeBase64Url(value: string): string {
 }
 
 export function firstNameFromCookies(cookieHeader: string): string | null {
+  // Any cookie can be malformed (a bad "%" escape, a foreign project): the
+  // header greeting must never take the page down.
+  try {
+    return parse(cookieHeader);
+  } catch {
+    return null;
+  }
+}
+
+function parse(cookieHeader: string): string | null {
   const parts: { key: string; index: number; value: string }[] = [];
   for (const pair of cookieHeader.split(";")) {
     const eq = pair.indexOf("=");
@@ -36,19 +46,15 @@ export function firstNameFromCookies(cookieHeader: string): string | null {
     .sort((a, b) => a.index - b.index)
     .map((p) => p.value)
     .join("");
-  try {
-    const json = raw.startsWith("base64-")
-      ? decodeBase64Url(raw.slice("base64-".length))
-      : raw;
-    const session = JSON.parse(json) as {
-      user?: { user_metadata?: Record<string, unknown> };
-    };
-    const meta = session.user?.user_metadata;
-    if (!session.user) return null;
-    const full = meta?.nome ?? meta?.full_name ?? meta?.name;
-    const first = typeof full === "string" ? full.trim().split(/\s+/)[0] : "";
-    return first || "cliente";
-  } catch {
-    return null;
-  }
+  const json = raw.startsWith("base64-")
+    ? decodeBase64Url(raw.slice("base64-".length))
+    : raw;
+  const session = JSON.parse(json) as {
+    user?: { user_metadata?: Record<string, unknown> };
+  } | null;
+  if (!session?.user) return null;
+  const meta = session.user.user_metadata;
+  const full = meta?.nome ?? meta?.full_name ?? meta?.name;
+  const first = typeof full === "string" ? full.trim().split(/\s+/)[0] : "";
+  return first || "cliente";
 }

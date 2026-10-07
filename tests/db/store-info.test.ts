@@ -67,3 +67,50 @@ describe("store_info", () => {
     }
   });
 });
+
+describe("cleanup_old_data", () => {
+  it("deletes old rate-limit marks and abandoned visitor carts only", async () => {
+    const admin = serviceClient();
+    const tag = `limpeza-${Date.now()}`;
+    const velho = new Date(Date.now() - 40 * 86_400_000).toISOString();
+    await admin.from("auth_rate_limits").insert([
+      {
+        chave: `${tag}-velha`,
+        janela_inicio: "2000-01-01T00:00:00Z",
+        tentativas: 1,
+      },
+      {
+        chave: `${tag}-nova`,
+        janela_inicio: new Date().toISOString(),
+        tentativas: 1,
+      },
+    ]);
+    // Inserted already old (the updated_at trigger only runs on UPDATE).
+    const { error: insertError } = await admin.from("carts").insert([
+      { session_id: `${tag}-abandonado`, updated_at: velho },
+      { session_id: `${tag}-recente`, updated_at: new Date().toISOString() },
+    ]);
+    expect(insertError).toBeNull();
+
+    const { error } = await admin.rpc("cleanup_old_data");
+    expect(error).toBeNull();
+
+    const { data: marks } = await admin
+      .from("auth_rate_limits")
+      .select("chave")
+      .like("chave", `${tag}%`);
+    expect((marks ?? []).map((m) => m.chave)).toEqual([`${tag}-nova`]);
+    const { data: left } = await admin
+      .from("carts")
+      .select("session_id")
+      .like("session_id", `${tag}%`);
+    expect((left ?? []).map((c) => c.session_id)).toEqual([`${tag}-recente`]);
+    await admin.from("carts").delete().like("session_id", `${tag}%`);
+    await admin.from("auth_rate_limits").delete().like("chave", `${tag}%`);
+  });
+
+  it("visitors and customers cannot run it", async () => {
+    const { error } = await anonClient().rpc("cleanup_old_data");
+    expect(error).not.toBeNull();
+  });
+});

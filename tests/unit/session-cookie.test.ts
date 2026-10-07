@@ -42,3 +42,16 @@ describe("firstNameFromCookies", () => {
     expect(firstNameFromCookies("sb-x-auth-token=base64-@@@")).toBeNull();
   });
 });
+
+describe("malformed cookies never throw", () => {
+  it.each([
+    "sb-abc-auth-token=%",
+    "sb-abc-auth-token=%E0%A4%A",
+    "sb-abc-auth-token=base64-%ZZ",
+    "sb-abc-auth-token=null",
+    "sb-abc-auth-token=123",
+  ])("%s -> null", (header) => {
+    expect(() => firstNameFromCookies(header)).not.toThrow();
+    expect(firstNameFromCookies(header)).toBeNull();
+  });
+});

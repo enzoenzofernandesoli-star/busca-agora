@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { UserIcon } from "@/components/loja/icons";
 import { firstNameFromCookies } from "@/lib/auth/session-cookie";
@@ -10,15 +10,18 @@ import { firstNameFromCookies } from "@/lib/auth/session-cookie";
 // Header greeting, read from the session cookie in the browser so the store
 // pages stay cacheable for everyone. Display only: account pages check the
 // session on the server.
-export function AccountLink() {
-  const [nome, setNome] = useState<string | null>(null);
-  // Login and logout happen on the server (actions + redirect): re-read the
-  // cookie on every navigation.
-  const pathname = usePathname();
+const noSubscription = () => () => {};
 
-  useEffect(() => {
-    setNome(firstNameFromCookies(document.cookie));
-  }, [pathname]);
+export function AccountLink() {
+  // Login and logout happen on the server (actions + redirect): the
+  // navigation re-renders this, and the snapshot re-reads the cookie.
+  usePathname();
+  const nome = useSyncExternalStore(
+    noSubscription,
+    () => firstNameFromCookies(document.cookie),
+    // Server and first render: the logged-out label (no document).
+    () => null,
+  );
 
   return (
     <Link

@@ -39,7 +39,15 @@ export function OrderTimeline({
             : event.evento
                 .replace(/_/g, " ")
                 .replace(/^./, (letter) => letter.toUpperCase());
-        const notes = [event.detalhe.motivo, event.detalhe.observacao].filter(
+        // detalhe.detalhe: the customer's own words on a return request.
+        const notes = [
+          event.detalhe.tipo === "troca" || event.detalhe.tipo === "devolucao"
+            ? `Pedido de ${event.detalhe.tipo === "troca" ? "troca" : "devolução"}`
+            : null,
+          event.detalhe.motivo,
+          event.detalhe.observacao,
+          event.detalhe.detalhe,
+        ].filter(
           (value): value is string =>
             typeof value === "string" && value.length > 0,
         );
