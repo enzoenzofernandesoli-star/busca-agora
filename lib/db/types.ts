@@ -307,6 +307,7 @@ export type Database = {
       jobs: {
         Row: {
           created_at: string;
+          etapa: string;
           id: string;
           order_id: string;
           run_at: string;
@@ -318,6 +319,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          etapa?: string;
           id?: string;
           order_id: string;
           run_at?: string;
@@ -329,6 +331,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          etapa?: string;
           id?: string;
           order_id?: string;
           run_at?: string;
@@ -441,6 +444,7 @@ export type Database = {
       orders: {
         Row: {
           cliente_cpf: string;
+          cliente_email: string | null;
           cliente_nome: string;
           created_at: string;
           desconto_cents: number;
@@ -460,6 +464,7 @@ export type Database = {
         };
         Insert: {
           cliente_cpf: string;
+          cliente_email?: string | null;
           cliente_nome: string;
           created_at?: string;
           desconto_cents?: number;
@@ -479,6 +484,7 @@ export type Database = {
         };
         Update: {
           cliente_cpf?: string;
+          cliente_email?: string | null;
           cliente_nome?: string;
           created_at?: string;
           desconto_cents?: number;
@@ -976,8 +982,40 @@ export type Database = {
         Args: { p_cart_id: string; p_item_id: string; p_quantidade: number };
         Returns: number;
       };
+      claim_jobs: {
+        Args: {
+          p_limit?: number;
+          p_tipos: Database["public"]["Enums"]["job_type"][];
+        };
+        Returns: {
+          created_at: string;
+          etapa: string;
+          id: string;
+          order_id: string;
+          run_at: string;
+          status: Database["public"]["Enums"]["job_status"];
+          tentativas: number;
+          tipo: Database["public"]["Enums"]["job_type"];
+          ultimo_erro: string | null;
+          updated_at: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "jobs";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
+      enqueue_job: {
+        Args: {
+          p_etapa: string;
+          p_order_id: string;
+          p_tipo: Database["public"]["Enums"]["job_type"];
+        };
+        Returns: undefined;
+      };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
       hit_rate_limit: {
@@ -985,6 +1023,7 @@ export type Database = {
         Returns: boolean;
       };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      jobs_tick: { Args: Record<PropertyKey, never>; Returns: undefined };
       next_order_number: { Args: Record<PropertyKey, never>; Returns: string };
       order_transition_allowed: {
         Args: {
