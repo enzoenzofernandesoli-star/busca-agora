@@ -47,6 +47,12 @@ export async function clientIp(): Promise<string> {
 export async function allowAttempt(
   checks: { kind: RateLimitKind; value: string }[],
 ): Promise<boolean> {
+  // `next dev` on this machine (the e2e suite logs in dozens of times from
+  // 127.0.0.1). Never in a build: NODE_ENV is "production" there, and the
+  // database tests cover the limits themselves.
+  if (process.env.NODE_ENV === "development" && (await isLoopback())) {
+    return true;
+  }
   const admin = createAdminClient();
   const results = await Promise.all(
     checks.map(({ kind, value }) =>
@@ -58,4 +64,9 @@ export async function allowAttempt(
     ),
   );
   return results.every((r) => !r.error && r.data === true);
+}
+
+async function isLoopback(): Promise<boolean> {
+  const ip = await clientIp();
+  return ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
 }

@@ -17,7 +17,12 @@ import {
 import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
-import { getHomeShowcase, type ProductSummary } from "@/lib/catalog/queries";
+import {
+  getActiveBanners,
+  getHomeShowcase,
+  type HomeBanner,
+  type ProductSummary,
+} from "@/lib/catalog/queries";
 import { FIRST_VISIT_HEADER } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -51,6 +56,41 @@ const vantagens = [
 
 const limeButton =
   "relative inline-flex items-center rounded-[14px] bg-lima font-display font-bold text-noite no-underline hover:bg-lima-300 hover:text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima";
+
+// Banner registered in /admin/banners replaces the default hero. The image
+// carries no text (admin guidance); the title is real text over it.
+function BannerHero({ banner }: { banner: HomeBanner }) {
+  const content = (
+    <>
+      <Image
+        src={banner.imagemUrl}
+        alt=""
+        fill
+        preload
+        sizes="(min-width: 768px) 66vw, 100vw"
+        className="object-cover"
+      />
+      {banner.titulo ? (
+        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-noite/80 to-transparent p-6 font-display text-2xl font-extrabold text-white md:p-10 md:text-[40px]">
+          {banner.titulo}
+        </span>
+      ) : null}
+    </>
+  );
+  const className =
+    "relative block aspect-[1600/640] min-w-0 overflow-hidden rounded-3xl bg-noite md:min-h-[440px] md:flex-[2_1_600px] md:rounded-[28px]";
+  return banner.link ? (
+    <Link
+      href={banner.link}
+      className={className}
+      aria-label={banner.titulo || "Ver ofertas"}
+    >
+      {content}
+    </Link>
+  ) : (
+    <div className={className}>{content}</div>
+  );
+}
 
 function Hero() {
   return (
@@ -302,8 +342,13 @@ function InstallApp() {
 }
 
 export default async function HomePage(props: PageProps<"/">) {
-  const [{ maisBuscados, cosmeticos }, requestHeaders, searchParams] =
-    await Promise.all([getHomeShowcase(), headers(), props.searchParams]);
+  const [{ maisBuscados, cosmeticos }, banners, requestHeaders, searchParams] =
+    await Promise.all([
+      getHomeShowcase(),
+      getActiveBanners(),
+      headers(),
+      props.searchParams,
+    ]);
 
   // Opening animation: first visit (proxy.ts saw no ba_visto cookie) or
   // opened as the installed app (start_url ?origem=pwa). Never on deep
@@ -320,7 +365,7 @@ export default async function HomePage(props: PageProps<"/">) {
         aria-label="Destaques"
         className="flex flex-col gap-6 md:flex-row md:flex-wrap"
       >
-        <Hero />
+        {banners[0] ? <BannerHero banner={banners[0]} /> : <Hero />}
         <CategoryCards />
       </section>
 
