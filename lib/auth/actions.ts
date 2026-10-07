@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { mergeGuestCart } from "@/lib/cart/server";
 import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
 import { publicEnv } from "@/lib/env-public";
@@ -90,6 +91,7 @@ export async function signUp(
       message: `Quase lá! Enviamos um link para ${email}. Abra o e-mail para ativar sua conta.`,
     };
   }
+  if (data.user) await mergeGuestCart(data.user.id);
   redirect(volta);
 }
 
@@ -113,7 +115,7 @@ export async function signIn(
   if (!allowed) return { ...TOO_MANY, values: echoValues(formData) };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password: senha,
   });
@@ -130,6 +132,8 @@ export async function signIn(
       values: echoValues(formData),
     };
   }
+  // What the visitor put in the cart before logging in is kept.
+  await mergeGuestCart(data.user.id);
   redirect(safeNext(formData.get("volta")));
 }
 
