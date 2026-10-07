@@ -2,17 +2,19 @@
 
 import { randomUUID } from "node:crypto";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { fieldErrors } from "@/lib/auth/schemas";
 import { requireAdmin } from "@/lib/auth/session";
 import { cepSchema } from "@/lib/br/cep";
+import { isValidCpf } from "@/lib/br/cpf";
 import { createAdminClient } from "@/lib/db/admin";
 import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
 import { kickJobs } from "@/lib/jobs/run";
+import { STORE_INFO_TAG } from "@/lib/store-info";
 
 import { parseProductForm } from "./product-schema";
 import { PHOTO_BUCKET, photoPathFromUrl } from "./storage-url";
@@ -350,6 +352,29 @@ const settingsSchema = z.object({
   ie: optionalText(30),
   regime_tributario: optionalText(60),
   printer_id: optionalText(40),
+  cpf_vendedor: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .refine((v) => v === "" || isValidCpf(v), { error: "CPF inválido." })
+    .transform((v) => (v === "" ? null : v)),
+  endereco_empresa: optionalText(300),
+  email_contato: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .refine((v) => v === "" || z.email().safeParse(v).success, {
+      error: "E-mail inválido.",
+    })
+    .transform((v) => (v === "" ? null : v)),
+  // Brazilian number with DDD; stored with the country code (wa.me links).
+  whatsapp: z
+    .string()
+    .transform((v) => v.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, ""))
+    .refine((v) => v === "" || /^\d{10,11}$/.test(v), {
+      error: "Use DDD + número, ex.: (11) 99999-8888",
+    })
+    .transform((v) => (v === "" ? null : `55${v}`)),
+  horario_atendimento: optionalText(120),
   cep: cepSchema,
   rua: z.string().trim().min(1, { error: "Informe a rua." }).max(160),
   numero: z.string().trim().min(1, { error: "Informe o número." }).max(20),
@@ -385,6 +410,11 @@ export async function saveSettings(
       ie: d.ie,
       regime_tributario: d.regime_tributario,
       printer_id: d.printer_id,
+      cpf_vendedor: d.cpf_vendedor,
+      endereco_empresa: d.endereco_empresa,
+      email_contato: d.email_contato,
+      whatsapp: d.whatsapp,
+      horario_atendimento: d.horario_atendimento,
       // Origin of every shipment: quotes and labels read this.
       endereco_origem: {
         cep: d.cep,
@@ -399,6 +429,8 @@ export async function saveSettings(
     .eq("id", true);
   if (error) return { ...GENERIC, values: echoValues(formData) };
   revalidatePath("/admin/configuracoes");
+  // Footer and legal pages show the new data on the next request.
+  updateTag(STORE_INFO_TAG);
   return { ok: true, message: "Configurações salvas." };
 }
 

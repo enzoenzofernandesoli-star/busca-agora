@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { LogoD } from "@/components/loja/logo";
-import { legal } from "@/lib/site";
+import { A_PREENCHER } from "@/components/legal/legal-page";
+import { getStoreInfo, type StoreInfo } from "@/lib/store-info";
 
 const institucional = [
   { label: "Sobre a Busca Agora", href: "/sobre" },
@@ -41,7 +42,7 @@ function FooterColumn({
 }
 
 /** Desktop footer (>= md), per docs/design/Home.dc.html. */
-function FooterDesktop() {
+function FooterDesktop({ info }: { info: StoreInfo }) {
   return (
     <footer className="hidden bg-noite text-lavanda md:block">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-8 pt-14 pb-7">
@@ -75,8 +76,7 @@ function FooterDesktop() {
           className="m-0 border-t border-noite-600 pt-[22px] text-[13px] leading-[1.6] text-lavanda-600"
           data-testid="dados-legais"
         >
-          {legal.marca} · {legal.razaoSocial} · CNPJ {legal.cnpj} ·{" "}
-          {legal.endereco} · {legal.email}
+          {legalLine(info)}
         </p>
       </div>
     </footer>
@@ -84,10 +84,10 @@ function FooterDesktop() {
 }
 
 /** Compact legal line on mobile, per docs/design/Celular-Home.dc.html. */
-function FooterMobile() {
+function FooterMobile({ info }: { info: StoreInfo }) {
   return (
     <footer className="px-4 pt-2 pb-6 text-center text-xs leading-[1.6] text-texto-2 md:hidden">
-      {legal.marca} · CNPJ {legal.cnpj}
+      {info.marca} · {info.documento ?? `CPF/CNPJ ${A_PREENCHER}`}
       <br />
       <Link href="/termos" className="text-ultramar">
         Termos
@@ -104,11 +104,23 @@ function FooterMobile() {
   );
 }
 
-export function Footer() {
+/** Seller identity required on the site (Decreto 7.962/2013, art. 2). */
+function legalLine(info: StoreInfo): string {
+  return [
+    info.marca,
+    info.vendedor ?? `Vendedor ${A_PREENCHER}`,
+    info.documento ?? `CPF/CNPJ ${A_PREENCHER}`,
+    info.endereco ?? `Endereço ${A_PREENCHER}`,
+    info.email ?? `E-mail ${A_PREENCHER}`,
+  ].join(" · ");
+}
+
+export async function Footer() {
+  const info = await getStoreInfo();
   return (
     <>
-      <FooterMobile />
-      <FooterDesktop />
+      <FooterMobile info={info} />
+      <FooterDesktop info={info} />
     </>
   );
 }

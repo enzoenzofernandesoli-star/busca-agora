@@ -60,6 +60,53 @@ export default async function AdminConfiguracoes() {
               defaultValue={s.regime_tributario ?? ""}
               placeholder="Simples Nacional, MEI..."
             />
+            <Field
+              id="cpf_vendedor"
+              name="cpf_vendedor"
+              label="CPF do vendedor (só enquanto não houver CNPJ)"
+              inputMode="numeric"
+              defaultValue={s.cpf_vendedor ?? ""}
+            />
+          </div>
+          <h3 className="m-0 font-display text-lg font-bold">
+            O que aparece no site
+          </h3>
+          <p className="m-0 text-sm text-texto-2">
+            A lei pede nome, CPF ou CNPJ, endereço e contato visíveis no site:
+            vão para o rodapé e para as páginas de Termos, Privacidade, Trocas e
+            Contato. Com CNPJ preenchido, o CPF não aparece.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field
+              id="endereco_empresa"
+              name="endereco_empresa"
+              label="Endereço da loja (uma linha)"
+              defaultValue={s.endereco_empresa ?? ""}
+              placeholder="Rua, número, bairro, cidade/UF, CEP"
+            />
+            <Field
+              id="email_contato"
+              name="email_contato"
+              label="E-mail de atendimento (SAC)"
+              type="email"
+              inputMode="email"
+              defaultValue={s.email_contato ?? ""}
+            />
+            <Field
+              id="whatsapp"
+              name="whatsapp"
+              label="WhatsApp (opcional)"
+              inputMode="tel"
+              defaultValue={s.whatsapp ?? ""}
+              placeholder="(11) 99999-8888"
+            />
+            <Field
+              id="horario_atendimento"
+              name="horario_atendimento"
+              label="Horário de atendimento (opcional)"
+              defaultValue={s.horario_atendimento ?? ""}
+              placeholder="Seg. a sex., 9h às 18h"
+            />
           </div>
           <h3 className="m-0 font-display text-lg font-bold">
             Endereço de onde os pacotes saem

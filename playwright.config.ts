@@ -28,6 +28,17 @@ export default defineConfig({
           secure: false,
           sameSite: "Lax",
         },
+        // Cookie notice already seen (it has its own test in pwa.spec.ts).
+        {
+          name: "ba_cookies_ok",
+          value: "1",
+          domain: "localhost",
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: false,
+          sameSite: "Lax",
+        },
       ],
       origins: [],
     },

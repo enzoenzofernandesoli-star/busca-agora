@@ -1,4 +1,5 @@
 import { BottomNav } from "@/components/loja/bottom-nav";
+import { CookieNotice } from "@/components/loja/cookie-notice";
 import { Footer } from "@/components/loja/footer";
 import { Header, MobileCategoryChips } from "@/components/loja/header";
 import { TopBar } from "@/components/loja/top-bar";
@@ -19,6 +20,7 @@ export default function LojaLayout({
       </main>
       <Footer />
       <BottomNav />
+      <CookieNotice />
     </div>
   );
 }

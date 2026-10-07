@@ -25,7 +25,7 @@ test.describe("layout da loja", () => {
       ).toHaveAttribute("aria-current", "page");
     } else {
       await expect(bottomNav).toBeHidden();
-      await expect(page.getByTestId("dados-legais")).toContainText("CNPJ");
+      await expect(page.getByTestId("dados-legais")).toContainText("CPF/CNPJ");
     }
   });
 
