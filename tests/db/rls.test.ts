@@ -48,7 +48,12 @@ describe("RLS: customers only see their own data", () => {
           .insert({ order_id: order.id, status: "pendente" }),
         admin
           .from("order_events")
-          .insert({ order_id: order.id, evento: "teste" }),
+          // A customer-visible event (the RLS hides admin-only ones).
+          .insert({
+            order_id: order.id,
+            evento: "status_changed",
+            detalhe: { de: "pending_payment", para: "pending_payment" },
+          }),
       ]);
       for (const { error } of inserts) if (error) throw error;
     }

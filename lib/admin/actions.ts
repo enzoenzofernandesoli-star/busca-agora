@@ -423,14 +423,13 @@ export async function cancelOrder(formData: FormData): Promise<ActionResult> {
   const user = await requireAdmin();
   const parsed = orderActionSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: "Pedido inválido." };
-  const { error } = await createAdminClient().rpc("set_order_status", {
+  const admin = createAdminClient();
+  // The status event is read by the customer: who did it and why stay in an
+  // admin-only event.
+  const { error } = await admin.rpc("set_order_status", {
     p_order_id: parsed.data.orderId,
     p_status: "canceled",
-    p_detalhe: {
-      origem: "admin",
-      admin: user.email,
-      motivo: parsed.data.motivo ?? null,
-    },
+    p_detalhe: { origem: "admin" },
   });
   if (error) {
     return {
@@ -441,8 +440,29 @@ export async function cancelOrder(formData: FormData): Promise<ActionResult> {
           : GENERIC.message,
     };
   }
+  await logAdminAction(admin, parsed.data.orderId, user.email, "cancelou", {
+    motivo: parsed.data.motivo ?? null,
+  });
   revalidateOrder();
   return { ok: true };
+}
+
+/**
+ * Who did what in the admin. Not in the status event: customers read those,
+ * and the RLS only shows them status changes and their return request.
+ */
+async function logAdminAction(
+  admin: ReturnType<typeof createAdminClient>,
+  orderId: string,
+  email: string,
+  acao: string,
+  extra: Record<string, unknown> = {},
+) {
+  await admin.from("order_events").insert({
+    order_id: orderId,
+    evento: "acao_admin",
+    detalhe: { acao, admin: email, ...extra },
+  });
 }
 
 /** Invoice issued by hand (selling on CPF, NFE_ENABLED=false). */
@@ -478,14 +498,12 @@ export async function markInvoiceManual(
   const status = await admin.rpc("set_order_status", {
     p_order_id: orderId,
     p_status: "invoiced",
-    p_detalhe: {
-      origem: "admin",
-      admin: user.email,
-      nota: "manual",
-      observacao: motivo ?? null,
-    },
+    p_detalhe: { origem: "admin", nota: "manual" },
   });
   if (status.error) return { ok: false, message: GENERIC.message };
+  await logAdminAction(admin, orderId, user.email, "nota_manual", {
+    observacao: motivo ?? null,
+  });
   revalidateOrder();
   return { ok: true };
 }

@@ -93,23 +93,20 @@ export async function requestReturn(
     };
   }
 
-  const admin = createAdminClient();
-  const { error } = await admin.from("order_events").insert({
-    order_id: order.id,
-    evento: "devolucao_solicitada",
-    detalhe: { tipo, motivo, detalhe, origem: "cliente" },
-  });
+  // The trigger enqueues the Telegram notice in the same transaction.
+  const { error } = await createAdminClient()
+    .from("order_events")
+    .insert({
+      order_id: order.id,
+      evento: "devolucao_solicitada",
+      detalhe: { tipo, motivo, detalhe, origem: "cliente" },
+    });
   if (error) {
     return {
       ok: false,
       message: "Não deu certo agora. Tente de novo em instantes.",
     };
   }
-  await admin.rpc("enqueue_job", {
-    p_tipo: "notify",
-    p_order_id: order.id,
-    p_etapa: "devolucao",
-  });
   kickJobs();
   // No revalidatePath here: it would re-render the page without the dialog
   // (the button goes away) before the customer reads the confirmation.

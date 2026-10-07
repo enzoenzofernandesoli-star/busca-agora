@@ -101,12 +101,23 @@ export const EMAIL_OFF = "Não enviado: e-mail desligado (falta RESEND_API_KEY)"
 export const TELEGRAM_OFF =
   "Não enviado: Telegram desligado (falta TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID)";
 
+export const EMAIL_STALE =
+  "Não enviado: aviso com mais de 23 h (evita e-mail repetido ao cliente)";
+const STALE_MS = 23 * 60 * 60 * 1000;
+
 export function emailHandler(
   sender: EmailSender = resendSender(),
   enabled = () => Boolean(env.RESEND_API_KEY),
+  now = () => new Date(),
 ): JobHandler {
   return async (job) => {
     if (!enabled()) return EMAIL_OFF;
+    // Resend drops idempotency keys after 24 h. Every send of this job
+    // happens after created_at, so stopping at 23 h keeps all of them inside
+    // the window of the first one: a retry can never deliver twice.
+    if (now().getTime() - Date.parse(job.created_at) > STALE_MS) {
+      return EMAIL_STALE;
+    }
     const o = await loadOrderNotice(job.order_id);
     // Orders from before phase 7 have no e-mail copy: nothing to send.
     if (!o.clienteEmail) return "Não enviado: pedido sem e-mail do cliente";

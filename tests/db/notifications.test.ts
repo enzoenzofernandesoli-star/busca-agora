@@ -66,6 +66,8 @@ describe("notices are enqueued by the database", () => {
       detalhe: { tipo: "troca" },
     };
     expect((await admin.from("order_events").insert(row)).error).toBeNull();
+    // Same transaction as the event: the Telegram notice is already queued.
+    expect(await jobsOf(order.id)).toContain("notify:devolucao");
     expect((await admin.from("order_events").insert(row)).error?.code).toBe(
       "23505",
     );
@@ -154,5 +156,38 @@ describe("customers cannot touch the queue", () => {
       .single();
     expect(upd.error !== null || data?.cliente_email === null).toBe(true);
     expect(data?.cliente_email).toBeNull();
+  });
+});
+
+describe("customers read only their customer events", () => {
+  it("admin actions, failed jobs and requeues stay hidden, even by API", async () => {
+    const c = await createCustomer("eventos");
+    const order = await createOrder({ userId: c.id });
+    const admin = serviceClient();
+    await admin.rpc("set_order_status", {
+      p_order_id: order.id,
+      p_status: "canceled",
+      p_detalhe: { origem: "admin" },
+    });
+    await admin.from("order_events").insert([
+      {
+        order_id: order.id,
+        evento: "acao_admin",
+        detalhe: { acao: "cancelou", admin: "dono@example.test" },
+      },
+      { order_id: order.id, evento: "job_falhou", detalhe: { tipo: "email" } },
+      {
+        order_id: order.id,
+        evento: "job_reenfileirado",
+        detalhe: { admin: "dono@example.test" },
+      },
+    ]);
+
+    const { data } = await c.client
+      .from("order_events")
+      .select("evento, detalhe")
+      .eq("order_id", order.id);
+    expect((data ?? []).map((e) => e.evento)).toEqual(["status_changed"]);
+    expect(JSON.stringify(data)).not.toContain("dono@example.test");
   });
 });
