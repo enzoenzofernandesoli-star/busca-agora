@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sora } from "next/font/google";
 
+import { RegisterServiceWorker } from "@/components/pwa/register-sw";
+
 import "./globals.css";
 
 const sora = Sora({
@@ -27,6 +29,13 @@ export const metadata: Metadata = {
   description:
     "Eletrônicos e cosméticos selecionados, com frete calculado no seu CEP e nota fiscal em todo pedido.",
   // Default share image: app/opengraph-image.png (logo + slogan).
+  // Installed app on iPhone (Android reads app/manifest.ts).
+  appleWebApp: {
+    capable: true,
+    title: "Busca Agora",
+    statusBarStyle: "default",
+  },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   openGraph: {
     siteName: "Busca Agora",
     locale: "pt_BR",
@@ -51,6 +60,7 @@ export default function RootLayout({
     >
       <body className="min-h-dvh bg-fundo font-sans text-noite">
         {children}
+        <RegisterServiceWorker />
       </body>
     </html>
   );

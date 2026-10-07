@@ -4,6 +4,26 @@ import type { NextConfig } from "next";
 import { isLocalSupabase, supabaseStoragePatterns } from "./lib/images";
 
 const nextConfig: NextConfig = {
+  // The service worker must never be cached by the browser or the CDN, or a
+  // fixed version would stay installed on phones.
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: supabaseStoragePatterns(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
