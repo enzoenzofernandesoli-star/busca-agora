@@ -30,7 +30,7 @@ describe("order emails", () => {
   });
   it.each([
     ["pix", "Pague o Pix em até 30 minutos"],
-    ["boleto", "Pague o boleto em até 3 dias úteis"],
+    ["boleto", "Pague o boleto em até 3 dias."],
     ["card", "Estamos confirmando o pagamento com o cartão"],
   ] as const)("renders payment instructions for %s", async (metodo, text) => {
     expect(await render(<Recebido {...received} metodo={metodo} />)).toContain(
