@@ -17,8 +17,14 @@ function getServerReducedMotion() {
   return false;
 }
 
+// Once per page load: when the store navigates back to the Home, Next.js
+// may reuse the first render (which had the splash). Module state survives
+// those client navigations, so the splash never plays twice.
+let shownThisPageLoad = false;
+
 export function Splash() {
-  const [isClosed, setIsClosed] = useState(false);
+  // false on the first (hydration) render, matching the server HTML.
+  const [isClosed, setIsClosed] = useState(() => shownThisPageLoad);
   const skipButtonRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useSyncExternalStore(
     subscribeMotion,
@@ -28,6 +34,8 @@ export function Splash() {
   const isOpen = !isClosed && !reducedMotion;
 
   useEffect(() => {
+    shownThisPageLoad = true;
+    // Also set by the proxy on the response; this covers old cached pages.
     document.cookie = "ba_visto=1; path=/; max-age=31536000; samesite=lax";
   }, []);
 

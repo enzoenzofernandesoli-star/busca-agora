@@ -2,14 +2,38 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { loginHref } from "@/lib/auth/redirect";
+import { FIRST_VISIT_HEADER } from "@/lib/site";
 
-// Next.js 16 "proxy" (formerly middleware). Two jobs, both cheap:
+// Next.js 16 "proxy" (formerly middleware). Three jobs, all cheap:
+// 0. on "/", remember the visitor saw the opening animation (cookie);
 // 1. refresh the Supabase session cookie, so Server Components see a valid
 //    session;
 // 2. send logged-out visitors of /conta and /admin to /entrar.
 // It is NOT the security check: pages and actions call requireUser() /
 // requireAdmin() on the server, which read the database.
 export async function proxy(request: NextRequest) {
+  // Home: mark the visitor as seen on the HTTP response, so the opening
+  // animation plays on the first visit only, even if the page script never
+  // runs (blocked, slow, closed before hydration). No session work here.
+  if (request.nextUrl.pathname === "/") {
+    const primeiraVisita = !request.cookies.has("ba_visto");
+    // A cookie set here is already visible to the page in this same
+    // request, so the page learns "first visit" from this header instead.
+    const headers = new Headers(request.headers);
+    headers.delete(FIRST_VISIT_HEADER);
+    if (primeiraVisita) headers.set(FIRST_VISIT_HEADER, "1");
+    const home = NextResponse.next({ request: { headers } });
+    if (primeiraVisita) {
+      home.cookies.set("ba_visto", "1", {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+    return home;
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -57,6 +81,7 @@ export const config = {
   // Only where the server reads the session. Catalog pages (home, search,
   // product) do not, so they stay cacheable and skip this round trip.
   matcher: [
+    "/",
     "/conta/:path*",
     "/admin/:path*",
     "/entrar",
