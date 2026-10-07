@@ -11,6 +11,7 @@ import PedidoRecebido from "@/emails/pedido-recebido";
 import { SUBJECTS } from "@/emails/subjects";
 import type { OrderEmailBase } from "@/emails/types";
 import { createAdminClient } from "@/lib/db/admin";
+import { env } from "@/lib/env";
 import { type EmailSender, resendSender } from "@/lib/email";
 import { type Notifier, telegramNotifier } from "@/lib/notify";
 import {
@@ -94,13 +95,23 @@ function emailFor(
   }
 }
 
-export function emailHandler(sender: EmailSender = resendSender()): JobHandler {
+// Not set up yet (decision of 08/10: e-mails off until the Resend account):
+// the notice is closed as "not sent" instead of failing 5 times and alerting.
+export const EMAIL_OFF = "Não enviado: e-mail desligado (falta RESEND_API_KEY)";
+export const TELEGRAM_OFF =
+  "Não enviado: Telegram desligado (falta TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID)";
+
+export function emailHandler(
+  sender: EmailSender = resendSender(),
+  enabled = () => Boolean(env.RESEND_API_KEY),
+): JobHandler {
   return async (job) => {
+    if (!enabled()) return EMAIL_OFF;
     const o = await loadOrderNotice(job.order_id);
     // Orders from before phase 7 have no e-mail copy: nothing to send.
-    if (!o.clienteEmail) return;
+    if (!o.clienteEmail) return "Não enviado: pedido sem e-mail do cliente";
     const email = emailFor(job.etapa, o);
-    if (!email) return;
+    if (!email) return "Não enviado: nota emitida à mão, sem arquivo";
     await sender.send({
       to: o.clienteEmail,
       subject: email.subject,
@@ -131,8 +142,10 @@ async function latestReturnRequest(orderId: string) {
 
 export function notifyHandler(
   notifier: Notifier = telegramNotifier(),
+  enabled = () => Boolean(env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID),
 ): JobHandler {
   return async (job) => {
+    if (!enabled()) return TELEGRAM_OFF;
     const o = await loadOrderNotice(job.order_id);
     const adminUrl = adminOrderUrl(o.numero);
     if (job.etapa === "paid") {

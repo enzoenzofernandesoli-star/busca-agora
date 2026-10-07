@@ -8,12 +8,15 @@ import { errorText, MAX_ATTEMPTS, nextRunAt } from "./backoff";
 export type Job = Database["public"]["Tables"]["jobs"]["Row"];
 export type JobType = Database["public"]["Enums"]["job_type"];
 
-/** Throws to fail (the job is retried); returns to finish it. */
-export type JobHandler = (job: Job) => Promise<void>;
+/**
+ * Throws to fail (the job is retried); returns to finish it. A returned
+ * string finishes it without doing the work and says why (shown in admin).
+ */
+export type JobHandler = (job: Job) => Promise<string | void>;
 
 export interface JobStore {
   claim(tipos: JobType[], limit: number): Promise<Job[]>;
-  done(job: Job): Promise<void>;
+  done(job: Job, skipped: string | null): Promise<void>;
   retry(job: Job, tentativas: number, runAt: Date, erro: string): Promise<void>;
   fail(job: Job, tentativas: number, erro: string): Promise<void>;
 }
@@ -38,8 +41,8 @@ export async function runJobs(opts: {
     const handler = opts.handlers[job.tipo];
     try {
       if (!handler) throw new Error(`Sem executor para ${job.tipo}`);
-      await handler(job);
-      await opts.store.done(job);
+      const skipped = await handler(job);
+      await opts.store.done(job, skipped ?? null);
       summary.done++;
     } catch (e) {
       const erro = errorText(e);

@@ -32,7 +32,8 @@ export function supabaseJobStore(admin = createAdminClient()): JobStore {
       if (error) throw new Error(`claim_jobs: ${error.message}`);
       return data ?? [];
     },
-    done: (job) => update(admin, job, { status: "done", ultimo_erro: null }),
+    done: (job, skipped) =>
+      update(admin, job, { status: "done", ultimo_erro: skipped }),
     retry: (job, tentativas, runAt, erro) =>
       update(admin, job, {
         status: "pending",

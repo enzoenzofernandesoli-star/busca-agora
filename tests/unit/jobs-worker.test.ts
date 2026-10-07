@@ -112,3 +112,23 @@ describe("runJobs", () => {
     expect(summary).toEqual({ done: 1, retried: 1, failed: 0 });
   });
 });
+
+describe("notices switched off", () => {
+  it("a handler that returns a reason closes the job as not sent", async () => {
+    const store = fakeStore([job()]);
+    const onExhausted = vi.fn();
+    const summary = await runJobs({
+      store,
+      handlers: { email: async () => "Não enviado: e-mail desligado" },
+      onExhausted,
+      now: () => agora,
+    });
+    expect(summary).toEqual({ done: 1, retried: 0, failed: 0 });
+    expect(store.done).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "j1" }),
+      "Não enviado: e-mail desligado",
+    );
+    expect(store.retry).not.toHaveBeenCalled();
+    expect(onExhausted).not.toHaveBeenCalled();
+  });
+});

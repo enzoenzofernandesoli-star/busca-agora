@@ -218,14 +218,16 @@ export default async function AdminPedido(
                       : undefined
                   }
                 >
-                  {JOB_STATUS[j.status] ?? j.status}
+                  {j.status === "done" && j.ultimo_erro
+                    ? "Não enviado"
+                    : (JOB_STATUS[j.status] ?? j.status)}
                 </span>
                 {j.tentativas > 0 ? (
                   <span className="text-texto-2">
                     ({j.tentativas} tentativas)
                   </span>
                 ) : null}
-                {j.status === "failed" && j.ultimo_erro ? (
+                {j.ultimo_erro && j.status !== "pending" ? (
                   <span className="basis-full text-sm text-texto-2">
                     {j.ultimo_erro}
                   </span>
