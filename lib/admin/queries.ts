@@ -251,17 +251,30 @@ export async function getIntegrationStatus(): Promise<IntegrationStatus[]> {
         ? "https://melhorenvio.com.br"
         : "https://sandbox.melhorenvio.com.br";
     try {
-      const res = await fetch(`${base}/api/v2/me`, {
+      // A sample quote, not /me: the store's token only needs the shipping
+      // scopes, and /me answers 403 without "users-read".
+      const res = await fetch(`${base}/api/v2/me/shipment/calculate`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${env.MELHORENVIO_TOKEN}`,
           Accept: "application/json",
+          "Content-Type": "application/json",
           "User-Agent": "Busca Agora (contato@buscaagora.com.br)",
         },
+        body: JSON.stringify({
+          from: { postal_code: "01001000" },
+          to: { postal_code: "20040020" },
+          package: { height: 5, width: 12, length: 18, weight: 0.3 },
+        }),
         signal: AbortSignal.timeout(4000),
         cache: "no-store",
       });
       return res.ok
-        ? { nome, estado: "conectado", detalhe: "Token aceito." }
+        ? {
+            nome,
+            estado: "conectado",
+            detalhe: "Token aceito, cotação funcionando.",
+          }
         : {
             nome,
             estado: "erro",
