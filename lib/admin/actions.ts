@@ -12,6 +12,7 @@ import { cepSchema } from "@/lib/br/cep";
 import { createAdminClient } from "@/lib/db/admin";
 import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
+import { kickJobs } from "@/lib/jobs/run";
 
 import { parseProductForm } from "./product-schema";
 import { PHOTO_BUCKET, photoPathFromUrl } from "./storage-url";
@@ -410,9 +411,11 @@ const orderActionSchema = z.object({
   motivo: z.string().trim().max(200).optional(),
 });
 
+/** After any change to an order: fresh admin pages, and the queue runs now. */
 function revalidateOrder() {
   revalidatePath("/admin/pedidos", "layout");
   revalidatePath("/admin");
+  kickJobs();
 }
 
 /** Cancels an unpaid order; set_order_status gives the stock back. */
@@ -493,7 +496,7 @@ const requeueSchema = orderActionSchema.extend({
 
 /**
  * "Reemitir nota" / "Reimprimir": puts the job back on the queue (phase 6
- * runs it). The unique (tipo, order_id) keeps it to one job per kind.
+ * runs it). The unique (tipo, order_id, etapa) keeps it to one job per kind.
  */
 export async function requeueJob(formData: FormData): Promise<ActionResult> {
   const user = await requireAdmin();
@@ -511,7 +514,7 @@ export async function requeueJob(formData: FormData): Promise<ActionResult> {
       ultimo_erro: null,
       run_at: new Date().toISOString(),
     },
-    { onConflict: "tipo,order_id" },
+    { onConflict: "tipo,order_id,etapa" },
   );
   if (error) return { ok: false, message: GENERIC.message };
 
@@ -524,6 +527,43 @@ export async function requeueJob(formData: FormData): Promise<ActionResult> {
           ? "nota_reemitida"
           : "etiqueta_refeita",
     detalhe: { origem: "admin", admin: user.email, motivo: motivo ?? null },
+  });
+  revalidateOrder();
+  return { ok: true };
+}
+
+const retrySchema = z.object({ jobId: z.uuid() });
+
+/** "Tentar de novo" on a job that used all its attempts. */
+export async function retryJob(formData: FormData): Promise<ActionResult> {
+  const user = await requireAdmin();
+  const parsed = retrySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: "Trabalho inválido." };
+  const admin = createAdminClient();
+  const { data: job, error } = await admin
+    .from("jobs")
+    .update({
+      status: "pending",
+      tentativas: 0,
+      ultimo_erro: null,
+      run_at: new Date().toISOString(),
+    })
+    .eq("id", parsed.data.jobId)
+    .eq("status", "failed")
+    .select("order_id, tipo, etapa")
+    .maybeSingle();
+  if (error) return { ok: false, message: GENERIC.message };
+  if (!job) return { ok: false, message: "Esse trabalho não está com falha." };
+
+  await admin.from("order_events").insert({
+    order_id: job.order_id,
+    evento: "job_reenfileirado",
+    detalhe: {
+      tipo: job.tipo,
+      etapa: job.etapa,
+      origem: "admin",
+      admin: user.email,
+    },
   });
   revalidateOrder();
   return { ok: true };

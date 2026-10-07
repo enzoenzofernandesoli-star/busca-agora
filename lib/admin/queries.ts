@@ -100,7 +100,7 @@ export async function getOrderByNumber(numero: string) {
       .order("created_at"),
     admin
       .from("jobs")
-      .select("id, tipo, status, tentativas, ultimo_erro, run_at")
+      .select("id, tipo, etapa, status, tentativas, ultimo_erro, run_at")
       .eq("order_id", order.id)
       .order("created_at"),
   ]);

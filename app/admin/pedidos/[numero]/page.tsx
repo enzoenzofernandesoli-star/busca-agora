@@ -8,6 +8,7 @@ import {
   cancelOrder,
   markInvoiceManual,
   requeueJob,
+  retryJob,
 } from "@/lib/admin/actions";
 import { getOrderByNumber } from "@/lib/admin/queries";
 import { formatCpf } from "@/lib/br/cpf";
@@ -24,6 +25,15 @@ const JOB_LABEL: Record<string, string> = {
   invoice: "Nota fiscal",
   label: "Etiqueta",
   print: "Impressão",
+};
+
+const ETAPA_LABEL: Record<string, string> = {
+  pending_payment: "pedido recebido",
+  paid: "pagamento aprovado",
+  invoiced: "nota emitida",
+  shipped: "pedido enviado",
+  delivered: "pedido entregue",
+  devolucao: "troca ou devolução",
 };
 
 const JOB_STATUS: Record<string, string> = {
@@ -197,7 +207,10 @@ export default async function AdminPedido(
           <ul className="m-0 flex list-none flex-col gap-2 p-0 text-[15px]">
             {jobs.map((j) => (
               <li key={j.id} className="flex flex-wrap gap-2">
-                <b>{JOB_LABEL[j.tipo] ?? j.tipo}:</b>
+                <b>
+                  {JOB_LABEL[j.tipo] ?? j.tipo}
+                  {j.etapa ? ` (${ETAPA_LABEL[j.etapa] ?? j.etapa})` : ""}:
+                </b>
                 <span
                   className={
                     j.status === "failed"
@@ -216,6 +229,16 @@ export default async function AdminPedido(
                   <span className="basis-full text-sm text-texto-2">
                     {j.ultimo_erro}
                   </span>
+                ) : null}
+                {j.status === "failed" ? (
+                  <ConfirmDialog
+                    gatilho="Tentar de novo"
+                    titulo="Tentar de novo?"
+                    texto="O trabalho volta para a fila agora, com 5 tentativas novas."
+                    confirmarLabel="Tentar de novo"
+                    action={retryJob}
+                    campos={{ jobId: j.id }}
+                  />
                 ) : null}
               </li>
             ))}
