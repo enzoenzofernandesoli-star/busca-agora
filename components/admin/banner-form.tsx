@@ -44,7 +44,6 @@ export function BannerForm({ banner }: { banner: Banner }) {
     >
       {banner.id ? <input type="hidden" name="id" value={banner.id} /> : null}
       <input type="hidden" name="imagemUrl" value={imagem?.url ?? ""} />
-      <input type="hidden" name="imagemPath" value={imagem?.path ?? ""} />
       <ImageUploader
         value={imagens}
         onChange={setImagens}

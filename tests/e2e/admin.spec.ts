@@ -45,6 +45,74 @@ test.describe("painel admin", () => {
     }
   });
 
+  test("cliente comum não recebe a tela do admin por navegação parcial (RSC)", async ({
+    page,
+  }) => {
+    // A client-side navigation from /admin/produtos/novo only asks for the
+    // [id] segment; the /admin layout (and its role check) is not rendered.
+    const db = localAdmin();
+    const { data: cat } = await db
+      .from("categories")
+      .select("id")
+      .eq("slug", "eletronicos")
+      .single();
+    const custo = 987_654;
+    const { data: prod } = await db
+      .from("products")
+      .insert({
+        nome: "Produto RSC",
+        slug: `rsc-${randomUUID().slice(0, 8)}`,
+        category_id: cat!.id,
+        ncm: "85183000",
+        ativo: false,
+      })
+      .select("id")
+      .single();
+    await db.from("product_variants").insert({
+      product_id: prod!.id,
+      sku: `RSC-${randomUUID().slice(0, 6)}`.toUpperCase(),
+      nome: "Única",
+      preco_cents: 10_000,
+      custo_cents: custo,
+      estoque: 1,
+      peso_g: 100,
+      altura_cm: 1,
+      largura_cm: 1,
+      comprimento_cm: 1,
+    });
+
+    try {
+      const c = await createTestCustomer();
+      await login(page, c.email, c.senha, "/conta");
+      const tree = [
+        "",
+        {
+          children: [
+            "admin",
+            {
+              children: [
+                "produtos",
+                { children: ["novo", { children: ["__PAGE__", {}] }] },
+              ],
+            },
+          ],
+        },
+      ];
+      const res = await page.request.get(`/admin/produtos/${prod!.id}`, {
+        headers: {
+          RSC: "1",
+          "Next-Router-State-Tree": encodeURIComponent(JSON.stringify(tree)),
+        },
+      });
+      const body = await res.text();
+      expect(body).not.toContain(String(custo));
+      expect(body).not.toContain("9876,54");
+      expect(body).not.toContain("Produto RSC");
+    } finally {
+      await db.from("products").delete().eq("id", prod!.id);
+    }
+  });
+
   test("admin cadastra produto com foto e variação e ele aparece na loja", async ({
     page,
   }) => {

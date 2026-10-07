@@ -14,6 +14,7 @@ import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
 
 import { parseProductForm } from "./product-schema";
+import { PHOTO_BUCKET, photoPathFromUrl } from "./storage-url";
 
 // Every admin action checks the role on the server again (the /admin
 // layout check alone is not enough: actions can be called directly) and
@@ -21,7 +22,9 @@ import { parseProductForm } from "./product-schema";
 
 export type ActionResult = { ok: boolean; message?: string };
 
-const BUCKET = "produtos";
+const BUCKET = PHOTO_BUCKET;
+const ourStoragePath = (url: string) =>
+  photoPathFromUrl(url, publicEnv.NEXT_PUBLIC_SUPABASE_URL);
 const MAX_BYTES = 5 * 1024 * 1024;
 const TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -81,21 +84,13 @@ export async function requestImageUpload(file: {
  * Only photos uploaded to OUR bucket are accepted: next/image refuses other
  * hosts (the page would break) and a foreign URL could track visitors.
  */
-const OUR_PUBLIC_PREFIX = `${publicEnv.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/${BUCKET}/`;
-const ourImageUrl = z.url().refine((u) => u.startsWith(OUR_PUBLIC_PREFIX), {
+const ourImageUrl = z.url().refine((u) => ourStoragePath(u) !== null, {
   error: "Envie a foto pelo botão de fotos.",
 });
 
-/** Storage path from a public URL of our bucket (null for anything else). */
-function pathFromPublicUrl(url: string): string | null {
-  const marker = `/storage/v1/object/public/${BUCKET}/`;
-  const i = url.indexOf(marker);
-  return i === -1 ? null : decodeURIComponent(url.slice(i + marker.length));
-}
-
 async function removeFiles(urls: string[]) {
   const paths = urls.flatMap((u) => {
-    const p = pathFromPublicUrl(u);
+    const p = ourStoragePath(u);
     return p ? [p] : [];
   });
   if (paths.length > 0) {
@@ -271,12 +266,12 @@ const bannerSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
   titulo: z.string().trim().max(120).default(""),
   imagemUrl: ourImageUrl,
-  imagemPath: z.string().min(1, { error: "Envie a imagem do banner." }),
   link: z
     .string()
     .trim()
     .max(300)
-    .refine((v) => v === "" || v.startsWith("/"), {
+    // "//site.com" and "/\site.com" would leave the store.
+    .refine((v) => v === "" || /^\/(?![/\\])/.test(v), {
       error: "Use um endereço da loja, começando com /, ex.: /c/eletronicos",
     })
     .transform((v) => (v === "" ? null : v)),
@@ -297,8 +292,13 @@ export async function saveBanner(
       values: echoValues(formData),
     };
   }
-  const { id, imagemUrl, imagemPath, ...rest } = parsed.data;
-  const row = { ...rest, imagem_url: imagemUrl, imagem_path: imagemPath };
+  const { id, imagemUrl, ...rest } = parsed.data;
+  // The path to delete later comes from the checked URL, never the form.
+  const row = {
+    ...rest,
+    imagem_url: imagemUrl,
+    imagem_path: ourStoragePath(imagemUrl)!,
+  };
   const admin = createAdminClient();
   const { error } = id
     ? await admin.from("banners").update(row).eq("id", id)

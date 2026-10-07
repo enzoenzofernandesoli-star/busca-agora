@@ -1,11 +1,19 @@
 import "server-only";
 
+import { requireAdmin } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/db/admin";
 import type { Database } from "@/lib/db/types";
 import { env } from "@/lib/env";
 
-// Read side of the admin panel. Every page calls requireAdmin() before
-// using these (they read with the service role, custo_cents included).
+// Read side of the admin panel. These read with the service role
+// (custo_cents included), so each one checks the role itself: the /admin
+// layout check alone does not cover partial (RSC) renders of a child page.
+
+/** Service-role client, only after the caller is confirmed as admin. */
+async function adminDb() {
+  await requireAdmin();
+  return createAdminClient();
+}
 
 export type OrderStatus = Database["public"]["Enums"]["order_status"];
 
@@ -34,7 +42,7 @@ export type Dashboard = {
 };
 
 export async function getDashboard(): Promise<Dashboard> {
-  const { data, error } = await createAdminClient().rpc("admin_dashboard");
+  const { data, error } = await (await adminDb()).rpc("admin_dashboard");
   if (error || !data) fail("dashboard", error);
   const d = data as Record<string, number>;
   return {
@@ -50,7 +58,7 @@ export async function listOrders(opts: {
   status?: OrderStatus | "a_enviar";
   busca?: string;
 }) {
-  let query = createAdminClient()
+  let query = (await adminDb())
     .from("orders")
     .select(
       "id, numero, status, total_cents, cliente_nome, payment_method, created_at",
@@ -73,7 +81,7 @@ export async function listOrders(opts: {
 }
 
 export async function getOrderByNumber(numero: string) {
-  const admin = createAdminClient();
+  const admin = await adminDb();
   const { data: order, error } = await admin
     .from("orders")
     .select(
@@ -103,7 +111,7 @@ export async function listProducts(opts: {
   busca?: string;
   filtro?: "ativos" | "inativos" | "estoque";
 }) {
-  let query = createAdminClient()
+  let query = (await adminDb())
     .from("products")
     .select(
       "id, nome, slug, ativo, destaque, updated_at, categories(nome), product_variants(estoque, preco_cents), product_images(url, ordem)",
@@ -139,7 +147,9 @@ export async function listProducts(opts: {
 }
 
 export async function getProductForEdit(id: string) {
-  const { data, error } = await createAdminClient()
+  const { data, error } = await (
+    await adminDb()
+  )
     .from("products")
     .select("*, product_variants(*), product_images(*)")
     .eq("id", id)
@@ -156,7 +166,7 @@ export async function getProductForEdit(id: string) {
 }
 
 export async function listCategoriesAndBrands() {
-  const admin = createAdminClient();
+  const admin = await adminDb();
   const [categorias, marcas] = await Promise.all([
     admin.from("categories").select("*").order("ordem"),
     admin.from("brands").select("id, nome, slug").order("nome"),
@@ -167,7 +177,9 @@ export async function listCategoriesAndBrands() {
 }
 
 export async function listBanners() {
-  const { data, error } = await createAdminClient()
+  const { data, error } = await (
+    await adminDb()
+  )
     .from("banners")
     .select("*")
     .order("ordem");
@@ -177,7 +189,7 @@ export async function listBanners() {
 
 /** Customers, read only. CPF masked; e-mail from Supabase Auth. */
 export async function listCustomers() {
-  const admin = createAdminClient();
+  const admin = await adminDb();
   const [{ data: perfis, error }, users, { data: pedidos }] = await Promise.all(
     [
       admin
@@ -216,7 +228,9 @@ export async function listCustomers() {
 }
 
 export async function getSettings() {
-  const { data, error } = await createAdminClient()
+  const { data, error } = await (
+    await adminDb()
+  )
     .from("settings")
     .select("*")
     .eq("id", true)
@@ -239,6 +253,7 @@ export type IntegrationStatus = {
 
 /** Only says whether each integration is set up and answering. Never the key. */
 export async function getIntegrationStatus(): Promise<IntegrationStatus[]> {
+  await requireAdmin();
   const has = (v: string | undefined) => Boolean(v && v.trim());
 
   async function melhorEnvio(): Promise<IntegrationStatus> {
