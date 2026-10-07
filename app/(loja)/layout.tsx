@@ -3,16 +3,13 @@ import { Footer } from "@/components/loja/footer";
 import { Header, MobileCategoryChips } from "@/components/loja/header";
 import { TopBar } from "@/components/loja/top-bar";
 
-// Cart arrives in phase 4; until then the counter stays at zero (badge hidden).
-const CART_COUNT = 0;
-
 export default function LojaLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="flex min-h-dvh flex-col pb-[calc(56px+max(22px,env(safe-area-inset-bottom)))] md:pb-0">
       <TopBar />
-      <Header cartCount={CART_COUNT} />
+      <Header />
       <MobileCategoryChips />
       <main
         id="conteudo"
