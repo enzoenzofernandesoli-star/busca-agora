@@ -325,6 +325,14 @@ async function main() {
     if (variantError)
       throw new Error("Não foi possível preparar as variantes locais");
   }
+  // Example origin for shipping quotes (Praça da Sé, São Paulo). The real
+  // one is set for production in settings, never by this script.
+  const { error: settingsError } = await supabase
+    .from("settings")
+    .update({ endereco_origem: { cep: "01001000" } })
+    .eq("id", true);
+  if (settingsError)
+    throw new Error("Não foi possível preparar o CEP de origem local");
   process.stdout.write("seed-dev: 6 produtos prontos\n");
 }
 

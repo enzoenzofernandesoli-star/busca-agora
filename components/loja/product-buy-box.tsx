@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
-import { PinIcon } from "@/components/loja/icons";
+import { AddToCart } from "@/components/loja/add-to-cart";
 import { Price } from "@/components/loja/price";
+import { ShippingQuote } from "@/components/loja/shipping-quote";
+import { addToCart } from "@/lib/cart/actions";
 import { formatBRL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +41,7 @@ function swatchFor(nome: string): string | undefined {
 
 // Variant, quantity, stock and buy buttons (docs/design/Produto.dc.html).
 // Prices shown here are display only: the server recalculates everything at
-// checkout (CLAUDE.md rule 2). Cart and shipping arrive in phase 4.
+// checkout (CLAUDE.md rule 2): the cart stores variant and quantity only.
 export function ProductBuyBox({ variantes }: ProductBuyBoxProps) {
   const firstInStock = variantes.findIndex((v) => v.estoque > 0);
   const [index, setIndex] = useState(Math.max(firstInStock, 0));
@@ -160,53 +162,16 @@ export function ProductBuyBox({ variantes }: ProductBuyBoxProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[18px] bg-fundo p-[18px]">
-        <label
-          htmlFor="cep-produto"
-          className="flex items-center gap-2 text-[15px] font-bold"
-        >
-          <PinIcon size={18} />
-          Calcular frete e prazo
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="cep-produto"
-            inputMode="numeric"
-            autoComplete="postal-code"
-            placeholder="00000-000"
-            disabled
-            aria-describedby="cep-produto-aviso"
-            className="h-[46px] min-w-0 flex-1 rounded-xl border-[1.5px] border-borda-forte bg-white px-3.5 text-base text-noite disabled:cursor-not-allowed disabled:opacity-60"
-          />
-          <button
-            type="button"
-            disabled
-            className="h-[46px] flex-none rounded-xl border-0 bg-noite px-[18px] text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Calcular
-          </button>
-        </div>
-        <p id="cep-produto-aviso" className="m-0 text-sm text-texto-2">
-          Cálculo de frete em breve.
-        </p>
-      </div>
+      <ShippingQuote
+        itens={[{ variantId: variante.id, quantidade: emEstoque ? qtd : 1 }]}
+      />
 
-      <div className="flex flex-col gap-2.5">
-        <button
-          type="button"
-          disabled
-          className="min-h-14 rounded-2xl border-0 bg-ultramar font-display text-[17px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {emEstoque ? "Comprar agora · em breve" : "Esgotado"}
-        </button>
-        <button
-          type="button"
-          disabled
-          className="min-h-14 rounded-2xl border-2 border-ultramar bg-white font-display text-[17px] font-bold text-ultramar disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Adicionar ao carrinho
-        </button>
-      </div>
+      <AddToCart
+        variantId={variante.id}
+        quantidade={qtd}
+        disponivel={emEstoque}
+        addToCart={addToCart}
+      />
     </div>
   );
 }

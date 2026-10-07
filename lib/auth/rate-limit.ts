@@ -16,6 +16,8 @@ const LIMITS = {
   "cadastro:ip": { max: 5, janelaSegundos: 60 * 60 },
   "recuperar:ip": { max: 5, janelaSegundos: 60 * 60 },
   "recuperar:email": { max: 3, janelaSegundos: 60 * 60 },
+  // Shipping quotes call a paid third-party API.
+  "frete:ip": { max: 40, janelaSegundos: 5 * 60 },
 } as const;
 
 export type RateLimitKind = keyof typeof LIMITS;

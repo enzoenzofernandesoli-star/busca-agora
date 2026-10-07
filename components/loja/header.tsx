@@ -10,12 +10,8 @@ import { SearchForm } from "@/components/loja/search-form";
 import { CategoryChip } from "@/components/loja/category-chip";
 import { navCategories } from "@/lib/site";
 
-type HeaderProps = {
-  cartCount: number;
-};
-
 /** Desktop header (>= md), per docs/design/Home.dc.html. */
-function HeaderDesktop({ cartCount }: HeaderProps) {
+function HeaderDesktop() {
   return (
     <div className="hidden md:block">
       <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-8 gap-y-5 px-8 pt-5">
@@ -41,7 +37,7 @@ function HeaderDesktop({ cartCount }: HeaderProps) {
             <span className="text-xs text-lavanda">Acompanhe</span>
             <span className="text-[15px] font-bold">Meus pedidos</span>
           </Link>
-          <CartButton count={cartCount} variant="desktop" />
+          <CartButton variant="desktop" />
         </nav>
       </div>
       <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-7 gap-y-3 px-8 pt-3.5 pb-4 text-[15px]">
@@ -60,7 +56,7 @@ function HeaderDesktop({ cartCount }: HeaderProps) {
 }
 
 /** Compact mobile header (< md), per docs/design/Celular-Home.dc.html. */
-function HeaderMobile({ cartCount }: HeaderProps) {
+function HeaderMobile() {
   return (
     <div className="flex flex-col gap-3.5 px-4 pt-[18px] pb-4 md:hidden">
       <div className="flex items-center justify-between">
@@ -71,7 +67,7 @@ function HeaderMobile({ cartCount }: HeaderProps) {
         >
           <LogoD height={26} priority />
         </Link>
-        <CartButton count={cartCount} variant="mobile" />
+        <CartButton variant="mobile" />
       </div>
       <SearchForm
         id="busca-m"
@@ -83,11 +79,11 @@ function HeaderMobile({ cartCount }: HeaderProps) {
   );
 }
 
-export function Header({ cartCount }: HeaderProps) {
+export function Header() {
   return (
     <header className="bg-ultramar text-white">
-      <HeaderDesktop cartCount={cartCount} />
-      <HeaderMobile cartCount={cartCount} />
+      <HeaderDesktop />
+      <HeaderMobile />
     </header>
   );
 }

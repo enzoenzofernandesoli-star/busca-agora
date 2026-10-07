@@ -68,7 +68,7 @@ test.describe("vitrine", () => {
     await expect(page).toHaveURL(/\/p\/smartwatch/, { timeout: 20_000 });
   });
 
-  test("página de produto: variantes, estoque e compra desabilitada", async ({
+  test("página de produto: variantes, estoque e botões de compra", async ({
     page,
   }) => {
     await page.goto(FONE);
@@ -79,13 +79,19 @@ test.describe("vitrine", () => {
     await expect(page.getByText("em até 12x no cartão").first()).toBeVisible();
 
     await page.getByRole("button", { name: "Azul (esgotado)" }).click();
-    await expect(page.getByText("Esgotado").first()).toBeVisible();
-    await page.getByRole("button", { name: "Preto", exact: true }).click();
-    await expect(page.getByText("Em estoque")).toBeVisible();
-
+    // Sold-out variant: a single disabled "Esgotado" button.
+    await expect(
+      page.getByRole("button", { name: "Esgotado", exact: true }),
+    ).toBeDisabled();
     await expect(
       page.getByRole("button", { name: "Adicionar ao carrinho" }),
-    ).toBeDisabled();
+    ).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Preto", exact: true }).click();
+    await expect(page.getByText("Em estoque")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Adicionar ao carrinho" }),
+    ).toBeEnabled();
 
     const jsonLd = await page
       .locator('script[type="application/ld+json"]')
