@@ -81,13 +81,26 @@ export function createLabelClient(fetchImpl: typeof fetch = fetch) {
       return z.object({ status: z.string() }).parse(json).status;
     },
 
-    /** Pays with the wallet. A label already paid is not an error. */
+    /**
+     * Pays with the wallet. A label already paid is not an error. The
+     * documented example answers with an empty purchase.orders, so the
+     * label's own status (released) is what proves the purchase.
+     */
     async checkout(id: string): Promise<void> {
       try {
         const json = await call("POST", "/api/v2/me/shipment/checkout", {
           orders: [id],
         });
-        parseCheckoutResponse(json, id);
+        try {
+          parseCheckoutResponse(json, id);
+        } catch {
+          const now = await this.status(id);
+          if (now !== "released" && now !== "generated" && now !== "posted") {
+            throw new Error(
+              `Compra da etiqueta não confirmada (status ${now})`,
+            );
+          }
+        }
       } catch (e) {
         if (
           e instanceof MelhorEnvioError &&

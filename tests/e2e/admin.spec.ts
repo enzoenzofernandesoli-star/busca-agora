@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { createTestCustomer, localAdmin } from "./supabase";
+import { createTestCustomer, createTestOrder, localAdmin } from "./supabase";
 
 // 1x1 PNG, generated in memory: no fixture files.
 const PNG = Buffer.from(
@@ -188,4 +188,35 @@ test.describe("painel admin", () => {
     const html = await page.content();
     expect(html).not.toMatch(/eyJ[a-zA-Z0-9_-]{20,}\./);
   });
+});
+
+test("pedido enviado mostra o cartão Envio com rastreio e nota pendente", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  const admin = await createAdmin();
+  const pedido = await createTestOrder({
+    userId: null,
+    email: `envio-${Date.now()}@example.test`,
+    ate: "shipped",
+  });
+  await localAdmin()
+    .from("invoices")
+    .insert({ order_id: pedido.id, status: "pendente_manual" });
+  await login(
+    page,
+    admin.email,
+    admin.senha,
+    `/admin/pedidos/${pedido.numero}`,
+  );
+  await expect(page.getByRole("heading", { name: "Envio" })).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(page.getByText("AA123456789BR").first()).toBeVisible();
+  await expect(
+    page.getByText(/Emita a nota fiscal deste pedido à mão/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Marcar nota manual emitida" }),
+  ).toBeVisible();
 });

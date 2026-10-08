@@ -45,6 +45,9 @@ export function printNodePrinter(
           cache: "no-store",
         });
         const json: unknown = await res.json().catch(() => null);
+        // 409: this idempotency key was already printed (a retry of the
+        // same run, within PrintNode's 24 h window): not printed again.
+        if (res.status === 409) continue;
         if (!res.ok) throw new Error(printNodeErrorMessage(res.status, json));
         ids.push(parsePrintJobResponse(json));
       }

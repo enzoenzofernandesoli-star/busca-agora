@@ -207,6 +207,13 @@ export function printHandler(
       return "Não impresso: PrintNode desligado (resumo e etiqueta para baixar no admin)";
     }
     const etiqueta = await readDocument(etiquetaPath);
+    // Automatic retries of a run share the key (PrintNode drops the repeat);
+    // each "Reimprimir" in the admin writes an event, so it gets a new key.
+    const { count: reimpressoes } = await admin
+      .from("order_events")
+      .select("id", { count: "exact", head: true })
+      .eq("order_id", f.id)
+      .eq("evento", "reimpressao_pedida");
     await printer.print(
       orderedDocs({
         resumo: {
@@ -218,9 +225,7 @@ export function printHandler(
           pdf: { base64: Buffer.from(etiqueta).toString("base64") },
         },
       }),
-      // A new run (admin "Reimprimir") is a new key; a retry of the same
-      // run is the same key, so the printer does not print twice.
-      `${f.id}/${job.run_at}`,
+      `${f.id}/impressao-${reimpressoes ?? 0}`,
     );
     if (f.status === "label_ready") await setStatus(admin, f.id, "printed");
   };
