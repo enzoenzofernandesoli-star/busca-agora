@@ -40,7 +40,7 @@ O mesmo conteúdo existe em `AGENTS.md` (para o Codex). Se mudar um, mude o outr
 | Nota fiscal | API de NF-e (primeira opção: Focus NFe), começa em homologação |
 | Impressão | PrintNode API (impressora térmica 10x15 cm) |
 | PDFs | `@react-pdf/renderer` (resumo do pedido 10x15) |
-| E-mail | Resend + React Email |
+| E-mail | React Email; envio pelo Gmail da loja (senha de app, grátis) até haver domínio; depois Resend (decisão de 08/10) |
 | Aviso interno | Bot do Telegram |
 | Erros | Sentry |
 | Testes | Vitest (unidade) + Playwright (fluxo de compra) |
@@ -146,6 +146,8 @@ NFE_ENV=homologacao
 PRINTNODE_API_KEY=
 PRINTNODE_PRINTER_ID=
 RESEND_API_KEY=
+GMAIL_USER=
+GMAIL_APP_PASSWORD=
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 SENTRY_DSN=

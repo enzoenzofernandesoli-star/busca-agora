@@ -12,7 +12,7 @@ import { SUBJECTS } from "@/emails/subjects";
 import type { OrderEmailBase } from "@/emails/types";
 import { createAdminClient } from "@/lib/db/admin";
 import { env } from "@/lib/env";
-import { type EmailSender, resendSender } from "@/lib/email";
+import { emailEnabled, emailSender, type EmailSender } from "@/lib/email";
 import { type Notifier, telegramNotifier } from "@/lib/notify";
 import {
   jobFailedMessage,
@@ -98,7 +98,8 @@ function emailFor(
 
 // Not set up yet (decision of 08/10: e-mails off until the Resend account):
 // the notice is closed as "not sent" instead of failing 5 times and alerting.
-export const EMAIL_OFF = "Não enviado: e-mail desligado (falta RESEND_API_KEY)";
+export const EMAIL_OFF =
+  "Não enviado: e-mail desligado (falta a senha de app do Gmail ou a chave do Resend)";
 export const TELEGRAM_OFF =
   "Não enviado: Telegram desligado (falta TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID)";
 
@@ -107,8 +108,8 @@ export const EMAIL_STALE =
 const STALE_MS = 23 * 60 * 60 * 1000;
 
 export function emailHandler(
-  sender: EmailSender = resendSender(),
-  enabled = () => Boolean(env.RESEND_API_KEY),
+  sender: EmailSender = emailSender(),
+  enabled = emailEnabled,
   now = () => new Date(),
 ): JobHandler {
   return async (job) => {

@@ -333,9 +333,10 @@ export async function getIntegrationStatus(): Promise<IntegrationStatus[]> {
       "Falta a chave do PrintNode (fase 6).",
     ),
     simples(
-      "Resend (e-mails)",
-      has(env.RESEND_API_KEY),
-      "Falta a chave do Resend (fase 7).",
+      env.RESEND_API_KEY ? "E-mails (Resend)" : "E-mails (Gmail)",
+      has(env.RESEND_API_KEY) ||
+        (has(env.GMAIL_USER) && has(env.GMAIL_APP_PASSWORD)),
+      "Falta a senha de app do Gmail (GMAIL_USER e GMAIL_APP_PASSWORD).",
     ),
     simples(
       "Telegram (avisos)",

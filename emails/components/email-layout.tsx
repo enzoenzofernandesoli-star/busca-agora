@@ -75,10 +75,13 @@ export function EmailLayout({
   siteUrl,
   preview,
   children,
+  motivo = "Você recebeu este e-mail porque fez um pedido na Busca Agora.",
 }: {
   siteUrl: string;
   preview: string;
   children: React.ReactNode;
+  /** Why the person got this e-mail (footer). */
+  motivo?: string;
 }) {
   const linkStyle: React.CSSProperties = {
     color: "#DCDFFF",
@@ -156,7 +159,7 @@ export function EmailLayout({
             <Text
               style={{ color: "#DCDFFF", fontSize: 12, lineHeight: "18px" }}
             >
-              Você recebeu este e-mail porque fez um pedido na Busca Agora.
+              {motivo}
             </Text>
           </Section>
         </Container>
