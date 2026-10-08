@@ -10,17 +10,21 @@ import {
   parseCartResponse,
   parseCheckoutResponse,
   parseGenerateResponse,
-  parsePrintResponse,
   parseTrackingResponse,
 } from "./label-schemas";
 
-// Melhor Envio label flow (docs.melhorenvio.com.br):
+// Melhor Envio label flow (docs.melhorenvio.com.br), checked against the
+// sandbox on 08/10/2026:
 //   POST /api/v2/me/cart               put the shipment in the cart
 //   POST /api/v2/me/shipment/checkout  pay it with the wallet balance
-//   POST /api/v2/me/shipment/generate  generate the label
-//   POST /api/v2/me/shipment/print     link to the printable label
-//   POST /api/v2/me/shipment/tracking  status and tracking code
-//   GET  /api/v2/me/orders/{id}        one label's current status
+//   POST /api/v2/me/shipment/generate  ask for the label (ASYNCHRONOUS:
+//                                      "Envio encaminhado para geração")
+//   GET  /api/v2/me/imprimir/pdf/{id}  ["<signed S3 link to the PDF>"],
+//                                      404/422 E-PRT-0011 while generating
+//   POST /api/v2/me/shipment/tracking  status and tracking code (also the
+//                                      status source: GET /me/orders needs
+//                                      an extra token scope)
+// The /shipment/print link is an HTML page, not a PDF: not used.
 
 const TIMEOUT_MS = 20_000;
 
@@ -32,6 +36,13 @@ export class MelhorEnvioError extends Error {
   ) {
     super(message);
     this.name = "MelhorEnvioError";
+  }
+}
+
+export class LabelNotReadyError extends Error {
+  constructor() {
+    super("Etiqueta ainda em geração no Melhor Envio; a fila tenta de novo");
+    this.name = "LabelNotReadyError";
   }
 }
 
@@ -74,11 +85,12 @@ export function createLabelClient(fetchImpl: typeof fetch = fetch) {
 
     /** Current status of one label ("pending" = in the cart, not paid). */
     async status(id: string): Promise<string> {
-      const json = await call(
-        "GET",
-        `/api/v2/me/orders/${encodeURIComponent(id)}`,
+      const info = parseTrackingResponse(
+        await call("POST", "/api/v2/me/shipment/tracking", { orders: [id] }),
       );
-      return z.object({ status: z.string() }).parse(json).status;
+      const t = info[id];
+      if (!t) throw new Error("Melhor Envio não encontrou a etiqueta");
+      return t.status;
     },
 
     /**
@@ -125,25 +137,38 @@ export function createLabelClient(fetchImpl: typeof fetch = fetch) {
       }
     },
 
-    async printUrl(id: string): Promise<string> {
-      return parsePrintResponse(
-        await call("POST", "/api/v2/me/shipment/print", {
-          mode: "public",
-          orders: [id],
-        }),
-      ).url;
-    },
-
     async track(ids: string[]) {
       return parseTrackingResponse(
         await call("POST", "/api/v2/me/shipment/tracking", { orders: ids }),
       );
     },
 
-    /** Downloads the label PDF from the public print link. */
-    async downloadPdf(url: string): Promise<Uint8Array> {
+    /**
+     * The label PDF. Throws LabelNotReadyError while Melhor Envio is still
+     * generating it (about a minute): the queue retries later.
+     */
+    async labelPdf(id: string): Promise<Uint8Array> {
+      let links: unknown;
+      try {
+        links = await call(
+          "GET",
+          `/api/v2/me/imprimir/pdf/${encodeURIComponent(id)}`,
+        );
+      } catch (e) {
+        if (
+          e instanceof MelhorEnvioError &&
+          (e.status === 404 ||
+            (e.status === 422 && /E-PRT-0011/.test(JSON.stringify(e.body))))
+        ) {
+          throw new LabelNotReadyError();
+        }
+        throw e;
+      }
+      const url = z.array(z.url()).min(1).parse(links)[0]!;
+      if (new URL(url).protocol !== "https:") {
+        throw new Error("Link da etiqueta inválido");
+      }
       const res = await fetchImpl(url, {
-        headers: { "User-Agent": "Busca Agora (contato@buscaagora.com.br)" },
         signal: AbortSignal.timeout(TIMEOUT_MS),
         cache: "no-store",
       });

@@ -16,9 +16,15 @@ export const checkoutResponseSchema = z
       .passthrough(),
   })
   .passthrough();
+// The real answer (sandbox, 08/10/2026) also carries a top-level
+// "generate_key" string next to the per-label objects, and says
+// "Envio encaminhado para geração": generation is asynchronous.
 export const generateResponseSchema = z.record(
   z.string(),
-  z.object({ status: z.boolean(), message: nullableText }).passthrough(),
+  z.union([
+    z.object({ status: z.boolean(), message: nullableText }).passthrough(),
+    z.string(),
+  ]),
 );
 export const printResponseSchema = z
   .object({
@@ -67,7 +73,8 @@ export function parseGenerateResponse(json: unknown, id: string) {
     json,
     "Resposta de geração inválida do Melhor Envio",
   )[id];
-  if (!r) throw new Error("Geração não incluiu a etiqueta");
+  if (!r || typeof r === "string")
+    throw new Error("Geração não incluiu a etiqueta");
   return {
     ok: r.status,
     mensagem: r.message

@@ -147,22 +147,25 @@ export function labelHandler(
       await client.checkout(meId);
       meStatus = "released";
     }
-    if (meStatus === "released") {
+    // Melhor Envio keeps "released" after generation: our own me_status
+    // remembers that generation was asked, so a retry does not ask again.
+    if (meStatus === "released" && f.shipment?.me_status !== "generated") {
       await client.generate(meId);
-      meStatus = "generated";
+      await admin
+        .from("shipments")
+        .update({ me_status: "generated" })
+        .eq("order_id", f.id);
     }
 
-    const pdf = await client.downloadPdf(await client.printUrl(meId));
+    // Generation takes about a minute: until then this throws and the job
+    // is retried (1, 5, 15, 60 min).
+    const pdf = await client.labelPdf(meId);
     if (!isPdf(pdf)) throw new Error("A etiqueta não veio em PDF");
     const path = `etiquetas/${f.numero}.pdf`;
     await saveDocument(path, pdf);
     await admin
       .from("shipments")
-      .update({
-        etiqueta_path: path,
-        me_status: meStatus,
-        status: "etiqueta_pronta",
-      })
+      .update({ etiqueta_path: path, status: "etiqueta_pronta" })
       .eq("order_id", f.id);
 
     if (f.status !== "label_ready") await setStatus(admin, f.id, "label_ready");

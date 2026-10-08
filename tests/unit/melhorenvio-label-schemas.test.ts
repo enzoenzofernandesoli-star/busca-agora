@@ -129,3 +129,21 @@ describe("Melhor Envio label response contracts", () => {
     ).toBe("Melhor Envio recusou (HTTP 500)");
   });
 });
+
+describe("real sandbox answers (08/10/2026)", () => {
+  it("generate also returns a top-level generate_key string", () => {
+    const id = "a2edd680-e212-4f4c-ac90-7591d994b8e3";
+    expect(
+      parseGenerateResponse(
+        {
+          generate_key: "a2edd683-3a17-468b-87ba-4a620ded76fa",
+          [id]: { message: "Envio encaminhado para geração", status: true },
+        },
+        id,
+      ).ok,
+    ).toBe(true);
+    expect(() =>
+      parseGenerateResponse({ generate_key: "x" }, "generate_key"),
+    ).toThrow(/não incluiu/);
+  });
+});

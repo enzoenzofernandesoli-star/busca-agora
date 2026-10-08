@@ -25,12 +25,17 @@ vi.mock("@/lib/env", () => ({
 const { invoiceHandler, labelHandler, printHandler } =
   await import("@/lib/jobs/fulfillment");
 const { pollTracking } = await import("@/lib/shipping/tracking");
+const { LabelNotReadyError } =
+  await import("@/lib/shipping/melhorenvio/labels");
 
 const PDF = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31]); // %PDF-1
 
-function fakeLabels(opts: { failGenerateOnce?: boolean } = {}) {
+function fakeLabels(
+  opts: { failGenerateOnce?: boolean; notReadyOnce?: boolean } = {},
+) {
   let status = "pending";
   let failed = false;
+  let notReady = opts.notReadyOnce ?? false;
   const client = {
     addToCart: vi.fn(async () => ({
       cartId: `me-${randomUUID()}`,
@@ -41,15 +46,20 @@ function fakeLabels(opts: { failGenerateOnce?: boolean } = {}) {
     checkout: vi.fn(async () => {
       status = "released";
     }),
+    // Like the real API: the status stays "released" after generation.
     generate: vi.fn(async () => {
       if (opts.failGenerateOnce && !failed) {
         failed = true;
         throw new Error("Melhor Envio fora do ar");
       }
-      status = "generated";
     }),
-    printUrl: vi.fn(async () => "https://melhorenvio.example.test/imprimir/x"),
-    downloadPdf: vi.fn(async () => PDF),
+    labelPdf: vi.fn(async () => {
+      if (notReady) {
+        notReady = false;
+        throw new LabelNotReadyError();
+      }
+      return PDF;
+    }),
     track: vi.fn(),
   };
   return client;
@@ -269,6 +279,21 @@ describe("fulfillment chain", () => {
     const r = await labelHandler(labels)(job(o!.id, "label"));
     expect(r).toMatch(/Pulado/);
     expect(labels.addToCart).not.toHaveBeenCalled();
+  });
+});
+
+describe("label still being generated", () => {
+  it("retries later without asking Melhor Envio to generate again", async () => {
+    const order = await paidOrder();
+    await invoiceHandler()(job(order.id, "invoice"));
+    const labels = fakeLabels({ notReadyOnce: true });
+    await expect(labelHandler(labels)(job(order.id, "label"))).rejects.toThrow(
+      /em geração/,
+    );
+    await labelHandler(labels)(job(order.id, "label"));
+    expect(labels.generate).toHaveBeenCalledOnce();
+    expect(labels.checkout).toHaveBeenCalledOnce();
+    expect((await orderState(order.id)).status).toBe("label_ready");
   });
 });
 
