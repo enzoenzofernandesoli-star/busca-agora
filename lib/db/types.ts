@@ -1043,6 +1043,7 @@ export type Database = {
       };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       jobs_tick: { Args: Record<PropertyKey, never>; Returns: undefined };
+      keep_warm: { Args: Record<PropertyKey, never>; Returns: undefined };
       next_order_number: { Args: Record<PropertyKey, never>; Returns: string };
       order_transition_allowed: {
         Args: {

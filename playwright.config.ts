@@ -19,7 +19,7 @@ export default defineConfig({
     storageState: {
       cookies: [
         {
-          name: "ba_visto",
+          name: "ba_sessao",
           value: "1",
           domain: "localhost",
           path: "/",

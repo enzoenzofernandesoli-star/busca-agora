@@ -2,31 +2,44 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { loginHref } from "@/lib/auth/redirect";
-import { FIRST_VISIT_HEADER } from "@/lib/site";
+import { FIRST_VISIT_HEADER, SESSION_COOKIE } from "@/lib/site";
 
 // Next.js 16 "proxy" (formerly middleware). Three jobs, all cheap:
-// 0. on "/", remember the visitor saw the opening animation (cookie);
+// 0. on "/", remember the visitor saw the opening animation this session;
 // 1. refresh the Supabase session cookie, so Server Components see a valid
 //    session;
 // 2. send logged-out visitors of /conta and /admin to /entrar.
 // It is NOT the security check: pages and actions call requireUser() /
 // requireAdmin() on the server, which read the database.
 export async function proxy(request: NextRequest) {
-  // Home: mark the visitor as seen on the HTTP response, so the opening
-  // animation plays on the first visit only, even if the page script never
-  // runs (blocked, slow, closed before hydration). No session work here.
+  // Home: the opening animation plays once per browser session (decision of
+  // 08/10), marked on the HTTP response so it holds even if the page script
+  // never runs. No session work here.
   if (request.nextUrl.pathname === "/") {
-    const primeiraVisita = !request.cookies.has("ba_visto");
+    // Only a real page load opens the store. Link prefetches and client
+    // navigations of "/" (fetch requests: Sec-Fetch-Dest "empty") must not
+    // spend the animation: a prefetch of the header logo link used to set
+    // the cookie before the visitor ever opened the Home. Next.js strips its
+    // own RSC headers before the proxy, so the browser's headers decide.
+    // A missing header proves nothing (an RSC prefetch without it would
+    // spend the animation), so only "document" counts; browsers without
+    // Fetch Metadata simply skip the animation.
+    const h = request.headers;
+    const carregamento =
+      h.get("sec-fetch-dest") === "document" &&
+      h.get("purpose") !== "prefetch" &&
+      !(h.get("sec-purpose") ?? "").includes("prefetch");
+    const abrirAgora = carregamento && !request.cookies.has(SESSION_COOKIE);
     // A cookie set here is already visible to the page in this same
-    // request, so the page learns "first visit" from this header instead.
+    // request, so the page learns "show it" from this header instead.
     const headers = new Headers(request.headers);
     headers.delete(FIRST_VISIT_HEADER);
-    if (primeiraVisita) headers.set(FIRST_VISIT_HEADER, "1");
+    if (abrirAgora) headers.set(FIRST_VISIT_HEADER, "1");
     const home = NextResponse.next({ request: { headers } });
-    if (primeiraVisita) {
-      home.cookies.set("ba_visto", "1", {
+    if (abrirAgora) {
+      // No maxAge: a session cookie, gone when the browser closes.
+      home.cookies.set(SESSION_COOKIE, "1", {
         path: "/",
-        maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
       });

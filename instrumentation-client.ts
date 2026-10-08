@@ -1,3 +1,4 @@
+import { announceNavigationStart } from "./lib/navigation-events";
 import { sentryBaseOptions } from "./sentry.shared";
 
 type SentryModule = typeof import("@sentry/nextjs");
@@ -14,8 +15,10 @@ if (dsn) {
   });
 }
 
+// Every App Router navigation: the progress bar starts at the click.
 export function onRouterTransitionStart(
   ...args: Parameters<SentryModule["captureRouterTransitionStart"]>
 ) {
+  announceNavigationStart(args[0]);
   sentry?.captureRouterTransitionStart(...args);
 }

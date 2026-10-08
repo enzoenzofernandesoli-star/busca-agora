@@ -36,7 +36,8 @@ export function Splash() {
   useEffect(() => {
     shownThisPageLoad = true;
     // Also set by the proxy on the response; this covers old cached pages.
-    document.cookie = "ba_visto=1; path=/; max-age=31536000; samesite=lax";
+    // Session cookie (no max-age): once per browser session.
+    document.cookie = "ba_sessao=1; path=/; samesite=lax";
   }, []);
 
   useEffect(() => {

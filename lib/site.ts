@@ -28,5 +28,8 @@ export const navCategories: { label: string; href: string; cor?: string }[] = [
   { label: "Mais buscados", href: "/busca?filtro=mais-buscados" },
 ];
 
-/** Set by proxy.ts on the Home when the visitor has no ba_visto cookie. */
+/** Opening animation already shown in this browser session (proxy.ts). */
+export const SESSION_COOKIE = "ba_sessao";
+
+/** Set by proxy.ts on the Home when the session has not seen the opening. */
 export const FIRST_VISIT_HEADER = "x-ba-primeira-visita";
