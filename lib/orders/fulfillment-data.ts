@@ -26,7 +26,7 @@ export async function loadFulfillment(orderId: string) {
          cliente_email, endereco, frete_servico, frete_servico_id,
          order_items(nome, sku, preco_cents, quantidade,
            product_variants(peso_g, altura_cm, largura_cm, comprimento_cm)),
-         shipments(id, me_order_id, me_status, transportadora, servico,
+         shipments(id, me_order_id, me_status, transportadora, servico, impressoes,
            rastreio, etiqueta_path, resumo_path, status),
          invoices(status, chave, danfe_url),
          profiles(telefone)`,

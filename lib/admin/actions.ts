@@ -565,18 +565,39 @@ export async function requeueJob(formData: FormData): Promise<ActionResult> {
   const admin = createAdminClient();
   const { orderId, tipo, motivo } = parsed.data;
 
-  const { error } = await admin.from("jobs").upsert(
-    {
-      order_id: orderId,
-      tipo,
-      status: "pending",
-      tentativas: 0,
-      ultimo_erro: null,
-      run_at: new Date().toISOString(),
-    },
-    { onConflict: "tipo,order_id,etapa" },
-  );
-  if (error) return { ok: false, message: GENERIC.message };
+  // Never touch a job that is waiting or running: putting a running job
+  // back to "pending" would let a second worker start it in parallel.
+  const novo = {
+    status: "pending" as const,
+    tentativas: 0,
+    ultimo_erro: null,
+    run_at: new Date().toISOString(),
+  };
+  const { data: existente } = await admin
+    .from("jobs")
+    .select("id, status")
+    .eq("order_id", orderId)
+    .eq("tipo", tipo)
+    .eq("etapa", "")
+    .maybeSingle();
+  if (existente && !["done", "failed"].includes(existente.status)) {
+    return {
+      ok: false,
+      message: "Isso já está na fila ou rodando agora. Espere terminar.",
+    };
+  }
+  const { data: feito, error } = existente
+    ? await admin
+        .from("jobs")
+        .update(novo)
+        .eq("id", existente.id)
+        .in("status", ["done", "failed"])
+        .select("id")
+    : await admin
+        .from("jobs")
+        .insert({ ...novo, order_id: orderId, tipo })
+        .select("id");
+  if (error || !feito?.length) return { ok: false, message: GENERIC.message };
 
   await admin.from("order_events").insert({
     order_id: orderId,

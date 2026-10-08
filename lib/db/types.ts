@@ -826,6 +826,7 @@ export type Database = {
           etiqueta_path: string | null;
           etiqueta_url: string | null;
           id: string;
+          impressoes: NonNullable<Json>;
           me_order_id: string | null;
           me_status: string | null;
           order_id: string;
@@ -835,6 +836,8 @@ export type Database = {
           servico: string | null;
           status: string;
           transportadora: string | null;
+          trava_ate: string | null;
+          trava_tipo: string | null;
           updated_at: string;
         };
         Insert: {
@@ -842,6 +845,7 @@ export type Database = {
           etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
+          impressoes?: NonNullable<Json>;
           me_order_id?: string | null;
           me_status?: string | null;
           order_id: string;
@@ -851,6 +855,8 @@ export type Database = {
           servico?: string | null;
           status: string;
           transportadora?: string | null;
+          trava_ate?: string | null;
+          trava_tipo?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -858,6 +864,7 @@ export type Database = {
           etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
+          impressoes?: NonNullable<Json>;
           me_order_id?: string | null;
           me_status?: string | null;
           order_id?: string;
@@ -867,6 +874,8 @@ export type Database = {
           servico?: string | null;
           status?: string;
           transportadora?: string | null;
+          trava_ate?: string | null;
+          trava_tipo?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1052,6 +1061,11 @@ export type Database = {
       };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
+      fulfillment_lock: {
+        Args: { p_order_id: string; p_segundos?: number; p_tipo: string };
+        Returns: string;
+      };
+      fulfillment_unlock: { Args: { p_order_id: string }; Returns: undefined };
       hit_rate_limit: {
         Args: { p_chave: string; p_janela_segundos: number; p_max: number };
         Returns: boolean;

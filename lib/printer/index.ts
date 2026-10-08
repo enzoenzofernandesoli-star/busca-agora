@@ -14,8 +14,11 @@ import {
 export interface Printer {
   /** False while PrintNode is not set up: the queue skips printing. */
   readonly enabled: boolean;
-  /** Prints in the given order; one idempotency key per document. */
-  print(docs: PrintDoc[], keyPrefix: string): Promise<number[]>;
+  /**
+   * Sends one document. Returns the print job id, or "repetido" when the
+   * same key was already printed (PrintNode 409, within its 24 h window).
+   */
+  printOne(doc: PrintDoc, key: string): Promise<number | "repetido">;
 }
 
 export function printNodePrinter(
@@ -28,30 +31,24 @@ export function printNodePrinter(
     Boolean(apiKey) && Number.isInteger(printerId) && printerId > 0;
   return {
     enabled,
-    async print(docs, keyPrefix) {
+    async printOne(doc, key) {
       if (!enabled || !apiKey) throw new Error("PrintNode não configurado");
-      const ids: number[] = [];
-      for (const [i, doc] of docs.entries()) {
-        const job = buildPrintJob(printerId, doc, `${keyPrefix}/${i}`);
-        const res = await fetchImpl("https://api.printnode.com/printjobs", {
-          method: "POST",
-          headers: {
-            ...job.headers,
-            Authorization: basicAuthHeader(apiKey),
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(job.body),
-          signal: AbortSignal.timeout(20_000),
-          cache: "no-store",
-        });
-        const json: unknown = await res.json().catch(() => null);
-        // 409: this idempotency key was already printed (a retry of the
-        // same run, within PrintNode's 24 h window): not printed again.
-        if (res.status === 409) continue;
-        if (!res.ok) throw new Error(printNodeErrorMessage(res.status, json));
-        ids.push(parsePrintJobResponse(json));
-      }
-      return ids;
+      const job = buildPrintJob(printerId, doc, key);
+      const res = await fetchImpl("https://api.printnode.com/printjobs", {
+        method: "POST",
+        headers: {
+          ...job.headers,
+          Authorization: basicAuthHeader(apiKey),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(job.body),
+        signal: AbortSignal.timeout(20_000),
+        cache: "no-store",
+      });
+      const json: unknown = await res.json().catch(() => null);
+      if (res.status === 409) return "repetido";
+      if (!res.ok) throw new Error(printNodeErrorMessage(res.status, json));
+      return parsePrintJobResponse(json);
     },
   };
 }

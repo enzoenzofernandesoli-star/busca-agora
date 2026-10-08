@@ -211,7 +211,7 @@ describe("fulfillment chain", () => {
     // No PrintNode: the summary is saved, nothing printed, order stays.
     const off = await printHandler(() => ({
       enabled: false,
-      print: vi.fn(),
+      printOne: vi.fn(),
     }))(job(order.id, "print"));
     expect(off).toMatch(/Não impresso/);
     st = await orderState(order.id);
@@ -241,12 +241,14 @@ describe("fulfillment chain", () => {
     await invoiceHandler()(job(order.id, "invoice"));
     await labelHandler(fakeLabels())(job(order.id, "label"));
 
-    const print = vi.fn(async () => [1, 2]);
-    await printHandler(() => ({ enabled: true, print }))(
+    const printOne = vi.fn(async () => 1);
+    await printHandler(() => ({ enabled: true, printOne }))(
       job(order.id, "print"),
     );
-    expect(print).toHaveBeenCalledOnce();
-    const docs = (print.mock.calls[0] as unknown as [{ titulo: string }[]])[0];
+    expect(printOne).toHaveBeenCalledTimes(2);
+    const docs = printOne.mock.calls.map(
+      (c) => (c as unknown as [{ titulo: string }])[0],
+    );
     expect(docs.map((d) => d.titulo)).toEqual([
       `${order.numero} resumo`,
       `${order.numero} etiqueta`,
@@ -341,5 +343,114 @@ describe("tracking poll", () => {
     st = await orderState(order.id);
     expect(st.status).toBe("delivered");
     expect(st.jobs.filter((j) => j === "email:delivered")).toHaveLength(1);
+  });
+});
+
+describe("review fixes (Codex, 08/10)", () => {
+  it("two label runs at once: only one buys", async () => {
+    const order = await paidOrder();
+    await invoiceHandler()(job(order.id, "invoice"));
+    const a = fakeLabels();
+    const b = fakeLabels();
+    const results = await Promise.allSettled([
+      labelHandler(a)(job(order.id, "label")),
+      labelHandler(b)(job(order.id, "label")),
+    ]);
+    expect(results.filter((r) => r.status === "rejected")).toHaveLength(1);
+    expect(a.addToCart.mock.calls.length + b.addToCart.mock.calls.length).toBe(
+      1,
+    );
+    expect(a.checkout.mock.calls.length + b.checkout.mock.calls.length).toBe(1);
+  });
+
+  it("refunded while the label run waits: no purchase", async () => {
+    const order = await paidOrder();
+    await invoiceHandler()(job(order.id, "invoice"));
+    const admin = serviceClient();
+    const labels = fakeLabels();
+    // While Melhor Envio answers the status, the lease blocks the refund...
+    labels.status.mockImplementationOnce(async () => {
+      const r = await admin.rpc("set_order_status", {
+        p_order_id: order.id,
+        p_status: "refunded",
+      });
+      expect(r.error?.message).toBe("fulfillment_in_progress");
+      return "pending";
+    });
+    await labelHandler(labels)(job(order.id, "label"));
+    expect(labels.checkout).toHaveBeenCalledOnce();
+    // ...and a refund decided before the run makes it skip the purchase.
+    const other = await paidOrder();
+    await invoiceHandler()(job(other.id, "invoice"));
+    await admin.rpc("set_order_status", {
+      p_order_id: other.id,
+      p_status: "refunded",
+    });
+    const l2 = fakeLabels();
+    expect(await labelHandler(l2)(job(other.id, "label"))).toMatch(/Pulado/);
+    expect(l2.addToCart).not.toHaveBeenCalled();
+    expect(l2.checkout).not.toHaveBeenCalled();
+  });
+
+  it("the Melhor Envio id can never be replaced", async () => {
+    const order = await paidOrder();
+    await invoiceHandler()(job(order.id, "invoice"));
+    await labelHandler(fakeLabels())(job(order.id, "label"));
+    const r = await serviceClient()
+      .from("shipments")
+      .update({ me_order_id: "outro-id" })
+      .eq("order_id", order.id);
+    expect(r.error?.message).toContain("me_order_id_immutable");
+  });
+
+  it("a print retry resumes: what was sent is not sent again", async () => {
+    const order = await paidOrder();
+    await invoiceHandler()(job(order.id, "invoice"));
+    await labelHandler(fakeLabels())(job(order.id, "label"));
+    let n = 0;
+    const printOne = vi.fn(async () => {
+      n++;
+      if (n === 2) throw new Error("PrintNode fora do ar");
+      return n;
+    });
+    const printer = () => ({ enabled: true, printOne });
+    await expect(printHandler(printer)(job(order.id, "print"))).rejects.toThrow(
+      /fora do ar/,
+    );
+    await printHandler(printer)(job(order.id, "print"));
+    const titulos = printOne.mock.calls.map(
+      (c) => (c as unknown as [{ titulo: string }])[0].titulo,
+    );
+    expect(titulos).toEqual([
+      `${order.numero} resumo`,
+      `${order.numero} etiqueta`,
+      `${order.numero} etiqueta`,
+    ]);
+    expect((await orderState(order.id)).status).toBe("printed");
+
+    // 25 h later, the same round is not resumed automatically.
+    const late = vi.fn(async () => 9);
+    const o2 = await paidOrder();
+    await invoiceHandler()(job(o2.id, "invoice"));
+    await labelHandler(fakeLabels())(job(o2.id, "label"));
+    let k = 0;
+    const flaky = vi.fn(async () => {
+      k++;
+      if (k === 2) throw new Error("503");
+      return k;
+    });
+    await expect(
+      printHandler(() => ({ enabled: true, printOne: flaky }))(
+        job(o2.id, "print"),
+      ),
+    ).rejects.toThrow();
+    const later = () => new Date(Date.now() + 25 * 3_600_000);
+    expect(
+      await printHandler(
+        () => ({ enabled: true, printOne: late }),
+        later,
+      )(job(o2.id, "print")),
+    ).toMatch(/tentativa antiga/);
+    expect(late).not.toHaveBeenCalled();
   });
 });
