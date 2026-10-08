@@ -59,6 +59,10 @@ export const serverEnvSchema = publicEnvSchema.extend({
   PRINTNODE_API_KEY: optionalString,
   PRINTNODE_PRINTER_ID: optionalString,
   RESEND_API_KEY: optionalString,
+  // Free e-mail path (decision of 08/10): the store's Gmail with an app
+  // password, until there is a domain for Resend.
+  GMAIL_USER: optionalString,
+  GMAIL_APP_PASSWORD: optionalString,
   TELEGRAM_BOT_TOKEN: optionalString,
   TELEGRAM_CHAT_ID: optionalString,
   // Optional by decision (Sentry stays off without it), but must be a URL when set.
@@ -80,6 +84,8 @@ export type OptionalEnvKey =
   | "PRINTNODE_API_KEY"
   | "PRINTNODE_PRINTER_ID"
   | "RESEND_API_KEY"
+  | "GMAIL_USER"
+  | "GMAIL_APP_PASSWORD"
   | "TELEGRAM_BOT_TOKEN"
   | "TELEGRAM_CHAT_ID"
   | "SENTRY_DSN"

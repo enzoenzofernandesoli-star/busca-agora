@@ -244,6 +244,25 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Store-branded Auth e-mails, generated from emails/auth.tsx
+# (tests/unit/auth-email-templates.test.tsx). The real project uses the same
+# files, pasted in Dashboard > Authentication > Emails.
+[auth.email.template.confirmation]
+subject = "Confirme seu cadastro na Busca Agora"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Criar uma senha nova na Busca Agora"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirme seu novo e-mail na Busca Agora"
+content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.magic_link]
+subject = "Seu link de acesso à Busca Agora"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
