@@ -362,7 +362,8 @@ export default async function HomePage(props: PageProps<"/">) {
       props.searchParams,
     ]);
 
-  // Opening animation: first visit (proxy.ts saw no ba_visto cookie) or
+  // Opening animation: once per browser session (proxy.ts saw no ba_sessao
+  // cookie on a real page load) or
   // opened as the installed app (start_url ?origem=pwa). Never on deep
   // links: only this page has it.
   const showSplash =

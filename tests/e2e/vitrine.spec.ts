@@ -127,7 +127,7 @@ test.describe("abertura (splash)", () => {
 
   // page.clock cannot be used here: a frozen clock also stops React from
   // hydrating, so the splash would never close. Real time, generous waits.
-  test("aparece só na primeira visita e some sozinho", async ({
+  test("aparece uma vez por sessão e some sozinho", async ({
     page,
     context,
   }) => {
@@ -136,15 +136,42 @@ test.describe("abertura (splash)", () => {
     expect(await res?.text()).toContain("Abertura da Busca Agora");
     await expect
       .poll(async () => (await context.cookies()).map((c) => c.name))
-      .toContain("ba_visto");
+      .toContain("ba_sessao");
     const splash = page.getByRole("dialog", {
       name: "Abertura da Busca Agora",
     });
     // 1.5 s after hydration at most (with margin for the dev server).
     await expect(splash).toHaveCount(0, { timeout: 3_000 });
 
+    // F5 in the same session: no animation again.
     await page.reload();
     await expect(splash).toHaveCount(0);
+    const cookie = (await context.cookies()).find(
+      (c) => c.name === "ba_sessao",
+    );
+    // Session cookie: a new browser session shows it again.
+    expect(cookie?.expires).toBe(-1);
+  });
+
+  test("pré-carregar a Home não gasta a abertura", async ({
+    page,
+    context,
+  }) => {
+    // What a <Link href="/"> prefetch does before the visitor opens the Home.
+    await page.request.get("/", {
+      headers: {
+        rsc: "1",
+        "next-router-prefetch": "1",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+      },
+    });
+    await page.request.get("/", { headers: { "sec-purpose": "prefetch" } });
+    expect((await context.cookies()).map((c) => c.name)).not.toContain(
+      "ba_sessao",
+    );
+    const res = await page.goto("/");
+    expect(await res?.text()).toContain("Abertura da Busca Agora");
   });
 
   test("Pular fecha na hora", async ({ page, context }) => {
@@ -178,7 +205,7 @@ test.describe("abertura (splash)", () => {
       .poll(async () => (await context.cookies()).map((c) => c.name), {
         intervals: [50],
       })
-      .toContain("ba_visto");
+      .toContain("ba_sessao");
     const splash = page.getByRole("dialog", {
       name: "Abertura da Busca Agora",
     });

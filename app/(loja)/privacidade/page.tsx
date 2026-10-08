@@ -172,7 +172,9 @@ export default async function PrivacyPage() {
       <ul>
         <li>sessão de login (manter você conectado);</li>
         <li>carrinho (lembrar o que você adicionou);</li>
-        <li>abertura animada (mostrar só na primeira visita);</li>
+        <li>
+          abertura animada (mostrar uma vez a cada vez que você abre o site);
+        </li>
         <li>aviso de cookies (não mostrar o aviso de novo).</li>
       </ul>
       <p>
