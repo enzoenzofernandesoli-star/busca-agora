@@ -44,6 +44,7 @@ describe("notices are enqueued by the database", () => {
     expect(await jobsOf(order.id)).toEqual([
       "email:paid",
       "email:pending_payment",
+      "invoice:",
       "notify:paid",
     ]);
   });

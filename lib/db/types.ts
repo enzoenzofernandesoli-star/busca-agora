@@ -453,6 +453,7 @@ export type Database = {
           estoque_devolvido_em: string | null;
           frete_cents: number;
           frete_servico: string | null;
+          frete_servico_id: number | null;
           id: string;
           numero: string;
           payment_method: Database["public"]["Enums"]["payment_method"];
@@ -473,6 +474,7 @@ export type Database = {
           estoque_devolvido_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
+          frete_servico_id?: number | null;
           id?: string;
           numero?: string;
           payment_method: Database["public"]["Enums"]["payment_method"];
@@ -493,6 +495,7 @@ export type Database = {
           estoque_devolvido_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
+          frete_servico_id?: number | null;
           id?: string;
           numero?: string;
           payment_method?: Database["public"]["Enums"]["payment_method"];
@@ -820,11 +823,15 @@ export type Database = {
       shipments: {
         Row: {
           created_at: string;
+          etiqueta_path: string | null;
           etiqueta_url: string | null;
           id: string;
           me_order_id: string | null;
+          me_status: string | null;
           order_id: string;
           rastreio: string | null;
+          rastreio_consultado_em: string | null;
+          resumo_path: string | null;
           servico: string | null;
           status: string;
           transportadora: string | null;
@@ -832,11 +839,15 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
           me_order_id?: string | null;
+          me_status?: string | null;
           order_id: string;
           rastreio?: string | null;
+          rastreio_consultado_em?: string | null;
+          resumo_path?: string | null;
           servico?: string | null;
           status: string;
           transportadora?: string | null;
@@ -844,11 +855,15 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
           me_order_id?: string | null;
+          me_status?: string | null;
           order_id?: string;
           rastreio?: string | null;
+          rastreio_consultado_em?: string | null;
+          resumo_path?: string | null;
           servico?: string | null;
           status?: string;
           transportadora?: string | null;
@@ -1118,6 +1133,7 @@ export type Database = {
           slug: string;
         }[];
       };
+      tracking_tick: { Args: Record<PropertyKey, never>; Returns: undefined };
     };
     Enums: {
       job_status: "pending" | "running" | "done" | "failed";

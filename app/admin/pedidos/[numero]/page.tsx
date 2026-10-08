@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { ShipmentCard } from "@/components/admin/shipment-card";
 import { OrderTimeline } from "@/components/admin/order-timeline";
 import { StatusBadge } from "@/components/admin/status-badge";
 import {
@@ -13,6 +14,8 @@ import {
 import { getOrderByNumber } from "@/lib/admin/queries";
 import { formatCpf } from "@/lib/br/cpf";
 import { formatBRL } from "@/lib/format";
+import { trackingUrl } from "@/lib/orders/notice-data";
+import { signedDocumentUrl } from "@/lib/storage/documents";
 
 export const metadata = { title: "Pedido" };
 
@@ -53,6 +56,21 @@ export default async function AdminPedido(
   const { order, eventos, jobs } = data;
   const endereco = (order.endereco ?? {}) as Record<string, string | undefined>;
   const pago = !["pending_payment", "canceled"].includes(order.status);
+  const nota = Array.isArray(order.invoices)
+    ? order.invoices[0]
+    : order.invoices;
+  const envio = Array.isArray(order.shipments)
+    ? order.shipments[0]
+    : order.shipments;
+  const notaPendente =
+    (order.status === "paid" && !nota) || nota?.status === "pendente_manual";
+  const [etiquetaUrl, resumoUrl] = await Promise.all([
+    signedDocumentUrl(envio?.etiqueta_path ?? null),
+    signedDocumentUrl(envio?.resumo_path ?? null),
+  ]);
+  const erroEtiqueta =
+    jobs.find((j) => j.tipo === "label" && j.ultimo_erro && j.status !== "done")
+      ?.ultimo_erro ?? null;
 
   return (
     <>
@@ -82,7 +100,7 @@ export default async function AdminPedido(
               campos={{ orderId: order.id }}
             />
           ) : null}
-          {order.status === "paid" ? (
+          {notaPendente ? (
             <ConfirmDialog
               gatilho="Marcar nota manual emitida"
               titulo="A nota deste pedido já foi emitida à mão?"
@@ -191,13 +209,23 @@ export default async function AdminPedido(
             <br />
             {endereco.cep ? `CEP ${endereco.cep}` : null}
           </p>
-          {order.shipments?.rastreio ? (
-            <p className="m-0 text-[15px]">
-              Rastreio: <b>{order.shipments.rastreio}</b>
-            </p>
-          ) : null}
         </section>
       </div>
+
+      {pago ? (
+        <ShipmentCard
+          status={order.status}
+          servico={envio?.servico ?? order.frete_servico}
+          transportadora={envio?.transportadora ?? null}
+          rastreio={envio?.rastreio ?? null}
+          rastreioUrl={trackingUrl(envio?.rastreio ?? null)}
+          meStatus={envio?.me_status ?? null}
+          etiquetaUrl={etiquetaUrl}
+          resumoUrl={resumoUrl}
+          notaManual={notaPendente}
+          erroEtiqueta={erroEtiqueta}
+        />
+      ) : null}
 
       {jobs.length > 0 ? (
         <section className={card} aria-labelledby="fila">

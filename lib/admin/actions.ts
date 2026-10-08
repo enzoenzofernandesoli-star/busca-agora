@@ -509,13 +509,21 @@ export async function markInvoiceManual(
 
   const { data: order } = await admin
     .from("orders")
-    .select("status")
+    .select("status, invoices(status)")
     .eq("id", orderId)
     .single();
-  if (!order || order.status !== "paid") {
+  const nota = Array.isArray(order?.invoices)
+    ? order.invoices[0]
+    : order?.invoices;
+  // Paid and not yet through the queue, or already sent on by the queue
+  // with the note pending (NF-e off: the label goes first).
+  const podeMarcar =
+    order &&
+    ((order.status === "paid" && !nota) || nota?.status === "pendente_manual");
+  if (!podeMarcar) {
     return {
       ok: false,
-      message: "Só pedidos pagos, ainda sem nota, recebem a nota manual.",
+      message: "Este pedido não está esperando nota manual.",
     };
   }
 
@@ -527,12 +535,14 @@ export async function markInvoiceManual(
     );
   if (error) return { ok: false, message: GENERIC.message };
 
-  const status = await admin.rpc("set_order_status", {
-    p_order_id: orderId,
-    p_status: "invoiced",
-    p_detalhe: { origem: "admin", nota: "manual" },
-  });
-  if (status.error) return { ok: false, message: GENERIC.message };
+  if (order.status === "paid") {
+    const status = await admin.rpc("set_order_status", {
+      p_order_id: orderId,
+      p_status: "invoiced",
+      p_detalhe: { origem: "admin", nota: "manual" },
+    });
+    if (status.error) return { ok: false, message: GENERIC.message };
+  }
   await logAdminAction(admin, orderId, user.email, "nota_manual", {
     observacao: motivo ?? null,
   });
