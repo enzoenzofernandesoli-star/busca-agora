@@ -167,6 +167,10 @@ test.describe("abertura (splash)", () => {
       },
     });
     await page.request.get("/", { headers: { "sec-purpose": "prefetch" } });
+    // RSC prefetch without Fetch Metadata headers at all.
+    await page.request.get("/?_rsc=teste", {
+      headers: { rsc: "1", "next-router-prefetch": "1" },
+    });
     expect((await context.cookies()).map((c) => c.name)).not.toContain(
       "ba_sessao",
     );

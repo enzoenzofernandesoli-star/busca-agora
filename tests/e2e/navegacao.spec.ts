@@ -65,3 +65,35 @@ test("rota de saúde responde (usada para manter o servidor acordado)", async ({
   expect(res.ok()).toBe(true);
   expect(await res.json()).toEqual({ ok: true });
 });
+
+test("redirecionado de volta para a mesma página, a barra termina", async ({
+  page,
+}) => {
+  // Logged out on the login page of /conta/pedidos: clicking "Pedidos"
+  // asks for /conta/pedidos and the server sends us right back here.
+  await page.goto("/entrar?volta=%2Fconta%2Fpedidos");
+  const barra = page.getByTestId("barra-navegacao");
+  await expect(barra).toHaveAttribute("data-pronto", "1", { timeout: 20_000 });
+  // Record every phase, to prove the bar did start.
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="barra-navegacao"]')!;
+    const fases: string[] = [];
+    (window as unknown as { fases: string[] }).fases = fases;
+    new MutationObserver(() =>
+      fases.push(el.getAttribute("data-fase") ?? ""),
+    ).observe(el, { attributes: true, attributeFilter: ["data-fase"] });
+  });
+  await page
+    .getByRole("link", { name: /pedidos/i })
+    .filter({ visible: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/entrar\?volta=%2Fconta%2Fpedidos$/);
+  await expect(barra).toHaveAttribute("data-fase", "parado", {
+    timeout: 4_000,
+  });
+  const fases = await page.evaluate(
+    () => (window as unknown as { fases: string[] }).fases,
+  );
+  expect(fases).toContain("carregando");
+});

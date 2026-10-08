@@ -7,7 +7,7 @@ import { NAV_START_EVENT } from "@/lib/navigation-events";
 
 type Navegacao =
   | { fase: "parado" }
-  | { fase: "carregando"; alvo: string; partida: string }
+  | { fase: "carregando"; alvo: string; partida: string; desde: number }
   | { fase: "terminando" };
 
 /**
@@ -42,7 +42,12 @@ export function NavigationProgress() {
       const alvo = destino.pathname + destino.search;
       // Same page (only the #hash changes): nothing to wait for.
       if (alvo === atualRef.current) return;
-      setNav({ fase: "carregando", alvo, partida: atualRef.current });
+      setNav({
+        fase: "carregando",
+        alvo,
+        partida: atualRef.current,
+        desde: performance.now(),
+      });
     }
     window.addEventListener(NAV_START_EVENT, onStart);
     // Listening: links now navigate on the client (tests wait for this).
@@ -60,9 +65,40 @@ export function NavigationProgress() {
     setNav({ fase: "terminando" });
   }
 
+  // Arrived without a URL change (the server redirected back to the page we
+  // were on, e.g. /conta -> /entrar while already on /entrar): the target's
+  // data request (RSC fetch, "_rsc" query) finished, so the router has what
+  // it needs. A short delay lets it paint first.
+  useEffect(() => {
+    if (nav.fase !== "carregando" || typeof PerformanceObserver === "undefined")
+      return;
+    const alvoPath = nav.alvo.split("?")[0];
+    let t: number | undefined;
+    const obs = new PerformanceObserver((lista) => {
+      const chegou = lista.getEntries().some((e) => {
+        if (e.startTime < nav.desde - 50) return false;
+        try {
+          const u = new URL(e.name);
+          return u.searchParams.has("_rsc") && u.pathname === alvoPath;
+        } catch {
+          return false;
+        }
+      });
+      if (chegou && t === undefined) {
+        t = window.setTimeout(() => setNav({ fase: "terminando" }), 150);
+      }
+    });
+    obs.observe({ type: "resource", buffered: false });
+    return () => {
+      obs.disconnect();
+      window.clearTimeout(t);
+    };
+  }, [nav]);
+
   useEffect(() => {
     if (nav.fase === "parado") return;
-    // Fade out after finishing; never stuck if a navigation is cancelled.
+    // Fade out after finishing. 15 s is only the last resort for a
+    // navigation that never answers.
     const t = window.setTimeout(
       () => setNav({ fase: "parado" }),
       nav.fase === "terminando" ? 300 : 15_000,

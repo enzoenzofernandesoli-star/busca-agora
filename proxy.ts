@@ -21,10 +21,12 @@ export async function proxy(request: NextRequest) {
     // spend the animation: a prefetch of the header logo link used to set
     // the cookie before the visitor ever opened the Home. Next.js strips its
     // own RSC headers before the proxy, so the browser's headers decide.
+    // A missing header proves nothing (an RSC prefetch without it would
+    // spend the animation), so only "document" counts; browsers without
+    // Fetch Metadata simply skip the animation.
     const h = request.headers;
-    const destino = h.get("sec-fetch-dest");
     const carregamento =
-      (destino === null || destino === "document") &&
+      h.get("sec-fetch-dest") === "document" &&
       h.get("purpose") !== "prefetch" &&
       !(h.get("sec-purpose") ?? "").includes("prefetch");
     const abrirAgora = carregamento && !request.cookies.has(SESSION_COOKIE);
