@@ -453,6 +453,7 @@ export type Database = {
           estoque_devolvido_em: string | null;
           frete_cents: number;
           frete_servico: string | null;
+          frete_servico_id: number | null;
           id: string;
           numero: string;
           payment_method: Database["public"]["Enums"]["payment_method"];
@@ -473,6 +474,7 @@ export type Database = {
           estoque_devolvido_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
+          frete_servico_id?: number | null;
           id?: string;
           numero?: string;
           payment_method: Database["public"]["Enums"]["payment_method"];
@@ -493,6 +495,7 @@ export type Database = {
           estoque_devolvido_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
+          frete_servico_id?: number | null;
           id?: string;
           numero?: string;
           payment_method?: Database["public"]["Enums"]["payment_method"];
@@ -820,38 +823,59 @@ export type Database = {
       shipments: {
         Row: {
           created_at: string;
+          etiqueta_path: string | null;
           etiqueta_url: string | null;
           id: string;
+          impressoes: NonNullable<Json>;
           me_order_id: string | null;
+          me_status: string | null;
           order_id: string;
           rastreio: string | null;
+          rastreio_consultado_em: string | null;
+          resumo_path: string | null;
           servico: string | null;
           status: string;
           transportadora: string | null;
+          trava_ate: string | null;
+          trava_tipo: string | null;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
+          etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
+          impressoes?: NonNullable<Json>;
           me_order_id?: string | null;
+          me_status?: string | null;
           order_id: string;
           rastreio?: string | null;
+          rastreio_consultado_em?: string | null;
+          resumo_path?: string | null;
           servico?: string | null;
           status: string;
           transportadora?: string | null;
+          trava_ate?: string | null;
+          trava_tipo?: string | null;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
+          etiqueta_path?: string | null;
           etiqueta_url?: string | null;
           id?: string;
+          impressoes?: NonNullable<Json>;
           me_order_id?: string | null;
+          me_status?: string | null;
           order_id?: string;
           rastreio?: string | null;
+          rastreio_consultado_em?: string | null;
+          resumo_path?: string | null;
           servico?: string | null;
           status?: string;
           transportadora?: string | null;
+          trava_ate?: string | null;
+          trava_tipo?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1037,6 +1061,11 @@ export type Database = {
       };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
+      fulfillment_lock: {
+        Args: { p_order_id: string; p_segundos?: number; p_tipo: string };
+        Returns: string;
+      };
+      fulfillment_unlock: { Args: { p_order_id: string }; Returns: undefined };
       hit_rate_limit: {
         Args: { p_chave: string; p_janela_segundos: number; p_max: number };
         Returns: boolean;
@@ -1118,6 +1147,7 @@ export type Database = {
           slug: string;
         }[];
       };
+      tracking_tick: { Args: Record<PropertyKey, never>; Returns: undefined };
     };
     Enums: {
       job_status: "pending" | "running" | "done" | "failed";

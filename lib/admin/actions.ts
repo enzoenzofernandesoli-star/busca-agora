@@ -509,13 +509,21 @@ export async function markInvoiceManual(
 
   const { data: order } = await admin
     .from("orders")
-    .select("status")
+    .select("status, invoices(status)")
     .eq("id", orderId)
     .single();
-  if (!order || order.status !== "paid") {
+  const nota = Array.isArray(order?.invoices)
+    ? order.invoices[0]
+    : order?.invoices;
+  // Paid and not yet through the queue, or already sent on by the queue
+  // with the note pending (NF-e off: the label goes first).
+  const podeMarcar =
+    order &&
+    ((order.status === "paid" && !nota) || nota?.status === "pendente_manual");
+  if (!podeMarcar) {
     return {
       ok: false,
-      message: "Só pedidos pagos, ainda sem nota, recebem a nota manual.",
+      message: "Este pedido não está esperando nota manual.",
     };
   }
 
@@ -527,12 +535,14 @@ export async function markInvoiceManual(
     );
   if (error) return { ok: false, message: GENERIC.message };
 
-  const status = await admin.rpc("set_order_status", {
-    p_order_id: orderId,
-    p_status: "invoiced",
-    p_detalhe: { origem: "admin", nota: "manual" },
-  });
-  if (status.error) return { ok: false, message: GENERIC.message };
+  if (order.status === "paid") {
+    const status = await admin.rpc("set_order_status", {
+      p_order_id: orderId,
+      p_status: "invoiced",
+      p_detalhe: { origem: "admin", nota: "manual" },
+    });
+    if (status.error) return { ok: false, message: GENERIC.message };
+  }
   await logAdminAction(admin, orderId, user.email, "nota_manual", {
     observacao: motivo ?? null,
   });
@@ -555,18 +565,39 @@ export async function requeueJob(formData: FormData): Promise<ActionResult> {
   const admin = createAdminClient();
   const { orderId, tipo, motivo } = parsed.data;
 
-  const { error } = await admin.from("jobs").upsert(
-    {
-      order_id: orderId,
-      tipo,
-      status: "pending",
-      tentativas: 0,
-      ultimo_erro: null,
-      run_at: new Date().toISOString(),
-    },
-    { onConflict: "tipo,order_id,etapa" },
-  );
-  if (error) return { ok: false, message: GENERIC.message };
+  // Never touch a job that is waiting or running: putting a running job
+  // back to "pending" would let a second worker start it in parallel.
+  const novo = {
+    status: "pending" as const,
+    tentativas: 0,
+    ultimo_erro: null,
+    run_at: new Date().toISOString(),
+  };
+  const { data: existente } = await admin
+    .from("jobs")
+    .select("id, status")
+    .eq("order_id", orderId)
+    .eq("tipo", tipo)
+    .eq("etapa", "")
+    .maybeSingle();
+  if (existente && !["done", "failed"].includes(existente.status)) {
+    return {
+      ok: false,
+      message: "Isso já está na fila ou rodando agora. Espere terminar.",
+    };
+  }
+  const { data: feito, error } = existente
+    ? await admin
+        .from("jobs")
+        .update(novo)
+        .eq("id", existente.id)
+        .in("status", ["done", "failed"])
+        .select("id")
+    : await admin
+        .from("jobs")
+        .insert({ ...novo, order_id: orderId, tipo })
+        .select("id");
+  if (error || !feito?.length) return { ok: false, message: GENERIC.message };
 
   await admin.from("order_events").insert({
     order_id: orderId,

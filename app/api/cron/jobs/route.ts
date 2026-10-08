@@ -1,6 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
-
-import { env } from "@/lib/env";
+import { authorizedCron } from "@/lib/cron-auth";
 import { runDueJobs } from "@/lib/jobs/run";
 
 // Called every minute by Supabase pg_cron (POST) and once a day by Vercel
@@ -8,16 +6,8 @@ import { runDueJobs } from "@/lib/jobs/run";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-function authorized(request: Request): boolean {
-  const secret = env.CRON_SECRET;
-  if (!secret) return false;
-  const got = Buffer.from(request.headers.get("authorization") ?? "");
-  const want = Buffer.from(`Bearer ${secret}`);
-  return got.length === want.length && timingSafeEqual(got, want);
-}
-
 async function handle(request: Request) {
-  if (!authorized(request)) {
+  if (!authorizedCron(request)) {
     return Response.json({ ok: false }, { status: 401 });
   }
   const summary = await runDueJobs();

@@ -11,7 +11,7 @@ import { toShippingOptions } from "./schemas";
 // Melhor Envio, "Cálculo de fretes por produtos":
 // POST {base}/api/v2/me/shipment/calculate
 // https://docs.melhorenvio.com.br/reference/calculo-de-fretes-por-produtos
-const BASE_URL = {
+export const BASE_URL = {
   sandbox: "https://sandbox.melhorenvio.com.br",
   production: "https://melhorenvio.com.br",
 } as const;

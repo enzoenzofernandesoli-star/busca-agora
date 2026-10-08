@@ -28,6 +28,7 @@ import {
 } from "@/lib/orders/notice-data";
 import { RETURN_REASONS } from "@/lib/orders/return-schema";
 
+import { invoiceHandler, labelHandler, printHandler } from "./fulfillment";
 import type { Job, JobHandler, JobType } from "./worker";
 
 function baseProps(o: OrderNotice): OrderEmailBase {
@@ -205,7 +206,12 @@ export function exhaustedAlert(notifier: Notifier = telegramNotifier()) {
   };
 }
 
-/** Phase 6 adds invoice, label and print here. */
 export function defaultHandlers(): Partial<Record<JobType, JobHandler>> {
-  return { email: emailHandler(), notify: notifyHandler() };
+  return {
+    email: emailHandler(),
+    notify: notifyHandler(),
+    invoice: invoiceHandler(),
+    label: labelHandler(),
+    print: printHandler(),
+  };
 }
