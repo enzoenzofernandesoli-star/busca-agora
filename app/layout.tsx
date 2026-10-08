@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sora } from "next/font/google";
 
+import { Suspense } from "react";
+
+import { NavigationProgress } from "@/components/navegacao/navigation-progress";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 
 import "./globals.css";
@@ -59,6 +62,10 @@ export default function RootLayout({
       className={`${sora.variable} ${dmSans.variable} antialiased`}
     >
       <body className="min-h-dvh bg-fundo font-sans text-noite">
+        {/* useSearchParams needs a boundary so static pages stay static. */}
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
         <RegisterServiceWorker />
       </body>
