@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useId, useRef, useState, useTransition } from "react";
 
 export function ConfirmDialog({
@@ -10,6 +11,7 @@ export function ConfirmDialog({
   perigo = false,
   action,
   campos,
+  depois,
 }: {
   gatilho: string;
   titulo: string;
@@ -18,7 +20,10 @@ export function ConfirmDialog({
   perigo?: boolean;
   action: (formData: FormData) => Promise<{ ok: boolean; message?: string }>;
   campos?: Record<string, string>;
+  /** Page to open after success (e.g. the list, after deleting). */
+  depois?: string;
 }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -38,6 +43,7 @@ export function ConfirmDialog({
         const result = await action(formData);
         if (result.ok) {
           setDone(true);
+          if (depois) router.push(depois);
           dialogRef.current?.close();
         } else
           setError(

@@ -134,7 +134,17 @@ export async function signIn(
   }
   // What the visitor put in the cart before logging in is kept.
   await mergeGuestCart(data.user.id);
-  redirect(safeNext(formData.get("volta")));
+  const volta = safeNext(formData.get("volta"));
+  // Admins go straight to the panel unless they asked for a page.
+  if (volta === "/conta") {
+    const { data: perfil } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+    if (perfil?.role === "admin") redirect("/admin");
+  }
+  redirect(volta);
 }
 
 export async function signInWithGoogle(formData: FormData): Promise<void> {

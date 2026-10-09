@@ -54,9 +54,93 @@ export async function getDashboard(): Promise<Dashboard> {
   };
 }
 
+export type DashboardV2 = {
+  vendasHojeCents: number;
+  pedidosHoje: number;
+  vendas7dCents: number;
+  pedidos7d: number;
+  vendas7dAnteriorCents: number;
+  pedidos7dAnterior: number;
+  aEnviar: number;
+  jobsErro: number;
+  estoqueBaixo: number;
+  notasPendentes: number;
+  dias: { dia: string; totalCents: number; pedidos: number }[];
+  ultimos: {
+    numero: string;
+    cliente: string;
+    totalCents: number;
+    status: OrderStatus;
+    criadoEm: string;
+    itens: number;
+  }[];
+};
+
+export async function getDashboardV2(): Promise<DashboardV2> {
+  const { data, error } = await (await adminDb()).rpc("admin_dashboard_v2");
+  if (error || !data) fail("dashboard", error);
+  const d = data as Record<string, unknown>;
+  const n = (k: string) => Number(d[k] ?? 0);
+  const dias = (d.dias ?? []) as {
+    dia: string;
+    total_cents: number;
+    pedidos: number;
+  }[];
+  const ultimos = (d.ultimos ?? []) as {
+    numero: string;
+    cliente_nome: string;
+    total_cents: number;
+    status: OrderStatus;
+    created_at: string;
+    itens: number;
+  }[];
+  return {
+    vendasHojeCents: n("vendas_hoje_cents"),
+    pedidosHoje: n("pedidos_hoje"),
+    vendas7dCents: n("vendas_7d_cents"),
+    pedidos7d: n("pedidos_7d"),
+    vendas7dAnteriorCents: n("vendas_7d_anterior_cents"),
+    pedidos7dAnterior: n("pedidos_7d_anterior"),
+    aEnviar: n("a_enviar"),
+    jobsErro: n("jobs_erro"),
+    estoqueBaixo: n("estoque_baixo"),
+    notasPendentes: n("notas_pendentes"),
+    dias: dias.map((x) => ({
+      dia: x.dia,
+      totalCents: Number(x.total_cents),
+      pedidos: Number(x.pedidos),
+    })),
+    ultimos: ultimos.map((x) => ({
+      numero: x.numero,
+      cliente: x.cliente_nome,
+      totalCents: Number(x.total_cents),
+      status: x.status,
+      criadoEm: x.created_at,
+      itens: Number(x.itens),
+    })),
+  };
+}
+
+export type Periodo = "hoje" | "7d" | "30d";
+
+/** Start of the period in São Paulo time (orders since then). */
+export function periodoInicio(periodo: Periodo, agora = new Date()): Date {
+  const sp = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(agora); // "2026-10-08"
+  // São Paulo has no daylight saving time since 2019: UTC-3 all year.
+  const meiaNoite = new Date(`${sp}T00:00:00-03:00`);
+  const dias = periodo === "hoje" ? 0 : periodo === "7d" ? 6 : 29;
+  return new Date(meiaNoite.getTime() - dias * 86_400_000);
+}
+
 export async function listOrders(opts: {
   status?: OrderStatus | "a_enviar";
   busca?: string;
+  periodo?: Periodo;
 }) {
   let query = (await adminDb())
     .from("orders")
@@ -64,11 +148,14 @@ export async function listOrders(opts: {
       "id, numero, status, total_cents, cliente_nome, payment_method, created_at",
     )
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(500);
   if (opts.status === "a_enviar") {
     query = query.in("status", ["paid", "invoiced", "label_ready", "printed"]);
   } else if (opts.status) {
     query = query.eq("status", opts.status);
+  }
+  if (opts.periodo) {
+    query = query.gte("created_at", periodoInicio(opts.periodo).toISOString());
   }
   const busca = opts.busca?.trim().toUpperCase();
   if (busca) {
@@ -345,4 +432,26 @@ export async function getIntegrationStatus(): Promise<IntegrationStatus[]> {
     ),
     simples("Sentry (erros)", has(env.SENTRY_DSN), "Opcional."),
   ];
+}
+
+/** Admin accounts (Equipe). */
+export async function listTeam() {
+  const admin = await adminDb();
+  const [{ data: perfis, error }, users] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("id, nome, created_at")
+      .eq("role", "admin")
+      .order("created_at"),
+    admin.auth.admin.listUsers({ perPage: 1000 }),
+  ]);
+  if (error) fail("team", error);
+  const emails = new Map(
+    (users.data?.users ?? []).map((u) => [u.id, u.email ?? ""]),
+  );
+  return (perfis ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome || "(sem nome)",
+    email: emails.get(p.id) ?? "",
+  }));
 }

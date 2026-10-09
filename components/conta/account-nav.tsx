@@ -10,7 +10,14 @@ const items = [
   { label: "Pedidos", href: "/conta/pedidos", Icon: BoxIcon },
 ];
 
-export function AccountNav({ nome }: { nome: string }) {
+export function AccountNav({
+  nome,
+  admin = false,
+}: {
+  nome: string;
+  /** Shows "Painel da loja" (the panel itself checks the role again). */
+  admin?: boolean;
+}) {
   const pathname = usePathname();
   const firstName = nome.trim().split(/\s+/)[0] || "visitante";
   const itemClass =
@@ -42,6 +49,32 @@ export function AccountNav({ nome }: { nome: string }) {
             </li>
           );
         })}
+        {admin ? (
+          <li className="shrink-0">
+            <Link
+              href="/admin"
+              className={`${itemClass} bg-lima text-noite hover:bg-lima/80`}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" />
+              </svg>
+              Painel da loja
+            </Link>
+          </li>
+        ) : null}
         <li className="shrink-0">
           <form action="/auth/sair" method="post">
             <button

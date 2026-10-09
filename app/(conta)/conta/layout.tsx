@@ -20,7 +20,7 @@ export default async function ContaLayout({ children }: LayoutProps<"/conta">) {
 
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-8">
-      <AccountNav nome={user.nome} />
+      <AccountNav nome={user.nome} admin={user.role === "admin"} />
       <div className="flex min-w-0 flex-1 flex-col gap-5">{children}</div>
     </div>
   );

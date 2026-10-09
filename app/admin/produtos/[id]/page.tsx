@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { ProductForm } from "@/components/admin/product-form";
+import { deleteProduct } from "@/lib/admin/actions";
 import {
   getProductForEdit,
   listCategoriesAndBrands,
@@ -89,6 +91,35 @@ export default async function EditarProduto(
           })),
         }}
       />
+
+      <section
+        aria-labelledby="excluir"
+        className="flex flex-col gap-3 rounded-[22px] border border-rosa-ink/30 bg-rosa-tile p-5 md:p-7"
+      >
+        <h2
+          id="excluir"
+          className="m-0 font-display text-xl font-bold text-rosa-ink"
+        >
+          Excluir produto
+        </h2>
+        <p className="m-0 text-[15px] text-noite">
+          Some da loja e do painel, com variações e fotos. Os pedidos antigos
+          continuam com o nome e o preço da época. Para só esconder da loja,
+          desative em vez de excluir.
+        </p>
+        <div>
+          <ConfirmDialog
+            gatilho="Excluir produto"
+            titulo={`Excluir “${produto.nome}”?`}
+            texto="O produto, as variações e as fotos são apagados. Isso não pode ser desfeito."
+            confirmarLabel="Excluir para sempre"
+            perigo
+            action={deleteProduct}
+            campos={{ id: produto.id }}
+            depois="/admin/produtos?excluido=1"
+          />
+        </div>
+      </section>
     </>
   );
 }

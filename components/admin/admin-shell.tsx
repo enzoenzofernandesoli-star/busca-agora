@@ -42,6 +42,11 @@ const entries = [
     href: "/admin/configuracoes",
     path: "M4 7h16M4 17h16M8 4v6M16 14v6",
   },
+  {
+    title: "Equipe",
+    href: "/admin/equipe",
+    path: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+  },
 ];
 const focusClass =
   "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar";
