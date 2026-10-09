@@ -203,6 +203,25 @@ export async function toggleProduct(formData: FormData): Promise<void> {
   revalidatePath("/", "layout");
 }
 
+const deleteSchema = z.object({ id: z.uuid() });
+
+/** Deletes a product, its variants and photos (orders keep their copies). */
+export async function deleteProduct(formData: FormData): Promise<ActionResult> {
+  await requireAdmin();
+  const parsed = deleteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: "Produto inválido." };
+  const { data, error } = await createAdminClient().rpc(
+    "admin_delete_product",
+    { p_id: parsed.data.id },
+  );
+  if (error) return { ok: false, message: GENERIC.message };
+  const r = data as { removed_urls: string[] };
+  await removeFiles(r.removed_urls ?? []);
+  revalidatePath("/admin/produtos");
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------------------
 // Categories
 // ---------------------------------------------------------------------------
@@ -647,5 +666,77 @@ export async function retryJob(formData: FormData): Promise<ActionResult> {
     },
   });
   revalidateOrder();
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Team
+// ---------------------------------------------------------------------------
+
+const promoteSchema = z.object({
+  email: z.string().trim().toLowerCase().pipe(z.email()),
+});
+
+/** Makes an existing account admin (the person signs up first). */
+export async function promoteAdmin(
+  _state: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireAdmin();
+  const parsed = promoteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return {
+      ok: false,
+      fieldErrors: { email: ["Informe o e-mail da conta."] },
+      values: echoValues(formData),
+    };
+  }
+  const admin = createAdminClient();
+  const { data: users } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  const alvo = users?.users.find(
+    (u) => (u.email ?? "").toLowerCase() === parsed.data.email,
+  );
+  if (!alvo) {
+    return {
+      ok: false,
+      message:
+        "Não achamos uma conta com esse e-mail. A pessoa precisa se cadastrar na loja primeiro.",
+      values: echoValues(formData),
+    };
+  }
+  const { error } = await admin.rpc("admin_set_role", {
+    p_target: alvo.id,
+    p_role: "admin",
+    p_actor: user.id,
+  });
+  if (error) return { ...GENERIC, values: echoValues(formData) };
+  revalidatePath("/admin/equipe");
+  return { ok: true, message: `${parsed.data.email} agora é admin.` };
+}
+
+/** Takes the admin access away (never your own, never the last admin). */
+export async function demoteAdmin(formData: FormData): Promise<ActionResult> {
+  const user = await requireAdmin();
+  const parsed = z
+    .object({ id: z.uuid() })
+    .safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: "Conta inválida." };
+  const { error } = await createAdminClient().rpc("admin_set_role", {
+    p_target: parsed.data.id,
+    p_role: "customer",
+    p_actor: user.id,
+  });
+  if (error) {
+    return {
+      ok: false,
+      message:
+        error.message === "cannot_demote_self"
+          ? "Você não pode tirar o seu próprio acesso."
+          : error.message === "last_admin"
+            ? "A loja precisa de pelo menos um admin."
+            : GENERIC.message,
+    };
+  }
+  revalidatePath("/admin/equipe");
   return { ok: true };
 }

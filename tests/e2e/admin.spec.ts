@@ -181,7 +181,7 @@ test.describe("painel admin", () => {
     const admin = await createAdmin();
     await login(page, admin.email, admin.senha, "/admin");
     await expect(page.getByText("Vendas de hoje")).toBeVisible();
-    await expect(page.getByText("Pedidos a enviar")).toBeVisible();
+    await expect(page.getByText("Pedidos a enviar").first()).toBeVisible();
 
     await page.goto("/admin/configuracoes");
     await expect(page.getByText(/Melhor Envio/).first()).toBeVisible();
@@ -219,4 +219,79 @@ test("pedido enviado mostra o cartão Envio com rastreio e nota pendente", async
   await expect(
     page.getByRole("button", { name: "Marcar nota manual emitida" }),
   ).toBeVisible();
+});
+
+test.describe("painel do admin, rodada 2", () => {
+  test.describe.configure({ timeout: 120_000 });
+
+  test("admin entra e cai direto no painel bonito", async ({ page }) => {
+    const admin = await createAdmin();
+    await login(page, admin.email, admin.senha, "/conta");
+    await expect(page).toHaveURL(/\/admin$/, { timeout: 30_000 });
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Painel" }),
+    ).toBeVisible();
+    await expect(page.getByText("Vendas de hoje")).toBeVisible();
+    await expect(page.getByText("Últimos pedidos")).toBeVisible();
+    await expect(
+      page.getByText(/Vendas dos últimos 14 dias/).first(),
+    ).toBeVisible();
+  });
+
+  test("cliente comum não vê o atalho do painel nem a Equipe", async ({
+    page,
+  }) => {
+    const c = await createTestCustomer();
+    await login(page, c.email, c.senha, "/conta");
+    await expect(page).toHaveURL(/\/conta$/);
+    await expect(
+      page.getByRole("link", { name: "Painel da loja" }),
+    ).toHaveCount(0);
+    expect((await page.goto("/admin/equipe"))?.status()).toBe(404);
+  });
+
+  test("Equipe: dá acesso por e-mail e mostra a pessoa na lista", async ({
+    page,
+  }) => {
+    const admin = await createAdmin();
+    const novo = await createTestCustomer("Futuro Admin");
+    await login(page, admin.email, admin.senha, "/admin/equipe");
+    await page.getByLabel("E-mail da conta").fill(novo.email);
+    await page.getByRole("button", { name: "Tornar admin" }).click();
+    await expect(page.getByText(`${novo.email} agora é admin.`)).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.reload();
+    await expect(page.getByText(novo.email)).toBeVisible();
+  });
+
+  test("excluir produto pede confirmação e some da lista", async ({ page }) => {
+    const db = localAdmin();
+    const { data: cat } = await db
+      .from("categories")
+      .select("id")
+      .eq("slug", "eletronicos")
+      .single();
+    const nome = `Para excluir ${randomUUID().slice(0, 6)}`;
+    const { data: prod } = await db
+      .from("products")
+      .insert({
+        nome,
+        slug: `excluir-${randomUUID().slice(0, 8)}`,
+        category_id: cat!.id,
+        ncm: "85183000",
+        ativo: false,
+      })
+      .select("id")
+      .single();
+    const admin = await createAdmin();
+    await login(page, admin.email, admin.senha, `/admin/produtos/${prod!.id}`);
+    await page.getByRole("button", { name: "Excluir produto" }).click();
+    await page.getByRole("button", { name: "Excluir para sempre" }).click();
+    await expect(page).toHaveURL(/\/admin\/produtos\?excluido=1$/, {
+      timeout: 20_000,
+    });
+    await expect(page.getByText("Produto excluído.")).toBeVisible();
+    await expect(page.getByText(nome)).toHaveCount(0);
+  });
 });

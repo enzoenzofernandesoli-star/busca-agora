@@ -56,6 +56,7 @@ export default async function AdminProdutos(
     (f) => f === params.filtro,
   ) as Filtro | undefined;
   const produtos = await listProducts({ busca, filtro });
+  const excluido = params.excluido === "1";
 
   return (
     <>
@@ -70,6 +71,15 @@ export default async function AdminProdutos(
           Cadastrar produto
         </Link>
       </div>
+
+      {excluido ? (
+        <p
+          role="status"
+          className="m-0 rounded-[14px] bg-[#ECFDF3] p-4 text-[15px] text-estoque"
+        >
+          Produto excluído.
+        </p>
+      ) : null}
 
       <form className="flex flex-wrap gap-3" action="/admin/produtos">
         <label htmlFor="q" className="sr-only">

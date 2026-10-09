@@ -6,6 +6,7 @@ import {
   ORDER_STATUSES,
   listOrders,
   type OrderStatus,
+  type Periodo,
 } from "@/lib/admin/queries";
 import { formatBRL } from "@/lib/format";
 
@@ -30,7 +31,22 @@ export default async function AdminPedidos(props: PageProps<"/admin/pedidos">) {
       ? "a_enviar"
       : ORDER_STATUSES.find((s) => s === params.status);
   const busca = typeof params.q === "string" ? params.q : "";
-  const pedidos = await listOrders({ status, busca });
+  const periodo = (["hoje", "7d", "30d"] as const).find(
+    (p) => p === params.periodo,
+  ) as Periodo | undefined;
+  const pedidos = await listOrders({ status, busca, periodo });
+  // Sold in the list: paid at some point (not waiting, canceled or refunded).
+  const vendidos = pedidos.filter(
+    (p) => !["pending_payment", "canceled", "refunded"].includes(p.status),
+  );
+  const totalVendido = vendidos.reduce((t, p) => t + p.total_cents, 0);
+  const link = (mudar: Record<string, string | undefined>) => {
+    const q = new URLSearchParams();
+    const base = { status: status ?? undefined, periodo, ...mudar };
+    for (const [k, v] of Object.entries(base)) if (v) q.set(k, v);
+    const s = q.toString();
+    return `/admin/pedidos${s ? `?${s}` : ""}`;
+  };
 
   const filtros: { valor: string; label: string }[] = [
     { valor: "", label: "Todos" },
@@ -72,7 +88,7 @@ export default async function AdminPedidos(props: PageProps<"/admin/pedidos">) {
           return (
             <Link
               key={f.valor}
-              href={`/admin/pedidos${f.valor ? `?status=${f.valor}` : ""}`}
+              href={link({ status: f.valor || undefined })}
               aria-current={atual ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-full border px-4 text-sm font-bold no-underline ${
                 atual
@@ -85,6 +101,41 @@ export default async function AdminPedidos(props: PageProps<"/admin/pedidos">) {
           );
         })}
       </nav>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="Período" className="flex flex-wrap gap-2">
+          {(
+            [
+              [undefined, "Tudo"],
+              ["hoje", "Hoje"],
+              ["7d", "7 dias"],
+              ["30d", "30 dias"],
+            ] as const
+          ).map(([valor, label]) => {
+            const atual = periodo === valor;
+            return (
+              <Link
+                key={label}
+                href={link({ periodo: valor })}
+                aria-current={atual ? "page" : undefined}
+                className={`flex min-h-11 items-center rounded-full border px-4 text-sm font-bold no-underline ${
+                  atual
+                    ? "border-noite bg-noite text-white"
+                    : "border-borda bg-white text-noite"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+        <p className="m-0 text-[15px] text-texto-2" role="status">
+          {vendidos.length === 1 ? "1 venda" : `${vendidos.length} vendas`} ·{" "}
+          <b className="font-display text-lg text-noite">
+            {formatBRL(totalVendido)}
+          </b>
+        </p>
+      </div>
 
       <DataTable
         linhas={pedidos}

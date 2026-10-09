@@ -1003,7 +1003,17 @@ export type Database = {
     };
     Functions: {
       admin_dashboard: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_dashboard_v2: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_delete_product: { Args: { p_id: string }; Returns: Json };
       admin_save_product: { Args: { p_product: Json }; Returns: Json };
+      admin_set_role: {
+        Args: {
+          p_actor: string;
+          p_role: Database["public"]["Enums"]["user_role"];
+          p_target: string;
+        };
+        Returns: undefined;
+      };
       cart_add: {
         Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
         Returns: number;
