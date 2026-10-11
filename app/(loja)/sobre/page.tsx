@@ -24,7 +24,7 @@ export default async function AboutPage() {
       <div className="grid gap-4 md:grid-cols-3">
         {[
           "Pix aprovado na hora",
-          "Frete calculado no seu CEP",
+          "Despacho em até 24 h",
           "Troca em até 7 dias",
         ].map((label, index) => (
           <div key={label} className="rounded-[22px] border border-borda p-4">

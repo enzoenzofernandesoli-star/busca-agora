@@ -37,8 +37,9 @@ export default async function TermsPage() {
       </p>
       <h2>Entrega</h2>
       <p>
-        O frete e o prazo aparecem antes de pagar. O prazo de entrega começa
-        após a confirmação do pagamento. Acompanhe em{" "}
+        Despachamos em até 24 horas (1 dia útil) depois da confirmação do
+        pagamento. O prazo de entrega da transportadora aparece no cálculo do
+        frete e conta a partir do despacho. Acompanhe em{" "}
         <Link href="/conta/pedidos">Meus pedidos</Link> ou em{" "}
         <Link href="/rastreio">Rastrear pedido</Link>.
       </p>

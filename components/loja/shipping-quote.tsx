@@ -11,6 +11,8 @@ import {
 import { z } from "zod";
 import { PinIcon } from "@/components/loja/icons";
 import { cepSchema, formatCep } from "@/lib/br/cep";
+import { onlyDigits } from "@/lib/br/cpf";
+import { getStoredCep, saveCep, subscribeStoredCep } from "@/lib/br/stored-cep";
 import { formatBRL } from "@/lib/format";
 import { cartFingerprint } from "@/lib/shipping/package";
 import type { QuoteResult, ShippingOption } from "@/lib/shipping/types";
@@ -24,9 +26,9 @@ type ShippingQuoteProps = {
 };
 type QuoteState =
   | { status: "idle" }
-  | { status: "loading"; key: string }
+  | { status: "loading"; key: string; cep: string }
   | { status: "error"; message: string }
-  | { status: "success"; key: string; opcoes: ShippingOption[] };
+  | { status: "success"; key: string; cep: string; opcoes: ShippingOption[] };
 
 const optionSchema = z.object({
   servicoId: z.string(),
@@ -50,17 +52,6 @@ const messages = {
   indisponivel: "Não conseguimos calcular agora. Tente de novo em instantes.",
 };
 
-function subscribeStoredCep(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
-function getStoredCep() {
-  try {
-    return window.localStorage.getItem("ba_cep") ?? "";
-  } catch {
-    return "";
-  }
-}
 function getServerCep() {
   return "";
 }
@@ -77,6 +68,14 @@ export function ShippingQuote({
     getServerCep,
   );
   const [typedCep, setTypedCep] = useState<string | null>(null);
+  // A new shared CEP (header dialog or another tab) replaces what was typed.
+  const [seenStoredCep, setSeenStoredCep] = useState(storedCep);
+  if (storedCep !== seenStoredCep) {
+    setSeenStoredCep(storedCep);
+    // quote() saves the typed CEP too; keep the field when they match.
+    if (typedCep !== null && onlyDigits(typedCep) !== storedCep)
+      setTypedCep(null);
+  }
   const cep = typedCep ?? formatCep(cepInicial ?? storedCep);
   const [state, setState] = useState<QuoteState>({ status: "idle" });
   const requestRef = useRef<AbortController | null>(null);
@@ -97,12 +96,8 @@ export function ShippingQuote({
     requestRef.current = controller;
     const key = cartFingerprint(items);
     lastCepRef.current = parsedCep.data;
-    setState({ status: "loading", key });
-    try {
-      window.localStorage.setItem("ba_cep", parsedCep.data);
-    } catch {
-      /* Storage is optional. */
-    }
+    setState({ status: "loading", key, cep: parsedCep.data });
+    saveCep(parsedCep.data);
     try {
       const response = await fetch("/api/frete", {
         method: "POST",
@@ -131,7 +126,13 @@ export function ShippingQuote({
         setState({ status: "error", message: messages[result.motivo] });
       else if (!result.opcoes.length)
         setState({ status: "error", message: messages.sem_servico });
-      else setState({ status: "success", key, opcoes: result.opcoes });
+      else
+        setState({
+          status: "success",
+          key,
+          cep: parsedCep.data,
+          opcoes: result.opcoes,
+        });
     } catch {
       if (!controller.signal.aborted && requestRef.current === controller)
         setState({ status: "error", message: messages.indisponivel });
@@ -152,8 +153,18 @@ export function ShippingQuote({
     return () => window.clearTimeout(timer);
   }, [fingerprint, quote]);
   useEffect(() => () => requestRef.current?.abort(), []);
+  // The header "Enviar para" dialog changed the shared CEP after a quote:
+  // quote the new destination instead of showing the old one's prices.
+  const effectiveCep = onlyDigits(cep);
+  useEffect(() => {
+    if (!lastCepRef.current || lastCepRef.current === effectiveCep) return;
+    if (effectiveCep.length !== 8) return;
+    void quote(effectiveCep, itemsRef.current);
+  }, [effectiveCep, quote]);
 
-  const stale = state.status === "success" && state.key !== fingerprint;
+  const stale =
+    state.status === "success" &&
+    (state.key !== fingerprint || state.cep !== effectiveCep);
   const loading = state.status === "loading" || stale;
   const options = state.status === "success" && !stale ? state.opcoes : [];
   function optionContent(option: ShippingOption) {

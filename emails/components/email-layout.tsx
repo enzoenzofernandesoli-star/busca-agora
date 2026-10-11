@@ -114,7 +114,7 @@ export function EmailLayout({
             <Img
               src={`${siteUrl}/brand/logo-email.png`}
               width={160}
-              height={40}
+              height={25}
               alt="Busca Agora"
               style={{ display: "block" }}
             />
