@@ -50,9 +50,27 @@ export function useCartCount(): number {
   return count;
 }
 
+/**
+ * Counts real adds (detail.adicionado), so the icon bumps only then: the
+ * same event also syncs the count on page load and after quantity changes.
+ */
+function useCartBumps(): number {
+  const [bumps, setBumps] = useState(0);
+  useEffect(() => {
+    const onAdd = (event: Event) => {
+      const detail = (event as CustomEvent<{ adicionado?: boolean }>).detail;
+      if (detail?.adicionado === true) setBumps((n) => n + 1);
+    };
+    window.addEventListener("ba:carrinho", onAdd);
+    return () => window.removeEventListener("ba:carrinho", onAdd);
+  }, []);
+  return bumps;
+}
+
 export function CartButton({ variant }: CartButtonProps) {
   const desktop = variant === "desktop";
   const count = useCartCount();
+  const bumps = useCartBumps();
   return (
     <Link
       href="/carrinho"
@@ -62,12 +80,17 @@ export function CartButton({ variant }: CartButtonProps) {
         desktop ? "size-12 rounded-[14px]" : "size-11 rounded-xl",
       )}
     >
-      <CartIcon size={desktop ? 24 : 22} />
+      {/* key: re-mounting replays the one-shot animation on each add. */}
+      <span key={`i${bumps}`} className={cn("flex", bumps > 0 && "ba-bump")}>
+        <CartIcon size={desktop ? 24 : 22} />
+      </span>
       {count > 0 ? (
         <span
+          key={`b${bumps}`}
           aria-hidden="true"
           className={cn(
             "absolute flex items-center justify-center bg-lima font-bold text-noite",
+            bumps > 0 && "ba-pop",
             desktop
               ? "-top-1.5 -right-1.5 h-[22px] min-w-[22px] rounded-[11px] px-1.5 text-xs"
               : "-top-[5px] -right-[5px] h-5 min-w-5 rounded-[10px] px-1 text-[11px]",

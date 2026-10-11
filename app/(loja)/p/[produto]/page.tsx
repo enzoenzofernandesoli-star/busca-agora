@@ -210,7 +210,7 @@ export default async function ProdutoPage(props: PageProps<"/p/[produto]">) {
           </h2>
           <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] md:gap-5">
             {relacionados.map((p) => (
-              <li key={p.id} className="flex">
+              <li key={p.id} className="ba-reveal flex">
                 <ProductCard
                   href={`/p/${p.slug}`}
                   nome={p.nome}

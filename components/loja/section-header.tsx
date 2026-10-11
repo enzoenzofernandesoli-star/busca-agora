@@ -70,7 +70,7 @@ export function SectionHeader({
       {link ? (
         <Link
           href={link.href}
-          className="inline-flex min-h-11 items-center text-sm font-bold text-ultramar hover:text-noite md:text-[15px]"
+          className="group inline-flex min-h-11 items-center text-sm font-bold text-ultramar hover:text-noite md:text-[15px]"
         >
           {mobileLinkLabel ? (
             <>
@@ -80,7 +80,10 @@ export function SectionHeader({
           ) : (
             link.label
           )}
-          <span aria-hidden="true" className="hidden md:inline">
+          <span
+            aria-hidden="true"
+            className="hidden transition-transform duration-200 group-hover:translate-x-1.5 md:inline-block"
+          >
             &nbsp;→
           </span>
         </Link>

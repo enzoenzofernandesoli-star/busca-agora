@@ -57,7 +57,8 @@ export function AddToCart({
         if (result.cartCount !== undefined)
           window.dispatchEvent(
             new CustomEvent("ba:carrinho", {
-              detail: { count: result.cartCount },
+              // adicionado: only a real add bumps the header cart icon.
+              detail: { count: result.cartCount, adicionado: true },
             }),
           );
         setFeedback({ key, added: true });

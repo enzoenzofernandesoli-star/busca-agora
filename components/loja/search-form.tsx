@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { SearchIcon } from "@/components/loja/icons";
+import { useTypingPlaceholder } from "@/components/loja/use-typing-placeholder";
 import { cn } from "@/lib/utils";
 
 type SearchFormProps = {
@@ -20,6 +21,8 @@ const DEBOUNCE_MS = 200;
 
 // GET form to /busca: works without JavaScript. With JavaScript it also
 // suggests products while typing (combobox pattern: arrows, Enter, Esc).
+const EXEMPLOS = ["fones", "sérum", "smartwatch", "batom", "carregador"];
+
 export function SearchForm({
   id,
   placeholder,
@@ -34,6 +37,13 @@ export function SearchForm({
   const [aberto, setAberto] = useState(false);
   const [ativo, setAtivo] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [focado, setFocado] = useState(false);
+  // Placeholder types store examples while the field is idle (loja viva).
+  const placeholderAnimado = useTypingPlaceholder(
+    placeholder,
+    EXEMPLOS,
+    !focado && query === "",
+  );
 
   useEffect(() => {
     const termo = query.trim();
@@ -113,7 +123,7 @@ export function SearchForm({
           id={id}
           name="q"
           type="search"
-          placeholder={placeholder}
+          placeholder={placeholderAnimado}
           autoComplete="off"
           enterKeyHint="search"
           role="combobox"
@@ -128,7 +138,11 @@ export function SearchForm({
             setQuery(event.target.value);
             setAberto(true);
           }}
-          onFocus={() => setAberto(true)}
+          onFocus={() => {
+            setAberto(true);
+            setFocado(true);
+          }}
+          onBlur={() => setFocado(false)}
           onKeyDown={onKeyDown}
           className={cn(
             "min-w-0 flex-1 border-0 bg-transparent font-sans text-base text-noite outline-none focus-visible:outline-none",

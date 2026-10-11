@@ -119,6 +119,17 @@ test.describe("carrinho", () => {
     await expect(page.getByText("R$ 23,45")).toHaveCount(0);
   });
 
+  test("o carrinho do topo só pula ao adicionar", async ({ page }) => {
+    await addFromProductPage(page, SMARTWATCH);
+    await expect(page.locator(".ba-bump").first()).toBeAttached();
+    // Opening the cart syncs the count (same event) but adds nothing.
+    await page.goto("/carrinho");
+    await expect(
+      page.getByText("Smartwatch com monitor de batimentos"),
+    ).toBeVisible();
+    await expect(page.locator(".ba-bump")).toHaveCount(0);
+  });
+
   test("Comprar agora leva ao carrinho", async ({ page }) => {
     await page.goto(CAIXA);
     await page.getByRole("button", { name: "Comprar agora" }).click();

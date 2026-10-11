@@ -46,6 +46,13 @@ function FooterDesktop({ info }: { info: StoreInfo }) {
   return (
     <footer className="hidden bg-noite text-lavanda md:block">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-8 pt-14 pb-7">
+        {/* Brand sign-off, rising in as the visitor reaches the end. */}
+        <p
+          aria-hidden="true"
+          className="ba-reveal m-0 font-display text-[clamp(56px,8vw,120px)] leading-[.9] font-extrabold tracking-[-0.04em] text-white"
+        >
+          Buscou? <span className="text-lima">Tá aqui.</span>
+        </p>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-8">
           <div className="flex flex-col gap-4">
             <LogoD height={32} className="self-start" />

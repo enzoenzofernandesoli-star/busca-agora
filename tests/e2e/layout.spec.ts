@@ -29,6 +29,22 @@ test.describe("layout da loja", () => {
     }
   });
 
+  test("título da Home cabe no cartão em 320 px", async ({ page }, info) => {
+    test.skip(info.project.name !== "mobile", "só celular");
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto("/");
+    // The rotating word reserves the widest word's width: checking its box
+    // covers every word of the cycle.
+    const palavra = page.locator(".ba-rotating-word");
+    const cartao = page
+      .locator("h1")
+      .locator("xpath=ancestor::div[contains(@class,'bg-noite')][1]");
+    const p = await palavra.boundingBox();
+    const c = await cartao.boundingBox();
+    expect(p && c).toBeTruthy();
+    if (p && c) expect(p.x + p.width).toBeLessThanOrEqual(c.x + c.width - 16);
+  });
+
   test("barra de baixo sempre marca uma aba", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "barra só no celular");
     const casos: [string, string][] = [
