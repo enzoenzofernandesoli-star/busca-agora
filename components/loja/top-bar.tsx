@@ -7,7 +7,7 @@ const items = [
 export function TopBar() {
   return (
     <div className="hidden bg-noite text-[13px] text-lavanda md:block">
-      <ul className="mx-auto flex max-w-[1280px] flex-wrap justify-center gap-x-10 gap-y-2 px-8 py-[9px]">
+      <ul className="mx-auto flex max-w-[1760px] flex-wrap justify-center gap-x-10 gap-y-2 px-8 py-[9px]">
         {items.map((item) => (
           <li key={item.label} className="inline-flex items-center gap-2">
             <span

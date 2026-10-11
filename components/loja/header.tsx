@@ -14,7 +14,7 @@ import { navCategories } from "@/lib/site";
 function HeaderDesktop() {
   return (
     <div className="hidden md:block">
-      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-8 gap-y-5 px-8 pt-5">
+      <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-x-8 gap-y-5 px-8 2xl:px-14 pt-5">
         <Link
           href="/"
           aria-label="Busca Agora, página inicial"
@@ -40,7 +40,7 @@ function HeaderDesktop() {
           <CartButton variant="desktop" />
         </nav>
       </div>
-      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-7 gap-y-3 px-8 pt-3.5 pb-4 text-[15px]">
+      <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-x-7 gap-y-3 px-8 2xl:px-14 pt-3.5 pb-4 text-[15px]">
         <CepButton variant="desktop" />
         <CategoryNav />
         <Link
