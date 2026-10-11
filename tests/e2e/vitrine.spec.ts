@@ -145,8 +145,9 @@ test.describe("abertura (splash)", () => {
 
   test("Pular fecha na hora", async ({ page }) => {
     // Under parallel load the 1.5 s auto-close can beat the click. Pause the
-    // CSS fade and drop only the splash's 1500 ms timer, so this test checks
-    // the button and nothing else.
+    // CSS fade and drop the splash's auto-close timer (its delay counts from
+    // the page load, so it can be 0 on a slow dev server: match the handler),
+    // so this test checks the button and nothing else.
     await page.addInitScript(() => {
       const realSetTimeout = window.setTimeout.bind(window);
       window.setTimeout = ((
@@ -154,7 +155,7 @@ test.describe("abertura (splash)", () => {
         delay?: number,
         ...args: unknown[]
       ) =>
-        delay === 1500
+        String(handler).includes("setIsClosed")
           ? 0
           : realSetTimeout(
               handler,

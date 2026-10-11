@@ -36,6 +36,11 @@ test.describe("acessibilidade do layout", () => {
     page,
   }) => {
     await page.goto("/");
+    // The opening animation holds the focus until its timer removes it
+    // (1.5 s after hydration; the CSS fade hides it a bit earlier).
+    await expect(page.locator(".ba-splash")).toHaveCount(0, {
+      timeout: 10_000,
+    });
     const busca = page
       .getByRole("combobox", { name: "Buscar na loja" })
       .locator("visible=true");

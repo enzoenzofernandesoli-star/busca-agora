@@ -74,7 +74,12 @@ export function Splash() {
         skipButtonRef.current?.focus({ preventScroll: true });
       }
     }
-    const timeoutId = window.setTimeout(() => setIsClosed(true), 1500);
+    // 1.5 s from the page load, like the CSS fade, not from hydration: on a
+    // slow phone the page must not stay locked after the splash faded out.
+    const timeoutId = window.setTimeout(
+      () => setIsClosed(true),
+      Math.max(0, 1500 - performance.now()),
+    );
     document.addEventListener("keydown", handleKeyDown, true);
     return () => {
       window.clearTimeout(timeoutId);

@@ -14,20 +14,8 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "on-first-retry",
-    // Returning visitor by default: the opening animation only plays on the
-    // first visit and has its own test (vitrine.spec.ts).
     storageState: {
       cookies: [
-        {
-          name: "ba_sessao",
-          value: "1",
-          domain: "localhost",
-          path: "/",
-          expires: -1,
-          httpOnly: false,
-          secure: false,
-          sameSite: "Lax",
-        },
         // Cookie notice already seen (it has its own test in pwa.spec.ts).
         {
           name: "ba_cookies_ok",
