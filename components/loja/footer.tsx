@@ -45,7 +45,7 @@ function FooterColumn({
 function FooterDesktop({ info }: { info: StoreInfo }) {
   return (
     <footer className="hidden bg-noite text-lavanda md:block">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-10 px-8 pt-14 pb-7">
+      <div className="mx-auto flex max-w-[1760px] flex-col gap-10 px-8 2xl:px-14 pt-14 pb-7">
         {/* Brand sign-off, rising in as the visitor reaches the end. */}
         <p
           aria-hidden="true"

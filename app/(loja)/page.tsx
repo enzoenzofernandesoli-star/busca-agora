@@ -266,12 +266,13 @@ function ProductGrid({
   mostrarCategoria?: boolean;
 }) {
   return (
-    <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-[repeat(auto-fill,minmax(210px,1fr))] md:gap-5">
+    <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-4 md:gap-5 lg:grid-cols-5 2xl:gap-6">
       {produtos.map((p, i) => (
-        // Mobile shows 4 cards (2 rows), desktop up to 5 (design).
+        // Phone and tablet show 4 cards, desktop 5: the row always fills the
+        // width (wide screens stretch the cards instead of leaving gaps).
         <li
           key={p.id}
-          className={i === 4 ? "ba-reveal hidden md:flex" : "ba-reveal flex"}
+          className={i === 4 ? "ba-reveal hidden lg:flex" : "ba-reveal flex"}
         >
           <ProductCard
             href={`/p/${p.slug}`}

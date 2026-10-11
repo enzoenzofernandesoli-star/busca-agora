@@ -14,7 +14,7 @@ export default function LojaLayout({
       <MobileCategoryChips />
       <main
         id="conteudo"
-        className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-6 px-4 pt-3 pb-6 md:gap-10 md:px-8 md:pt-8 md:pb-[72px]"
+        className="mx-auto flex w-full max-w-[1760px] flex-1 flex-col gap-6 px-4 pt-3 pb-6 md:gap-10 md:px-8 2xl:px-14 md:pt-8 md:pb-[72px]"
       >
         {children}
       </main>

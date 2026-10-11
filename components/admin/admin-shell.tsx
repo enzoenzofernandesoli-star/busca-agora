@@ -245,7 +245,7 @@ export function AdminShell({
           </button>
         </div>
       </dialog>
-      <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 p-6 md:p-10">
+      <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 p-6 md:p-10">
         <p className="font-display text-xl font-bold">Olá, {firstName}</p>
         {children}
       </main>
