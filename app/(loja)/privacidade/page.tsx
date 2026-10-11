@@ -14,7 +14,25 @@ export const metadata = {
 export default async function PrivacyPage() {
   const info = await getStoreInfo();
   return (
-    <LegalPage titulo="Política de privacidade" atualizadoEm="08/10/2026" aviso>
+    <LegalPage
+      titulo="Política de privacidade"
+      atualizadoEm="08/10/2026"
+      aviso
+      indice={[
+        { id: "controlador", label: "Quem cuida dos seus dados" },
+        { id: "dados", label: "Quais dados coletamos" },
+        { id: "finalidades", label: "Para que usamos e com qual base legal" },
+        { id: "compartilhamento", label: "Com quem compartilhamos" },
+        { id: "internacional", label: "Dados guardados fora do Brasil" },
+        { id: "prazos", label: "Por quanto tempo guardamos" },
+        { id: "cookies", label: "Cookies" },
+        { id: "direitos", label: "Seus direitos" },
+        { id: "seguranca", label: "Como protegemos" },
+        { id: "menores", label: "Menores de idade" },
+        { id: "encarregado", label: "Encarregado de dados e contato" },
+        { id: "mudancas", label: "Mudanças nesta política" },
+      ]}
+    >
       <p>
         Esta política explica, em linguagem simples, como a Busca Agora trata
         seus dados pessoais, seguindo a Lei Geral de Proteção de Dados (Lei

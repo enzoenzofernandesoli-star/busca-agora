@@ -9,7 +9,19 @@ export const metadata = {
 export default async function ReturnsPage() {
   const info = await getStoreInfo();
   return (
-    <LegalPage titulo="Trocas e devoluções" atualizadoEm="08/10/2026" aviso>
+    <LegalPage
+      titulo="Trocas e devoluções"
+      atualizadoEm="08/10/2026"
+      aviso
+      indice={[
+        { id: "arrependimento", label: "Desistiu? Até 7 dias" },
+        { id: "defeito", label: "Produto com defeito" },
+        { id: "como-pedir", label: "Como pedir" },
+        { id: "cosmeticos", label: "Higiene e cosméticos" },
+        { id: "pagamento", label: "Formas de pagamento" },
+        { id: "entrega", label: "Entrega" },
+      ]}
+    >
       <h2 id="arrependimento">Desistiu? Até 7 dias</h2>
       <p>
         Você tem até 7 dias corridos após receber para desistir da compra
