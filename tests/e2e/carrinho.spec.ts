@@ -21,7 +21,8 @@ async function mockFrete(page: Page) {
             servicoId: "1",
             servico: "PAC",
             transportadora: "Correios",
-            precoCents: 2345,
+            // A different price per destination shows which CEP was quoted.
+            precoCents: body.cep === "01310100" ? 1111 : 2345,
             prazoDias: 7,
           },
           {
@@ -72,7 +73,7 @@ test.describe("carrinho", () => {
       page.getByRole("link", { name: "Carrinho com 2 itens" }).first(),
     ).toBeAttached();
 
-    await page.getByLabel(/CEP/).fill("20040002");
+    await page.getByLabel(/Calcular frete/).fill("20040002");
     await page.getByRole("button", { name: "Calcular" }).click();
     await expect(page.getByText("PAC")).toBeVisible();
     await expect(page.getByText("R$ 23,45")).toBeVisible();
@@ -89,9 +90,33 @@ test.describe("carrinho", () => {
   test("CEP inválido mostra mensagem clara", async ({ page }) => {
     await mockFrete(page);
     await page.goto(SMARTWATCH);
-    await page.getByLabel(/CEP/).fill("00000000");
+    await page.getByLabel(/Calcular frete/).fill("00000000");
     await page.getByRole("button", { name: "Calcular" }).click();
     await expect(page.getByText(/CEP inválido/)).toBeVisible();
+  });
+
+  test("trocar o CEP no topo recalcula o frete já calculado", async ({
+    page,
+  }) => {
+    await mockFrete(page);
+    await page.goto(SMARTWATCH);
+    await page.getByLabel(/Calcular frete/).fill("20040002");
+    await page.getByRole("button", { name: "Calcular" }).click();
+    await expect(page.getByText("R$ 23,45")).toBeVisible();
+
+    await page
+      .getByRole("button", { name: /Enviar para/ })
+      .filter({ visible: true })
+      .click();
+    const dialog = page.getByRole("dialog", {
+      name: "Para onde vamos enviar?",
+    });
+    await dialog.getByLabel("CEP").fill("01310100");
+    await dialog.getByRole("button", { name: "Salvar CEP" }).click();
+
+    await expect(page.getByLabel(/Calcular frete/)).toHaveValue("01310-100");
+    await expect(page.getByText("R$ 11,11")).toBeVisible();
+    await expect(page.getByText("R$ 23,45")).toHaveCount(0);
   });
 
   test("Comprar agora leva ao carrinho", async ({ page }) => {

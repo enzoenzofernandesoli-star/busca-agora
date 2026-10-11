@@ -103,7 +103,7 @@ test.describe("conta do cliente", () => {
     await expect(page.getByText("Nenhum endereço ainda")).toBeVisible();
 
     await page.getByRole("button", { name: "Adicionar endereço" }).click();
-    await page.getByLabel("CEP").fill("01001000");
+    await page.getByRole("main").getByLabel("CEP").fill("01001000");
     await expect(page.getByLabel("Rua")).toHaveValue("Praça da Sé");
     await expect(page.getByLabel("Número")).toBeFocused();
     await page.getByLabel("Número").fill("100");
