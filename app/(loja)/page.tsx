@@ -9,14 +9,17 @@ import {
   ExchangeIcon,
   HeadphonesIcon,
   PixIcon,
-  SearchIcon,
   TruckIcon,
-  WatchIcon,
 } from "@/components/loja/icons";
 import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
 import { Marquee } from "@/components/loja/marquee";
+import {
+  HERO_WORD_COLORS,
+  HERO_WORDS,
+  HeroTiles,
+} from "@/components/loja/hero-tiles";
 import { RotatingWord } from "@/components/loja/rotating-word";
 import { InstallCard } from "@/components/pwa/install-card";
 import {
@@ -117,7 +120,7 @@ function Hero() {
         >
           <span className="whitespace-nowrap">
             Buscou{" "}
-            <RotatingWord palavras={["fone?", "sérum?", "batom?", "cabo?"]} />
+            <RotatingWord palavras={HERO_WORDS} destaques={HERO_WORD_COLORS} />
           </span>
           <br />
           <span className="text-lima">Tá aqui.</span>
@@ -146,23 +149,7 @@ function Hero() {
           </Link>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        className="relative hidden flex-[0_1_300px] grid-cols-2 gap-4 md:grid"
-      >
-        <div className="flex aspect-square items-center justify-center rounded-3xl bg-ciano text-noite">
-          <HeadphonesIcon size={64} />
-        </div>
-        <div className="flex aspect-square translate-y-6 items-center justify-center rounded-3xl bg-rosa text-noite">
-          <BottleIcon size={60} />
-        </div>
-        <div className="flex aspect-square items-center justify-center rounded-3xl bg-ultramar text-white">
-          <WatchIcon size={60} />
-        </div>
-        <div className="flex aspect-square translate-y-6 items-center justify-center rounded-3xl bg-lima text-noite">
-          <SearchIcon size={60} strokeWidth={1.6} />
-        </div>
-      </div>
+      <HeroTiles />
     </div>
   );
 }
