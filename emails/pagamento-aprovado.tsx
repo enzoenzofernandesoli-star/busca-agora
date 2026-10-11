@@ -20,8 +20,9 @@ export default function PagamentoAprovado(props: PagamentoAprovadoProps) {
       <Heading style={EMAIL_TITLE_STYLE}>Pagamento aprovado</Heading>
       <OrderGreeting nome={props.clienteNome} numero={props.numero} />
       <Text>
-        Já estamos separando seus produtos. Você recebe o código de rastreio
-        assim que o pedido sair.
+        Já estamos separando seus produtos. Despachamos em até 24 horas (1 dia
+        útil) depois da confirmação do pagamento. Você recebe o código de
+        rastreio assim que o pedido sair.
       </Text>
       <Button
         href={`${props.siteUrl}/conta/pedidos/${props.numero}`}

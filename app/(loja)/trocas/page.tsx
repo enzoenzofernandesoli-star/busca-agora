@@ -60,7 +60,9 @@ export default async function ReturnsPage() {
       </p>
       <h2 id="entrega">Entrega</h2>
       <p>
-        O prazo começa após o pagamento aprovado. Acompanhe em{" "}
+        Despachamos em até 24 horas (1 dia útil) depois da confirmação do
+        pagamento. O prazo de entrega da transportadora aparece no cálculo do
+        frete e conta a partir do despacho. Acompanhe em{" "}
         <Link href="/conta/pedidos">Meus pedidos</Link> ou em{" "}
         <Link href="/rastreio">Rastrear pedido</Link>.
       </p>
