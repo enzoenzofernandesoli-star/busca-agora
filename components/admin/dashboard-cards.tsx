@@ -207,7 +207,7 @@ export function QuickActions({
           <span className="block font-display text-sm font-bold break-words text-noite">
             {action.titulo}
           </span>
-          <span className="mt-1 block text-xs leading-relaxed break-words text-texto-2">
+          <span className="mt-1 block text-[13px] leading-relaxed break-words text-texto-2">
             {action.descricao}
           </span>
         </Link>

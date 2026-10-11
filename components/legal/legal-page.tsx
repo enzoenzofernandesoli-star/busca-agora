@@ -16,11 +16,13 @@ export function LegalPage({
   atualizadoEm,
   children,
   aviso,
+  indice,
 }: {
   titulo: string;
   atualizadoEm: string;
   children: ReactNode;
   aviso?: boolean;
+  indice?: { id: string; label: string }[];
 }) {
   return (
     <article className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
@@ -32,6 +34,26 @@ export function LegalPage({
           Atualizado em {atualizadoEm}
         </p>
       </header>
+      {indice && indice.length > 0 ? (
+        <nav
+          aria-label="Nesta página"
+          className="rounded-[22px] bg-ultramar-50 p-4 md:p-5"
+        >
+          <p className="m-0 text-[15px] font-bold text-noite">Nesta página</p>
+          <ul className="m-0 mt-2 grid list-none grid-cols-1 gap-x-4 p-0 md:grid-cols-2">
+            {indice.map(({ id, label }) => (
+              <li key={id}>
+                <a
+                  href={`#${id}`}
+                  className="flex min-h-11 items-center text-[15px] text-ultramar no-underline hover:underline focus-visible:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar"
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
       {aviso ? (
         <p className="m-0 flex items-start gap-3 rounded-[22px] bg-rosa-tile p-5 text-[15px] text-rosa-ink">
           <svg
@@ -52,7 +74,7 @@ export function LegalPage({
           Versão inicial, em revisão. Pode mudar antes da abertura da loja.
         </p>
       ) : null}
-      <div className="rounded-[22px] border border-borda bg-white p-5 text-noite md:rounded-[28px] md:p-9 [&_a]:font-bold [&_a]:text-ultramar [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2:first-child]:mt-0 [&_li]:mb-1.5 [&_p]:my-3 [&_p]:text-[16px] [&_p]:leading-relaxed [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-[16px] [&_ul]:leading-relaxed">
+      <div className="rounded-[22px] border border-borda bg-white p-5 text-noite md:rounded-[28px] md:p-9 [&_a]:font-bold [&_a]:text-ultramar [&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:scroll-mt-24 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2:first-child]:mt-0 [&_li]:mb-1.5 [&_p]:my-3 [&_p]:text-[16px] [&_p]:leading-relaxed [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-[16px] [&_ul]:leading-relaxed">
         {children}
       </div>
     </article>

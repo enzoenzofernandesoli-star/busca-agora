@@ -139,16 +139,25 @@ export default async function AdminHome() {
             variacao: variacao(ticket, ticketAnterior),
           }}
         />
-        <KpiCard
-          titulo="Pedidos a enviar"
-          valor={String(d.aEnviar)}
-          href="/admin/pedidos?status=a_enviar"
-        />
+        {/* Phone: the operational number first, sales after. */}
+        <div className="order-first flex sm:order-none [&>*]:w-full">
+          <KpiCard
+            titulo="Pedidos a enviar"
+            valor={String(d.aEnviar)}
+            href="/admin/pedidos?status=a_enviar"
+          />
+        </div>
       </div>
 
+      {/* Alerts come first in the DOM (phone: what needs action before the
+          chart); on wide screens the chart takes the left column. */}
       <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-        <SalesChart dias={d.dias} />
-        <DashboardAlerts alertas={alertas} />
+        <div className="xl:order-2">
+          <DashboardAlerts alertas={alertas} />
+        </div>
+        <div className="min-w-0 xl:order-1">
+          <SalesChart dias={d.dias} />
+        </div>
       </div>
 
       <RecentOrders pedidos={d.ultimos} agora={agora.toISOString()} />
