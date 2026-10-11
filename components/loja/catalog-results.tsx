@@ -389,7 +389,7 @@ export function CatalogResults({
             )}
           >
             {result.produtos.map((p) => (
-              <li key={p.id} className="flex">
+              <li key={p.id} className="ba-reveal flex">
                 <ProductCard
                   href={`/p/${p.slug}`}
                   nome={p.nome}

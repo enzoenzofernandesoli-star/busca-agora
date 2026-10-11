@@ -40,7 +40,7 @@ export function EmptyState({
   return (
     <div className="mx-auto flex w-full max-w-[640px] flex-col items-center gap-4 rounded-[22px] border border-borda bg-white p-6 text-center font-sans motion-safe:animate-[page-in_200ms_ease-out] md:rounded-[28px] md:p-10">
       <div
-        className={`flex size-[72px] shrink-0 items-center justify-center rounded-[20px] ${toneClass}`}
+        className={`ba-float flex size-[72px] shrink-0 items-center justify-center rounded-[20px] ${toneClass}`}
       >
         <Icon size={36} />
       </div>

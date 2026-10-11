@@ -103,15 +103,19 @@ export default async function CategoriaPage(
             <CategoryArt
               categoria={categoria}
               variante="mini"
-              className="size-[72px] shrink-0 md:hidden"
+              className="ba-float size-[72px] shrink-0 md:hidden"
             />
           </div>
           <nav aria-label={`Atalhos de ${cat.nome}`}>
             <ul className="-mx-6 flex [scrollbar-width:none] list-none gap-2 overflow-x-auto px-6 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
-              {atalhos[categoria].map((atalho) => {
+              {atalhos[categoria].map((atalho, i) => {
                 const ativo = filters.q === atalho.q;
                 return (
-                  <li key={atalho.q} className="shrink-0">
+                  <li
+                    key={atalho.q}
+                    className="shrink-0 motion-safe:animate-[ba-reveal_420ms_cubic-bezier(.2,.8,.2,1)_both]"
+                    style={{ animationDelay: `${120 + i * 70}ms` }}
+                  >
                     <Link
                       href={
                         ativo
@@ -143,7 +147,7 @@ export default async function CategoriaPage(
         <CategoryArt
           categoria={categoria}
           variante="placa"
-          className="hidden w-full max-w-[320px] justify-self-end md:block"
+          className="ba-float hidden w-full max-w-[320px] justify-self-end md:block"
         />
       </header>
       <CatalogResults

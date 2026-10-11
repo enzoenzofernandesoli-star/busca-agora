@@ -16,6 +16,8 @@ import {
 import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
+import { Marquee } from "@/components/loja/marquee";
+import { RotatingWord } from "@/components/loja/rotating-word";
 import { InstallCard } from "@/components/pwa/install-card";
 import {
   getActiveBanners,
@@ -100,14 +102,23 @@ function Hero() {
     <div className="relative flex min-w-0 flex-col items-start gap-4 overflow-hidden rounded-3xl bg-noite px-6 py-7 text-white md:min-h-[440px] md:flex-[2_1_600px] md:flex-row md:flex-wrap md:items-center md:gap-10 md:rounded-[28px] md:p-14">
       <div
         aria-hidden="true"
-        className="absolute -top-[90px] -right-20 size-60 rounded-full border-[40px] border-ultramar opacity-60 md:-top-[140px] md:-right-[120px] md:size-[420px] md:border-[64px] md:opacity-55"
+        className="ba-drift absolute -top-[90px] -right-20 size-60 rounded-full border-[40px] border-ultramar opacity-60 md:-top-[140px] md:-right-[120px] md:size-[420px] md:border-[64px] md:opacity-55"
       />
       <div className="relative flex flex-col items-start gap-4 md:flex-[1_1_340px] md:gap-6">
         <span className="inline-flex rounded-full bg-lima px-3 py-[5px] text-xs font-bold tracking-[.06em] text-noite md:px-3.5 md:py-1.5 md:text-[13px]">
           NOVIDADES TODA SEMANA
         </span>
-        <h1 className="m-0 font-display text-[40px] leading-none font-extrabold tracking-[-0.03em] md:text-[clamp(44px,5.4vw,76px)] md:leading-[.98] md:tracking-[-0.035em]">
-          Buscou?
+        {/* "Buscou fone? / sérum? / batom?" — the word rotates (loja viva);
+            the accessible name stays the slogan. Short words: one line at
+            390 px. */}
+        <h1
+          aria-label="Buscou? Tá aqui."
+          className="m-0 font-display text-[36px] leading-none font-extrabold tracking-[-0.03em] md:text-[clamp(44px,5.4vw,76px)] md:leading-[.98] md:tracking-[-0.035em]"
+        >
+          <span className="whitespace-nowrap">
+            Buscou{" "}
+            <RotatingWord palavras={["fone?", "sérum?", "batom?", "cabo?"]} />
+          </span>
           <br />
           <span className="text-lima">Tá aqui.</span>
         </h1>
@@ -183,14 +194,19 @@ function CategoryCards() {
         <Link
           key={href}
           href={href}
-          className={`relative flex min-h-[132px] flex-col justify-between overflow-hidden rounded-[22px] p-[18px] text-noite no-underline hover:text-noite md:min-h-[208px] md:flex-1 md:rounded-[28px] md:p-8 ${bg}`}
+          className={`group relative flex min-h-[132px] flex-col justify-between overflow-hidden rounded-[22px] p-[18px] text-noite no-underline transition-transform duration-200 hover:text-noite motion-safe:active:scale-[.98] md:min-h-[208px] md:flex-1 md:rounded-[28px] md:p-8 ${bg}`}
         >
-          <Icon size={34} strokeWidth={1.6} className="md:hidden" />
-          <Icon
-            size={150}
-            strokeWidth={1.2}
-            className="absolute -right-2.5 -bottom-3.5 hidden opacity-[.22] md:block"
-          />
+          <span className="ba-float flex md:hidden">
+            <Icon size={34} strokeWidth={1.6} />
+          </span>
+          {/* Float on the wrapper, hover on the icon: one transform each. */}
+          <span className="ba-float absolute -right-2.5 -bottom-3.5 hidden md:block">
+            <Icon
+              size={150}
+              strokeWidth={1.2}
+              className="opacity-[.22] transition-transform duration-500 ease-out motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-6"
+            />
+          </span>
           <span className="hidden text-[13px] font-bold tracking-[.08em] md:inline">
             CATEGORIA
           </span>
@@ -203,7 +219,13 @@ function CategoryCards() {
             </span>
           </span>
           <span className="hidden text-[15px] font-bold md:inline">
-            Ver tudo →
+            Ver tudo{" "}
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-200 group-hover:translate-x-1.5"
+            >
+              →
+            </span>
           </span>
         </Link>
       ))}
@@ -214,29 +236,13 @@ function CategoryCards() {
 function Vantagens() {
   return (
     <section aria-label="Vantagens">
-      {/* Mobile: scrolling chips. */}
-      <ul className="m-0 -mx-4 scrollbar-none flex list-none gap-2.5 overflow-x-auto px-4 md:hidden">
-        {vantagens
-          .filter((v) => v.titulo !== "Frete no seu CEP")
-          .map((v) => (
-            <li
-              key={v.titulo}
-              className="inline-flex flex-none items-center gap-2 rounded-[14px] border border-borda bg-white px-3.5 py-2.5 text-[13px] font-bold"
-            >
-              <span
-                aria-hidden="true"
-                className="size-2 rounded-full bg-ultramar"
-              />
-              {v.titulo}
-            </li>
-          ))}
-      </ul>
+      {/* Mobile: the running lime band below replaces the chips. */}
       {/* Desktop: four cards. */}
       <ul className="m-0 hidden list-none grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0 md:grid">
         {vantagens.map(({ titulo, texto, Icon }) => (
           <li
             key={titulo}
-            className="flex items-center gap-4 rounded-[20px] border border-borda bg-white px-[22px] py-5"
+            className="ba-reveal flex items-center gap-4 rounded-[20px] border border-borda bg-white px-[22px] py-5"
           >
             <span className="flex size-12 flex-none items-center justify-center rounded-[14px] bg-ultramar-50 text-ultramar">
               <Icon />
@@ -263,7 +269,10 @@ function ProductGrid({
     <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 md:grid-cols-[repeat(auto-fill,minmax(210px,1fr))] md:gap-5">
       {produtos.map((p, i) => (
         // Mobile shows 4 cards (2 rows), desktop up to 5 (design).
-        <li key={p.id} className={i === 4 ? "hidden md:flex" : "flex"}>
+        <li
+          key={p.id}
+          className={i === 4 ? "ba-reveal hidden md:flex" : "ba-reveal flex"}
+        >
           <ProductCard
             href={`/p/${p.slug}`}
             nome={p.nome}
@@ -299,7 +308,7 @@ function InstallAppDesktop() {
     >
       <div
         aria-hidden="true"
-        className="absolute -bottom-40 -left-[90px] hidden size-[340px] rounded-full border-[48px] border-white/7 md:block"
+        className="ba-drift absolute -bottom-40 -left-[90px] hidden size-[340px] rounded-full border-[48px] border-white/7 md:block"
       />
       <div className="relative flex max-w-[560px] flex-col gap-3.5">
         <div className="flex items-center gap-3.5">
@@ -373,6 +382,17 @@ export default async function HomePage() {
         {banners[0] ? <BannerHero banner={banners[0]} /> : <Hero />}
         <CategoryCards />
       </section>
+
+      <Marquee
+        itens={[
+          "Pix aprovado na hora",
+          "Despacho em até 24 h",
+          "Troca em até 7 dias",
+          "Nota fiscal em todo pedido",
+          "Buscou? Tá aqui.",
+        ]}
+        className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full md:rounded-[22px]"
+      />
 
       <Vantagens />
 

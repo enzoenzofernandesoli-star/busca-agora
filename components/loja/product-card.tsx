@@ -36,7 +36,7 @@ export function ProductCard({
     <Link
       href={href}
       className={cn(
-        "flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow] duration-200 ease-out hover:text-noite md:rounded-[22px] md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)] md:focus-visible:shadow-[0_16px_32px_rgba(10,15,61,.10)] motion-safe:md:hover:-translate-y-1",
+        "group flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow] duration-200 ease-out hover:text-noite motion-safe:active:scale-[.98] md:rounded-[22px] md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)] md:focus-visible:shadow-[0_16px_32px_rgba(10,15,61,.10)] motion-safe:md:hover:-translate-y-1",
         className,
       )}
     >
@@ -53,10 +53,10 @@ export function ProductCard({
             alt={imagemAlt ?? nome}
             fill
             sizes="(min-width: 768px) 240px, 50vw"
-            className="object-contain"
+            className="object-contain transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.06]"
           />
         ) : (
-          <Placeholder className="size-[52px] md:size-[72px]" />
+          <Placeholder className="ba-float size-[52px] md:size-[72px]" />
         )}
       </div>
       <div className="flex flex-col gap-1.5 px-3 pt-3 pb-3.5 md:gap-2 md:px-[18px] md:pt-4 md:pb-5">
