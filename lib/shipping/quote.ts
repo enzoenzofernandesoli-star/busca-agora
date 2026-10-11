@@ -6,6 +6,7 @@ import { cepSchema } from "@/lib/br/cep";
 import { createAdminClient } from "@/lib/db/admin";
 
 import { shippingProvider } from "./index";
+import { pickOptions } from "./options";
 import { cartFingerprint } from "./package";
 import type { QuoteResult, ShippingItem } from "./types";
 
@@ -108,11 +109,14 @@ export async function quoteShipping(
     });
   }
 
-  const result = await shippingProvider().quote({
+  const raw = await shippingProvider().quote({
     cepOrigem: origem,
     cepDestino: destino.data,
     itens,
   });
+  const result: QuoteResult = raw.ok
+    ? { ok: true, opcoes: pickOptions(raw.opcoes) }
+    : raw;
   // Outages are not cached: the next try may work.
   if (result.ok || result.motivo !== "indisponivel") toCache(key, result);
   return result;

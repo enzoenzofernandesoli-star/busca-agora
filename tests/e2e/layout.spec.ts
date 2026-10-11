@@ -29,6 +29,24 @@ test.describe("layout da loja", () => {
     }
   });
 
+  test("barra de baixo sempre marca uma aba", async ({ page }, info) => {
+    test.skip(info.project.name !== "mobile", "barra só no celular");
+    const casos: [string, string][] = [
+      ["/c/eletronicos", "Início"],
+      ["/busca?q=fone", "Início"],
+      ["/termos", "Início"],
+      ["/carrinho", "Carrinho"],
+      ["/rastreio", "Pedidos"],
+      ["/entrar", "Conta"],
+    ];
+    const nav = page.getByRole("navigation", { name: "Navegação principal" });
+    for (const [rota, aba] of casos) {
+      await page.goto(rota);
+      await expect(nav.getByRole("link")).toHaveCount(4);
+      await expect(nav.locator('[aria-current="page"]')).toHaveText(aba);
+    }
+  });
+
   test("busca envia o termo para /busca", async ({ page }) => {
     await page.goto("/");
     const busca = page
