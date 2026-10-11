@@ -17,14 +17,25 @@ function getServerReducedMotion() {
   return false;
 }
 
-// Once per page load: when the store navigates back to the Home, Next.js
-// may reuse the first render (which had the splash). Module state survives
-// those client navigations, so the splash never plays twice.
+// Plays when the browser opens the store on the Home (new tab, typed URL,
+// F5, installed app). Never when the visitor reaches the Home by a link
+// inside the store: module state survives client navigations, and a page
+// load that started elsewhere (a product link) is not an opening.
 let shownThisPageLoad = false;
 
+function openedOnHome(): boolean {
+  const entry = performance.getEntriesByType("navigation")[0];
+  if (!entry) return false;
+  return new URL(entry.name).pathname === "/";
+}
+
 export function Splash() {
-  // false on the first (hydration) render, matching the server HTML.
-  const [isClosed, setIsClosed] = useState(() => shownThisPageLoad);
+  // Open on the server and on hydration of a Home page load (same HTML);
+  // closed when the Home is rendered by a client navigation.
+  const [isClosed, setIsClosed] = useState(
+    () =>
+      typeof window !== "undefined" && (shownThisPageLoad || !openedOnHome()),
+  );
   const skipButtonRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useSyncExternalStore(
     subscribeMotion,
@@ -35,9 +46,6 @@ export function Splash() {
 
   useEffect(() => {
     shownThisPageLoad = true;
-    // Also set by the proxy on the response; this covers old cached pages.
-    // Session cookie (no max-age): once per browser session.
-    document.cookie = "ba_sessao=1; path=/; samesite=lax";
   }, []);
 
   useEffect(() => {

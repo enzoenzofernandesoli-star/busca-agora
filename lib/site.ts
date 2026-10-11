@@ -27,9 +27,3 @@ export const navCategories: { label: string; href: string; cor?: string }[] = [
   { label: "Ofertas", href: "/busca?filtro=ofertas", cor: "bg-lima" },
   { label: "Mais buscados", href: "/busca?filtro=mais-buscados" },
 ];
-
-/** Opening animation already shown in this browser session (proxy.ts). */
-export const SESSION_COOKIE = "ba_sessao";
-
-/** Set by proxy.ts on the Home when the session has not seen the opening. */
-export const FIRST_VISIT_HEADER = "x-ba-primeira-visita";
