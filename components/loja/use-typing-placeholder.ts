@@ -67,18 +67,16 @@ export function useTypingPlaceholder(
     const examples = (JSON.parse(examplesKey) as string[]).filter(
       (example) => example.length > 0,
     );
-    // offsetParent is null while the field is display:none.
-    if (!enabled || examples.length === 0 || input.offsetParent === null)
-      return;
+    if (!enabled || examples.length === 0) return;
 
-    let timer: ReturnType<typeof setTimeout>;
-    let canceled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let running = false;
     let exampleIndex = 0;
     let frameIndex = 0;
-    let frames = typingFrames(examples[exampleIndex] ?? "");
+    let frames: string[] = [];
 
     function step() {
-      if (canceled || !canAnimate() || !input) return;
+      if (!running || !canAnimate() || !input) return;
       input.placeholder = frames[frameIndex] ?? base;
       const fullFrameIndex = frames.length / 2 - 1;
       const delay =
@@ -95,13 +93,32 @@ export function useTypingPlaceholder(
       }
       timer = setTimeout(step, delay);
     }
-
-    // Starts after the page has settled, not during the first seconds.
-    timer = setTimeout(step, 3000);
-    return () => {
-      canceled = true;
+    function start() {
+      if (running) return;
+      running = true;
+      exampleIndex = 0;
+      frameIndex = 0;
+      frames = typingFrames(examples[0] ?? "");
+      // Starts after the page (or the new layout) has settled.
+      timer = setTimeout(step, 3000);
+    }
+    function stop() {
+      running = false;
       clearTimeout(timer);
-      input.placeholder = base;
+      if (input) input.placeholder = base;
+    }
+
+    // The header renders a phone and a desktop field and CSS shows one per
+    // breakpoint: only the shown one types. A ResizeObserver fires when the
+    // field is hidden or shown (its box goes to or from zero), so the layout
+    // is read on those changes only, never per letter.
+    const sync = () => (input.offsetParent === null ? stop() : start());
+    const observer = new ResizeObserver(sync);
+    observer.observe(input);
+    sync();
+    return () => {
+      observer.disconnect();
+      stop();
     };
   }, [ref, base, examplesKey, enabled]);
 }
