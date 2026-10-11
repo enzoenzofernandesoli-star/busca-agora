@@ -61,7 +61,7 @@ export function SalesChart({
             className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end rounded-t-[6px] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar"
           >
             <div
-              className={`pointer-events-none absolute bottom-[140px] z-10 w-40 rounded-[14px] bg-noite p-3 text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 ${index < 3 ? "left-0" : index >= dias.length - 3 ? "right-0" : "left-1/2 -translate-x-1/2"}`}
+              className={`pointer-events-none absolute bottom-[140px] z-10 w-40 rounded-[14px] bg-noite p-3 text-center text-[13px] text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 ${index < 3 ? "left-0" : index >= dias.length - 3 ? "right-0" : "left-1/2 -translate-x-1/2"}`}
             >
               <p className="font-bold">{dayLabel(day.dia, true)}</p>
               <p className="mt-1">{formatBRL(day.totalCents)}</p>
@@ -81,7 +81,7 @@ export function SalesChart({
             />
             <span
               aria-hidden="true"
-              className={`mt-3 h-5 font-sans text-[10px] whitespace-nowrap text-texto-2 sm:text-xs ${index % 2 !== 0 ? "invisible sm:visible" : ""}`}
+              className={`mt-3 h-5 font-sans text-[13px] whitespace-nowrap text-texto-2 ${index % 2 !== 0 ? "invisible sm:visible" : ""}`}
             >
               {dayLabel(day.dia)}
             </span>

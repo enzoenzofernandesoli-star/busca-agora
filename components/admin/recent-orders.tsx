@@ -111,7 +111,7 @@ export function RecentOrders({
                       )}
                       {order.numero}
                     </span>
-                    <span className="shrink-0 text-[10px] text-texto-2 lg:order-3 lg:text-xs">
+                    <span className="shrink-0 text-[13px] text-texto-2 lg:order-3">
                       {order.itens} {order.itens === 1 ? "item" : "itens"}
                     </span>
                     <span className="font-display text-sm font-bold lg:order-4">
@@ -119,7 +119,7 @@ export function RecentOrders({
                     </span>
                   </div>
                   <div className="flex min-w-0 items-center gap-1.5 lg:contents">
-                    <span className="min-w-0 flex-1 truncate text-xs lg:order-2 lg:text-sm">
+                    <span className="min-w-0 flex-1 truncate text-sm lg:order-2">
                       {firstName}
                     </span>
 
@@ -128,7 +128,7 @@ export function RecentOrders({
                     </span>
                     <time
                       dateTime={order.criadoEm}
-                      className="shrink-0 text-[10px] text-texto-2 lg:order-6 lg:justify-self-end lg:text-xs"
+                      className="shrink-0 text-[13px] text-texto-2 lg:order-6 lg:justify-self-end"
                     >
                       {tempoRelativo(order.criadoEm, agora)}
                     </time>
