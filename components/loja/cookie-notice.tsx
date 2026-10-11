@@ -29,14 +29,14 @@ export function CookieNotice() {
     <section
       role="region"
       aria-label="Aviso de cookies"
-      className="fixed inset-x-4 bottom-[calc(64px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-[900px] flex-col gap-4 rounded-[22px] bg-noite p-5 text-lavanda shadow-lg motion-safe:animate-[cookie-notice-in_200ms_ease-out_both] md:bottom-4 md:flex-row md:items-center"
+      className="fixed inset-x-3 bottom-[calc(86px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-[900px] flex-row items-center gap-3 rounded-[18px] bg-noite py-2 pr-2 pl-4 text-lavanda shadow-lg motion-safe:animate-[cookie-notice-in_200ms_ease-out_both] md:bottom-4 md:gap-4 md:rounded-[22px] md:p-5"
     >
-      <p className="flex-1 font-sans text-sm leading-relaxed">
-        Usamos só cookies necessários para o site funcionar (login, carrinho).
-        Nada de anúncios.{" "}
+      <p className="flex-1 font-sans text-[13px] leading-snug md:text-sm md:leading-relaxed">
+        Só cookies necessários (login, carrinho).{" "}
+        <span className="hidden md:inline">Nada de anúncios. </span>
         <Link
           href="/privacidade#cookies"
-          className="inline-flex min-h-11 items-center font-bold text-lima underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima"
+          className="inline-flex min-h-11 items-center align-middle font-bold text-lima underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima"
         >
           Saiba mais
         </Link>
@@ -44,7 +44,7 @@ export function CookieNotice() {
       <button
         type="button"
         onClick={acknowledge}
-        className="min-h-11 shrink-0 rounded-[14px] bg-lima px-6 font-display font-bold text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima"
+        className="min-h-11 shrink-0 rounded-[14px] bg-lima px-4 font-display font-bold text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima md:px-6"
       >
         Entendi
       </button>
