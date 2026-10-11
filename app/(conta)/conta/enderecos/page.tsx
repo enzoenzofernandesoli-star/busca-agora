@@ -39,10 +39,13 @@ export default async function EnderecosPage() {
 
       {lista.length === 0 ? (
         <EmptyState
-          icone="caixa"
-          titulo="Nenhum endereço ainda"
-          texto="Cadastre onde você quer receber seus pedidos. O CEP preenche o resto."
-        />
+          icone="pin"
+          tom="ciano"
+          titulo="Onde seu pedido vai chegar?"
+          texto="Cadastre um endereço para agilizar sua próxima compra."
+        >
+          <AddressManager action={saveAddress} label="Adicionar endereço" />
+        </EmptyState>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-4 p-0">
           {lista.map((endereco) => (
@@ -86,7 +89,9 @@ export default async function EnderecosPage() {
         </ul>
       )}
 
-      <AddressManager action={saveAddress} label="Adicionar endereço" />
+      {lista.length > 0 ? (
+        <AddressManager action={saveAddress} label="Adicionar endereço" />
+      ) : null}
     </>
   );
 }

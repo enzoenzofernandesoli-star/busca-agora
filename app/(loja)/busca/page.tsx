@@ -53,10 +53,10 @@ export default async function BuscaPage(props: PageProps<"/busca">) {
         marcas={marcas}
         vazio={{
           titulo: filters.q
-            ? `Nada encontrado para “${filters.q}”`
+            ? `Ainda não achamos “${filters.q}”.`
             : "Nenhum produto por aqui ainda",
           texto: filters.q
-            ? "Confira a grafia ou tente uma palavra mais curta ou mais geral."
+            ? "Confira a grafia, tente outra palavra ou explore nossas categorias."
             : "Estamos montando as prateleiras. Novidades chegam toda semana.",
         }}
       />

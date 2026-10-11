@@ -22,7 +22,11 @@ export default async function CadastroPage(props: PageProps<"/cadastro">) {
   if (await getCurrentUser()) redirect(volta);
 
   return (
-    <AuthCard titulo="Criar conta" subtitulo="Leva menos de um minuto.">
+    <AuthCard
+      icone="novo"
+      titulo="Crie sua conta"
+      subtitulo="Leva menos de um minuto e seus pedidos ficam sempre à mão."
+    >
       <AuthForm action={signUp} submitLabel="Criar conta">
         <input type="hidden" name="volta" value={volta} />
         <Field

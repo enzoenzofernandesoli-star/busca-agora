@@ -21,7 +21,11 @@ export function AccountNav({
   const pathname = usePathname();
   const firstName = nome.trim().split(/\s+/)[0] || "visitante";
   const itemClass =
-    "inline-flex min-h-11 shrink-0 items-center gap-3 rounded-full px-4 font-sans text-[15px] font-bold focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar md:w-full md:rounded-[14px]";
+    "inline-flex min-h-11 shrink-0 items-center gap-3 rounded-full px-4 font-sans text-[15px] font-bold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar md:w-full md:rounded-[14px]";
+  // Mobile: the three sections share the width equally, icon over label,
+  // so "Pedidos" is never cut off (audit 11/10).
+  const tabClass =
+    "flex min-h-12 flex-col items-center justify-center gap-1 rounded-[14px] px-2 font-sans text-[13px] font-bold transition-colors duration-150 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar md:min-h-11 md:w-full md:flex-row md:justify-start md:gap-3 md:px-4 md:text-[15px]";
   return (
     <nav
       aria-label="Menu da conta"
@@ -30,18 +34,18 @@ export function AccountNav({
       <p className="mb-5 hidden font-display text-lg font-bold text-noite md:block">
         Olá, {firstName}
       </p>
-      <ul className="flex gap-2 overflow-x-auto p-1 md:flex-col md:overflow-visible">
+      <ul className="m-0 grid list-none grid-cols-3 gap-2 p-1 md:flex md:flex-col">
         {items.map(({ label, href, Icon }) => {
           const active =
             href === "/conta"
               ? pathname === href
               : pathname === href || pathname.startsWith(`${href}/`);
           return (
-            <li key={href} className="shrink-0">
+            <li key={href} className="min-w-0">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`${itemClass} ${active ? "bg-ultramar-50 text-ultramar" : "bg-white text-noite hover:bg-fundo"}`}
+                className={`${tabClass} ${active ? "bg-ultramar-50 text-ultramar" : "bg-white text-noite hover:bg-fundo"}`}
               >
                 <Icon size={20} />
                 {label}
@@ -49,6 +53,8 @@ export function AccountNav({
             </li>
           );
         })}
+      </ul>
+      <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-1 md:flex-col">
         {admin ? (
           <li className="shrink-0">
             <Link

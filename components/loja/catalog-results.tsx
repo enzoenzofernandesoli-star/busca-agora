@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { EmptyState } from "@/components/loja/empty-state";
 import { ProductCard } from "@/components/loja/product-card";
+import { formatBRL } from "@/lib/format";
 import {
   SORT_OPTIONS,
   centsToReaisInput,
@@ -101,31 +102,35 @@ function FilterForm({
       {marcas.length > 0 ? (
         <fieldset className="flex flex-col gap-1">
           <legend className="mb-2 text-[15px] font-bold">Marca</legend>
-          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[15px]">
-            <input
-              type="radio"
-              name="marca"
-              value=""
-              defaultChecked={!filters.marca}
-              className="size-5 accent-ultramar"
-            />
-            Todas
-          </label>
-          {marcas.map((m) => (
-            <label
-              key={m.slug}
-              className="flex min-h-11 cursor-pointer items-center gap-3 text-[15px]"
-            >
+          {/* Long brand lists scroll inside the box instead of stretching
+              the sidebar (audit 11/10). */}
+          <div className="-mx-1 flex max-h-[264px] flex-col gap-1 overflow-y-auto px-1">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[15px]">
               <input
                 type="radio"
                 name="marca"
-                value={m.slug}
-                defaultChecked={filters.marca === m.slug}
+                value=""
+                defaultChecked={!filters.marca}
                 className="size-5 accent-ultramar"
               />
-              {m.nome}
+              Todas
             </label>
-          ))}
+            {marcas.map((m) => (
+              <label
+                key={m.slug}
+                className="flex min-h-11 cursor-pointer items-center gap-3 text-[15px]"
+              >
+                <input
+                  type="radio"
+                  name="marca"
+                  value={m.slug}
+                  defaultChecked={filters.marca === m.slug}
+                  className="size-5 accent-ultramar"
+                />
+                {m.nome}
+              </label>
+            ))}
+          </div>
         </fieldset>
       ) : null}
 
@@ -196,6 +201,66 @@ function Pagination({
   );
 }
 
+/** Applied filters as removable chips: each link drops one filter. */
+function ActiveFilters({
+  pathname,
+  filters,
+  marcas,
+}: Pick<CatalogResultsProps, "pathname" | "filters" | "marcas">) {
+  const chips: { label: string; href: string }[] = [];
+  if (filters.marca !== undefined) {
+    const nome =
+      marcas.find((m) => m.slug === filters.marca)?.nome ?? filters.marca;
+    chips.push({
+      label: `Marca: ${nome}`,
+      href: filtersHref(pathname, filters, { marca: undefined, pagina: 1 }),
+    });
+  }
+  if (filters.minCents !== undefined) {
+    chips.push({
+      label: `A partir de ${formatBRL(filters.minCents)}`,
+      href: filtersHref(pathname, filters, { minCents: undefined, pagina: 1 }),
+    });
+  }
+  if (filters.maxCents !== undefined) {
+    chips.push({
+      label: `Até ${formatBRL(filters.maxCents)}`,
+      href: filtersHref(pathname, filters, { maxCents: undefined, pagina: 1 }),
+    });
+  }
+  if (chips.length === 0) return null;
+  return (
+    <ul
+      aria-label="Filtros em uso"
+      className="m-0 flex list-none flex-wrap gap-2 p-0"
+    >
+      {chips.map((chip) => (
+        <li key={chip.label}>
+          <Link
+            href={chip.href}
+            aria-label={`Remover filtro ${chip.label}`}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-borda bg-white pr-3 pl-4 text-[15px] font-bold text-noite no-underline transition-colors duration-150 hover:border-noite hover:text-noite"
+          >
+            {chip.label}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function CatalogResults({
   pathname,
   filters,
@@ -203,10 +268,53 @@ export function CatalogResults({
   marcas,
   vazio,
 }: CatalogResultsProps) {
-  const temFiltro =
-    filters.marca !== undefined ||
-    filters.minCents !== undefined ||
-    filters.maxCents !== undefined;
+  const ativos = [filters.marca, filters.minCents, filters.maxCents].filter(
+    (v) => v !== undefined,
+  ).length;
+  const temFiltro = ativos > 0;
+
+  // Nothing found and no filter to undo: no sidebar next to an empty grid,
+  // just a new try (audit 11/10).
+  if (result.total === 0 && !temFiltro) {
+    return (
+      <EmptyState
+        titulo={vazio.titulo}
+        texto={vazio.texto}
+        icone="busca"
+        links={[
+          { label: "Eletrônicos", href: "/c/eletronicos" },
+          { label: "Cosméticos", href: "/c/cosmeticos" },
+        ]}
+      >
+        {pathname === "/busca" ? (
+          <form
+            action="/busca"
+            method="get"
+            role="search"
+            className="flex w-full max-w-[440px] gap-2"
+          >
+            <label htmlFor="busca-de-novo" className="sr-only">
+              Buscar de novo
+            </label>
+            <input
+              id="busca-de-novo"
+              name="q"
+              type="search"
+              defaultValue={filters.q}
+              placeholder="Buscar outro produto"
+              className={cn(fieldClass, "h-12")}
+            />
+            <button
+              type="submit"
+              className="h-12 shrink-0 rounded-[14px] bg-lima px-5 font-display font-bold text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar"
+            >
+              Buscar
+            </button>
+          </form>
+        ) : null}
+      </EmptyState>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-8">
@@ -216,7 +324,7 @@ export function CatalogResults({
           Filtrar e ordenar
           {temFiltro ? (
             <span className="rounded-full bg-lima px-2.5 py-0.5 text-xs text-noite">
-              ativos
+              {ativos === 1 ? "1 filtro ativo" : `${ativos} filtros ativos`}
             </span>
           ) : null}
         </summary>
@@ -240,11 +348,18 @@ export function CatalogResults({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col gap-5">
-        <p className="m-0 text-[15px] text-texto-2" aria-live="polite">
-          {result.total === 1
-            ? "1 produto encontrado"
-            : `${result.total} produtos encontrados`}
-        </p>
+        <div className="flex flex-col gap-3">
+          <p className="m-0 text-[15px] text-texto-2" aria-live="polite">
+            {result.total === 1
+              ? "1 produto encontrado"
+              : `${result.total} produtos encontrados`}
+          </p>
+          <ActiveFilters
+            pathname={pathname}
+            filters={filters}
+            marcas={marcas}
+          />
+        </div>
 
         {result.produtos.length === 0 ? (
           <EmptyState
@@ -267,6 +382,7 @@ export function CatalogResults({
           />
         ) : (
           <ul
+            aria-label="Produtos"
             className={cn(
               "m-0 grid list-none grid-cols-2 gap-3 p-0",
               "md:grid-cols-[repeat(auto-fill,minmax(210px,1fr))] md:gap-5",

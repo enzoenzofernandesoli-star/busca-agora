@@ -29,8 +29,9 @@ export default async function EntrarPage(props: PageProps<"/entrar">) {
 
   return (
     <AuthCard
+      icone="conta"
       titulo="Entrar"
-      subtitulo="Acompanhe seus pedidos e compre mais rápido."
+      subtitulo="Seus pedidos e endereços, tudo por aqui."
     >
       {erro ? (
         <p
