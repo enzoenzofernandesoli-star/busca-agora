@@ -56,7 +56,7 @@ export default async function BuscaPage(props: PageProps<"/busca">) {
             ? `Nada encontrado para “${filters.q}”`
             : "Nenhum produto por aqui ainda",
           texto: filters.q
-            ? "Confira a grafia ou tente uma palavra mais curta, como “fone” ou “sérum”."
+            ? "Confira a grafia ou tente uma palavra mais curta ou mais geral."
             : "Estamos montando as prateleiras. Novidades chegam toda semana.",
         }}
       />

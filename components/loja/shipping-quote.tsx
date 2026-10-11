@@ -11,6 +11,7 @@ import {
 import { z } from "zod";
 import { PinIcon } from "@/components/loja/icons";
 import { cepSchema, formatCep } from "@/lib/br/cep";
+import { getStoredCep, saveCep, subscribeStoredCep } from "@/lib/br/stored-cep";
 import { formatBRL } from "@/lib/format";
 import { cartFingerprint } from "@/lib/shipping/package";
 import type { QuoteResult, ShippingOption } from "@/lib/shipping/types";
@@ -50,17 +51,6 @@ const messages = {
   indisponivel: "Não conseguimos calcular agora. Tente de novo em instantes.",
 };
 
-function subscribeStoredCep(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
-function getStoredCep() {
-  try {
-    return window.localStorage.getItem("ba_cep") ?? "";
-  } catch {
-    return "";
-  }
-}
 function getServerCep() {
   return "";
 }
@@ -98,11 +88,7 @@ export function ShippingQuote({
     const key = cartFingerprint(items);
     lastCepRef.current = parsedCep.data;
     setState({ status: "loading", key });
-    try {
-      window.localStorage.setItem("ba_cep", parsedCep.data);
-    } catch {
-      /* Storage is optional. */
-    }
+    saveCep(parsedCep.data);
     try {
       const response = await fetch("/api/frete", {
         method: "POST",
