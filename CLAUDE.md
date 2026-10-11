@@ -127,7 +127,7 @@ Loja: `/`, `/c/[categoria]`, `/busca`, `/p/[produto]`, `/carrinho`, `/checkout`,
 
 Admin (`/admin`, protegido NO SERVIDOR por role): painel, pedidos (lista e detalhe com reimprimir, reemitir nota, cancelar e estornar), produtos (cadastro com fotos, variações, peso, medidas, NCM), categorias, clientes, banners, configurações (dados da empresa e status das integrações, nunca o valor das chaves).
 
-Celular: tudo pensado primeiro para 390 px. Barra inferior de app (Início, Categorias, Carrinho, Pedidos, Conta) só no celular.
+Celular: tudo pensado primeiro para 390 px. Barra inferior de app (Início, Carrinho, Pedidos, Conta) só no celular; a aba da página atual fica sempre marcada (decisão de 11/10: "Categorias" saiu, repetia o Início).
 
 ## 8. Variáveis de ambiente
 

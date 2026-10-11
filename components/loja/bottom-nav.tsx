@@ -3,73 +3,80 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  BoxIcon,
-  CartIcon,
-  GridIcon,
-  HomeIcon,
-  UserIcon,
-} from "@/components/loja/icons";
+import { BoxIcon, CartIcon, HomeIcon, UserIcon } from "@/components/loja/icons";
 import { cn } from "@/lib/utils";
 
+// Every store page lights exactly one tab: the first match wins and
+// anything else (home, categories, products, search, legal) is "Início".
 const items = [
-  {
-    label: "Início",
-    href: "/",
-    Icon: HomeIcon,
-    match: (p: string) => p === "/",
-  },
-  {
-    label: "Categorias",
-    href: "/#categorias",
-    Icon: GridIcon,
-    match: (p: string) => p.startsWith("/c/"),
-  },
   {
     label: "Carrinho",
     href: "/carrinho",
     Icon: CartIcon,
-    match: (p: string) => p.startsWith("/carrinho"),
+    match: (p: string) =>
+      p.startsWith("/carrinho") || p.startsWith("/checkout"),
   },
   {
     label: "Pedidos",
     href: "/conta/pedidos",
     Icon: BoxIcon,
-    match: (p: string) => p.startsWith("/conta/pedidos"),
+    match: (p: string) =>
+      p.startsWith("/conta/pedidos") ||
+      p.startsWith("/pedido/") ||
+      p.startsWith("/rastreio"),
   },
   {
     label: "Conta",
     href: "/conta",
     Icon: UserIcon,
     match: (p: string) =>
-      p === "/conta" || p === "/entrar" || p === "/cadastro",
+      p.startsWith("/conta") ||
+      [
+        "/entrar",
+        "/cadastro",
+        "/recuperar-senha",
+        "/redefinir-senha",
+        "/aceite-termos",
+      ].includes(p),
   },
 ];
+const home = { label: "Início", href: "/", Icon: HomeIcon };
+
+function activeTab(pathname: string): string {
+  return items.find((item) => item.match(pathname))?.label ?? home.label;
+}
 
 /** App-style bottom bar, mobile only (< md). */
 export function BottomNav() {
-  const pathname = usePathname();
+  const active = activeTab(usePathname());
 
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-borda bg-white px-1 pt-2 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-borda bg-white px-1 pt-2 pb-[max(22px,env(safe-area-inset-bottom))] md:hidden"
     >
-      {items.map(({ label, href, Icon, match }) => {
-        const active = match(pathname);
+      {[home, ...items].map(({ label, href, Icon }) => {
+        const current = label === active;
         return (
           <Link
             key={label}
             href={href}
-            aria-current={active ? "page" : undefined}
+            aria-current={current ? "page" : undefined}
             className={cn(
               "flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] no-underline",
-              active
+              current
                 ? "font-bold text-ultramar hover:text-ultramar"
                 : "font-medium text-texto-2 hover:text-noite",
             )}
           >
-            <Icon size={22} strokeWidth={active ? 2 : 1.8} />
+            <span
+              className={cn(
+                "flex h-7 w-12 items-center justify-center rounded-full",
+                current && "bg-ultramar-50",
+              )}
+            >
+              <Icon size={22} strokeWidth={current ? 2.2 : 1.8} />
+            </span>
             {label}
           </Link>
         );
