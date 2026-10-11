@@ -25,7 +25,7 @@ export default function NotFound() {
       <SearchForm
         id="busca-404"
         variant="desktop"
-        placeholder="Busque fones, smartwatches, skincare..."
+        placeholder="Buscar outro produto"
         className="relative w-full max-w-[520px]"
       />
       <Link

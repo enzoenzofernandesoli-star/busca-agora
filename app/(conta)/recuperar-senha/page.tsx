@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 export default function RecuperarSenhaPage() {
   return (
     <AuthCard
+      icone="chave"
       titulo="Recuperar senha"
       subtitulo="Informe o e-mail da sua conta e enviamos um link para criar uma senha nova."
     >

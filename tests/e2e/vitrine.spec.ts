@@ -49,7 +49,10 @@ test.describe("vitrine", () => {
     await form.getByLabel("Ordenar por").selectOption("menor_preco");
     await form.getByRole("button", { name: "Aplicar filtros" }).click();
     await expect(page).toHaveURL(/ordem=menor_preco/);
-    const primeiro = page.locator("main ul li").first();
+    const primeiro = page
+      .getByRole("list", { name: "Produtos" })
+      .getByRole("listitem")
+      .first();
     await expect(primeiro).toContainText("R$ 59,90");
   });
 
@@ -107,7 +110,12 @@ test.describe("vitrine", () => {
     await expect(
       page.getByText("0 produtos encontrados", { exact: true }),
     ).toHaveCount(0);
-    await expect(page.locator("main ul li").first()).toBeVisible();
+    await expect(
+      page
+        .getByRole("list", { name: "Produtos" })
+        .getByRole("listitem")
+        .first(),
+    ).toBeVisible();
   });
 
   test("404 com a marca para URL e produto inexistentes", async ({ page }) => {

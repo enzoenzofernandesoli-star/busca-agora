@@ -28,10 +28,14 @@ export default async function CarrinhoPage() {
 
       {cart.linhas.length === 0 ? (
         <EmptyState
-          icone="caixa"
-          titulo="Seu carrinho está vazio"
-          texto="Que tal dar uma olhada nos mais buscados?"
-          acao={{ label: "Ver produtos", href: "/busca?filtro=mais-buscados" }}
+          icone="carrinho"
+          titulo="Seu próximo achado começa aqui."
+          texto="Seu carrinho está vazio. Que tal dar uma olhada nos eletrônicos e cosméticos?"
+          acao={{ label: "Buscar produtos", href: "/busca" }}
+          links={[
+            { label: "Eletrônicos", href: "/c/eletronicos" },
+            { label: "Cosméticos", href: "/c/cosmeticos" },
+          ]}
         />
       ) : (
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-8">

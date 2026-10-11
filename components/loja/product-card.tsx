@@ -36,7 +36,7 @@ export function ProductCard({
     <Link
       href={href}
       className={cn(
-        "flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow] duration-200 ease-out hover:text-noite md:rounded-[22px] md:hover:-translate-y-1 md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)]",
+        "flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow] duration-200 ease-out hover:text-noite md:rounded-[22px] md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)] md:focus-visible:shadow-[0_16px_32px_rgba(10,15,61,.10)] motion-safe:md:hover:-translate-y-1",
         className,
       )}
     >

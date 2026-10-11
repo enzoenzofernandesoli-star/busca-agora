@@ -91,65 +91,69 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
           ) : null}
         </div>
       </div>
-      <div className="flex flex-col gap-1 md:shrink-0">
-        <div
-          role="group"
-          aria-label={`Quantidade de ${item.nome}`}
-          className="flex self-start rounded-[14px] border-[1.5px] border-borda-forte"
-        >
-          <form action={changeQuantity}>
-            <input type="hidden" name="itemId" value={item.id} />
-            <input
-              type="hidden"
-              name="quantidade"
-              value={Math.max(1, Math.min(quantity - 1, max))}
-            />
-            <button
-              type="submit"
-              disabled={pending || item.estoque === 0 || quantity <= 1}
-              aria-label={`Diminuir quantidade de ${item.nome}`}
-              className="size-11 rounded-l-[12px] bg-white text-xl text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              −
-            </button>
-          </form>
-          <output
-            aria-live="polite"
-            className="flex min-w-9 items-center justify-center font-display text-[17px] font-bold text-noite"
+      {/* Mobile: quantity on the left, line total on the right, one row
+          (audit 11/10). Desktop keeps the single row via md:contents. */}
+      <div className="flex items-start justify-between gap-3 md:contents">
+        <div className="flex flex-col gap-1 md:shrink-0">
+          <div
+            role="group"
+            aria-label={`Quantidade de ${item.nome}`}
+            className="flex self-start rounded-[14px] border-[1.5px] border-borda-forte"
           >
-            {quantity}
-          </output>
-          <form action={changeQuantity}>
+            <form action={changeQuantity}>
+              <input type="hidden" name="itemId" value={item.id} />
+              <input
+                type="hidden"
+                name="quantidade"
+                value={Math.max(1, Math.min(quantity - 1, max))}
+              />
+              <button
+                type="submit"
+                disabled={pending || item.estoque === 0 || quantity <= 1}
+                aria-label={`Diminuir quantidade de ${item.nome}`}
+                className="size-11 rounded-l-[12px] bg-white text-xl text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                −
+              </button>
+            </form>
+            <output
+              aria-live="polite"
+              className="flex min-w-9 items-center justify-center font-display text-[17px] font-bold text-noite"
+            >
+              {quantity}
+            </output>
+            <form action={changeQuantity}>
+              <input type="hidden" name="itemId" value={item.id} />
+              <input
+                type="hidden"
+                name="quantidade"
+                value={Math.min(max, quantity + 1)}
+              />
+              <button
+                type="submit"
+                disabled={pending || item.estoque === 0 || quantity >= max}
+                aria-label={`Aumentar quantidade de ${item.nome}`}
+                className="size-11 rounded-r-[12px] bg-white text-xl text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                +
+              </button>
+            </form>
+          </div>
+          <form action={removeItem}>
             <input type="hidden" name="itemId" value={item.id} />
-            <input
-              type="hidden"
-              name="quantidade"
-              value={Math.min(max, quantity + 1)}
-            />
             <button
               type="submit"
-              disabled={pending || item.estoque === 0 || quantity >= max}
-              aria-label={`Aumentar quantidade de ${item.nome}`}
-              className="size-11 rounded-r-[12px] bg-white text-xl text-noite focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:cursor-not-allowed disabled:opacity-40"
+              disabled={pending}
+              className="min-h-11 px-2 text-sm font-bold text-rosa-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:opacity-50"
             >
-              +
+              Remover
             </button>
           </form>
         </div>
-        <form action={removeItem}>
-          <input type="hidden" name="itemId" value={item.id} />
-          <button
-            type="submit"
-            disabled={pending}
-            className="min-h-11 px-2 text-sm font-bold text-rosa-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar disabled:opacity-50"
-          >
-            Remover
-          </button>
-        </form>
+        <p className="pt-2 font-display text-xl font-extrabold text-noite md:ml-auto md:shrink-0 md:pt-0 md:text-lg md:font-bold">
+          {formatBRL(item.precoCents * quantity)}
+        </p>
       </div>
-      <p className="font-display text-lg font-bold text-noite md:ml-auto md:shrink-0">
-        {formatBRL(item.precoCents * quantity)}
-      </p>
       {error && (
         <p role="alert" className="text-sm text-rosa-ink">
           {error}

@@ -100,7 +100,7 @@ test.describe("conta do cliente", () => {
     );
     const c = await createTestCustomer();
     await login(page, c.email, c.senha, "/conta/enderecos");
-    await expect(page.getByText("Nenhum endereço ainda")).toBeVisible();
+    await expect(page.getByText("Onde seu pedido vai chegar?")).toBeVisible();
 
     await page.getByRole("button", { name: "Adicionar endereço" }).click();
     await page.getByRole("main").getByLabel("CEP").fill("01001000");

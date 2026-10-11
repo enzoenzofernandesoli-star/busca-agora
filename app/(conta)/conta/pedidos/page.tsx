@@ -35,9 +35,9 @@ export default async function PedidosPage() {
       {!pedidos || pedidos.length === 0 ? (
         <EmptyState
           icone="caixa"
-          titulo="Você ainda não fez pedidos"
-          texto="Quando comprar, seus pedidos aparecem aqui com o status de cada um."
-          acao={{ label: "Ver produtos", href: "/busca" }}
+          titulo="Seu primeiro pedido vai aparecer aqui."
+          texto="Depois da compra, você acompanha cada etapa por aqui."
+          acao={{ label: "Buscar produtos", href: "/busca" }}
         />
       ) : (
         <ul className="m-0 flex list-none flex-col gap-3 p-0">
