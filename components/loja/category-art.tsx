@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 type CategoryArtProps = {
   categoria: "eletronicos" | "cosmeticos";
   variante?: "placa" | "mini";
+  /** "claro": a translucent white plate, for use on the category colour. */
+  fundo?: "cor" | "claro";
   className?: string;
 };
 
@@ -33,6 +35,7 @@ function DropperBottle() {
 export function CategoryArt({
   categoria,
   variante = "placa",
+  fundo = "cor",
   className,
 }: CategoryArtProps) {
   const isElectronics = categoria === "eletronicos";
@@ -62,7 +65,10 @@ export function CategoryArt({
         width={width}
         height={height}
         rx={isMini ? 20 : 24}
-        fill={isElectronics ? "#7ADFFF" : "#FF9AC8"}
+        fill={
+          fundo === "claro" ? "white" : isElectronics ? "#7ADFFF" : "#FF9AC8"
+        }
+        fillOpacity={fundo === "claro" ? 0.35 : 1}
         stroke="none"
       />
       {!isMini && (

@@ -74,35 +74,38 @@ export default async function CategoriaPage(
           category art fills the space next to the title (audit 11/10). */}
       <header
         className={cn(
-          "relative grid items-center gap-6 overflow-hidden rounded-[24px] p-6 md:min-h-[216px] md:grid-cols-[3fr_2fr] md:gap-8 md:p-8",
-          cat.tile,
+          "relative isolate grid items-center gap-6 overflow-hidden rounded-[24px] p-6 text-noite md:min-h-[216px] md:grid-cols-[3fr_2fr] md:gap-8 md:p-8",
+          // Full category colour (the pale tile vanished on the page
+          // background); text stays noite for contrast.
+          cat.cor,
         )}
       >
+        {/* Brand rings, as on the Home hero. */}
+        <div
+          aria-hidden="true"
+          className="ba-drift pointer-events-none absolute -top-24 -right-16 -z-10 size-72 rounded-full border-[48px] border-white/25 md:-top-40 md:right-[30%] md:size-[420px] md:border-[64px]"
+        />
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] uppercase",
-                  cat.ink,
-                )}
-              >
+              <span className="inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] text-noite uppercase">
                 <span
                   aria-hidden="true"
-                  className={cn("size-2.5 rounded-[3px]", cat.cor)}
+                  className="size-2.5 rounded-[3px] bg-noite"
                 />
                 Categoria
               </span>
               <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
                 {cat.nome}
               </h1>
-              <p className="m-0 text-[15px] text-texto-2 md:text-base">
+              <p className="m-0 text-[15px] text-noite md:text-base">
                 {intro[categoria]}
               </p>
             </div>
             <CategoryArt
               categoria={categoria}
               variante="mini"
+              fundo="claro"
               className="ba-float size-[72px] shrink-0 md:hidden"
             />
           </div>
@@ -147,6 +150,7 @@ export default async function CategoriaPage(
         <CategoryArt
           categoria={categoria}
           variante="placa"
+          fundo="claro"
           className="ba-float hidden w-full max-w-[320px] justify-self-end md:block"
         />
       </header>
