@@ -59,7 +59,7 @@ export function ProductGallery({
                 alt={thumbnail.alt || nome}
                 width={76}
                 height={76}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-cover"
               />
             </button>
           ))}

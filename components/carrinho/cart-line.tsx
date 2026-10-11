@@ -67,7 +67,7 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
               alt={item.nome}
               width={88}
               height={88}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-cover"
             />
           ) : (
             <Icon size={48} />

@@ -53,7 +53,7 @@ export function ProductCard({
             alt={imagemAlt ?? nome}
             fill
             sizes="(min-width: 768px) 240px, 50vw"
-            className="object-contain"
+            className="object-cover"
           />
         ) : (
           <Placeholder className="size-[52px] md:size-[72px]" />
