@@ -77,7 +77,7 @@ Tokens (colocar no Tailwind como cores nomeadas):
 - Slogan: "Buscou? Tá aqui." ("Tá aqui." em lima sobre fundo escuro).
 - Ícones: traço (stroke), estilo Lucide. Nunca emoji.
 - Acessibilidade: contraste mínimo 4.5:1, alvos de toque ≥ 44 px, `<button>`/`<a>` de verdade, `aria-label` em botão só de ícone.
-- **Abertura animada (splash)**: no máximo 1,5 s, UMA VEZ POR SESSÃO do navegador (cookie de sessão `ba_sessao`; decisão de 08/10) e quando abrir como PWA. Atualizar a página (F5) não repete. Pré-carregamentos de link não contam como visita. Respeitar `prefers-reduced-motion`.
+- **Abertura animada (splash)**: no máximo 1,5 s, TODA VEZ que o site é aberto na Home (aba nova, endereço digitado, F5, app instalado; decisão de 11/10, substitui a de 08/10). Nunca ao chegar na Home por um link de dentro da loja, nem em link direto de produto. A decisão é no navegador, então a Home é estática (cache de 5 min). Respeitar `prefers-reduced-motion`.
 - **Troca de página**: barra fina no topo do clique até a página nova aparecer, e a página entra com fade curto (só opacidade).
 
 ## 5. Fluxo de um pedido

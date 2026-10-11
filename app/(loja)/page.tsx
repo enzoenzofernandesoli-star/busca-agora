@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 import { EmptyState } from "@/components/loja/empty-state";
 import {
@@ -24,7 +23,10 @@ import {
   type HomeBanner,
   type ProductSummary,
 } from "@/lib/catalog/queries";
-import { FIRST_VISIT_HEADER } from "@/lib/site";
+
+// Same HTML for every visitor (the opening animation decides in the
+// browser), so the Home is cached and refreshed at most every 5 minutes.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -353,26 +355,16 @@ function InstallAppDesktop() {
   );
 }
 
-export default async function HomePage(props: PageProps<"/">) {
-  const [{ maisBuscados, cosmeticos }, banners, requestHeaders, searchParams] =
-    await Promise.all([
-      getHomeShowcase(),
-      getActiveBanners(),
-      headers(),
-      props.searchParams,
-    ]);
-
-  // Opening animation: once per browser session (proxy.ts saw no ba_sessao
-  // cookie on a real page load) or
-  // opened as the installed app (start_url ?origem=pwa). Never on deep
-  // links: only this page has it.
-  const showSplash =
-    requestHeaders.get(FIRST_VISIT_HEADER) === "1" ||
-    searchParams.origem === "pwa";
+export default async function HomePage() {
+  const [{ maisBuscados, cosmeticos }, banners] = await Promise.all([
+    getHomeShowcase(),
+    getActiveBanners(),
+  ]);
 
   return (
     <>
-      {showSplash ? <Splash /> : null}
+      {/* Every time the store is opened on the Home (decision of 11/10). */}
+      <Splash />
 
       <section
         aria-label="Destaques"

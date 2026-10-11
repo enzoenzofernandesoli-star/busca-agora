@@ -127,61 +127,27 @@ test.describe("abertura (splash)", () => {
 
   // page.clock cannot be used here: a frozen clock also stops React from
   // hydrating, so the splash would never close. Real time, generous waits.
-  test("aparece uma vez por sessão e some sozinho", async ({
-    page,
-    context,
-  }) => {
+  test("aparece toda vez que abre o site e some sozinho", async ({ page }) => {
     const res = await page.goto("/");
     // Rendered on the server, so it covers the page from the first paint.
     expect(await res?.text()).toContain("Abertura da Busca Agora");
-    await expect
-      .poll(async () => (await context.cookies()).map((c) => c.name))
-      .toContain("ba_sessao");
     const splash = page.getByRole("dialog", {
       name: "Abertura da Busca Agora",
     });
     // 1.5 s after hydration at most (with margin for the dev server).
     await expect(splash).toHaveCount(0, { timeout: 3_000 });
 
-    // F5 in the same session: no animation again.
+    // F5 opens the store again: the animation plays again (decision 11/10).
     await page.reload();
-    await expect(splash).toHaveCount(0);
-    const cookie = (await context.cookies()).find(
-      (c) => c.name === "ba_sessao",
-    );
-    // Session cookie: a new browser session shows it again.
-    expect(cookie?.expires).toBe(-1);
+    await expect(splash).toHaveCount(1);
+    await expect(splash).toHaveCount(0, { timeout: 3_000 });
   });
 
-  test("pré-carregar a Home não gasta a abertura", async ({
-    page,
-    context,
-  }) => {
-    // What a <Link href="/"> prefetch does before the visitor opens the Home.
-    await page.request.get("/", {
-      headers: {
-        rsc: "1",
-        "next-router-prefetch": "1",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-      },
-    });
-    await page.request.get("/", { headers: { "sec-purpose": "prefetch" } });
-    // RSC prefetch without Fetch Metadata headers at all.
-    await page.request.get("/?_rsc=teste", {
-      headers: { rsc: "1", "next-router-prefetch": "1" },
-    });
-    expect((await context.cookies()).map((c) => c.name)).not.toContain(
-      "ba_sessao",
-    );
-    const res = await page.goto("/");
-    expect(await res?.text()).toContain("Abertura da Busca Agora");
-  });
-
-  test("Pular fecha na hora", async ({ page, context }) => {
+  test("Pular fecha na hora", async ({ page }) => {
     // Under parallel load the 1.5 s auto-close can beat the click. Pause the
-    // CSS fade and drop only the splash's 1500 ms timer, so this test checks
-    // the button and nothing else.
+    // CSS fade and drop the splash's auto-close timer (its delay counts from
+    // the page load, so it can be 0 on a slow dev server: match the handler),
+    // so this test checks the button and nothing else.
     await page.addInitScript(() => {
       const realSetTimeout = window.setTimeout.bind(window);
       window.setTimeout = ((
@@ -189,7 +155,7 @@ test.describe("abertura (splash)", () => {
         delay?: number,
         ...args: unknown[]
       ) =>
-        delay === 1500
+        String(handler).includes("setIsClosed")
           ? 0
           : realSetTimeout(
               handler,
@@ -204,31 +170,24 @@ test.describe("abertura (splash)", () => {
       });
     });
     await page.goto("/");
-    // The cookie is written on hydration: from here the button works.
-    await expect
-      .poll(async () => (await context.cookies()).map((c) => c.name), {
-        intervals: [50],
-      })
-      .toContain("ba_sessao");
+    const pular = page.getByRole("button", { name: "Pular" });
+    // Focused on hydration: from here the button works.
+    await expect(pular).toBeFocused({ timeout: 15_000 });
     const splash = page.getByRole("dialog", {
       name: "Abertura da Busca Agora",
     });
-    await page
-      .getByRole("button", { name: "Pular" })
-      .click({ force: true, timeout: 1_000 });
+    await pular.click({ force: true, timeout: 1_000 });
     await expect(splash).toHaveCount(0, { timeout: 300 });
   });
 
-  test("recarregar não repete a abertura, mesmo sem JavaScript", async ({
-    browser,
-  }) => {
-    // The proxy sets the cookie on the HTTP response itself.
+  test("sem JavaScript a abertura some sozinha", async ({ browser }) => {
+    // The CSS exit animation ends hidden: the page is never blocked.
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
-    const first = await page.goto("http://localhost:3100/");
-    expect(await first?.text()).toContain("Abertura da Busca Agora");
-    const again = await page.reload();
-    expect(await again?.text()).not.toContain("Abertura da Busca Agora");
+    await page.goto("http://localhost:3100/");
+    await expect(
+      page.getByRole("dialog", { name: "Abertura da Busca Agora" }),
+    ).toBeHidden({ timeout: 3_000 });
     await context.close();
   });
 
