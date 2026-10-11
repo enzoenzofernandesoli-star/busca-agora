@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore, type RefObject } from "react";
 
 const MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
@@ -38,43 +38,48 @@ export function typingFrames(exemplo: string, prefixo = "Busque "): string[] {
   return frames;
 }
 
+/**
+ * Types store examples into the field's placeholder while it is idle.
+ * Writes the DOM attribute directly (no React state): re-rendering the form
+ * every 55 ms cost the Home ~500 ms of main-thread time on phones. Only a
+ * visible field animates (the header renders a phone and a desktop copy).
+ * The server and hydration HTML keep `base`.
+ */
 export function useTypingPlaceholder(
+  ref: RefObject<HTMLInputElement | null>,
   base: string,
   exemplos: string[],
   ativo: boolean,
-): string {
+): void {
   const environmentEnabled = useSyncExternalStore(
     subscribeEnvironment,
     canAnimate,
     serverCanAnimate,
   );
-  // Content identity keeps equivalent inline arrays from restarting the timer on every frame.
+  // Content identity keeps equivalent inline arrays from restarting the timer.
   const examplesKey = JSON.stringify(exemplos);
   const enabled = ativo && environmentEnabled;
-  const run = useMemo(() => {
-    const examples = JSON.parse(examplesKey) as string[];
-    return {
-      enabled,
-      base,
-      examples: examples.filter((example) => example.length > 0),
-    };
-  }, [enabled, base, examplesKey]);
-  const [frame, setFrame] = useState<{ run: object; text: string } | null>(
-    null,
-  );
 
   useEffect(() => {
-    if (!run.enabled || run.examples.length === 0) return;
+    const input = ref.current;
+    if (!input) return;
+    input.placeholder = base;
+    const examples = (JSON.parse(examplesKey) as string[]).filter(
+      (example) => example.length > 0,
+    );
+    // offsetParent is null while the field is display:none.
+    if (!enabled || examples.length === 0 || input.offsetParent === null)
+      return;
 
     let timer: ReturnType<typeof setTimeout>;
     let canceled = false;
     let exampleIndex = 0;
     let frameIndex = 0;
-    let frames = typingFrames(run.examples[exampleIndex] ?? "");
+    let frames = typingFrames(examples[exampleIndex] ?? "");
 
     function step() {
-      if (canceled || !canAnimate()) return;
-      setFrame({ run, text: frames[frameIndex] ?? run.base });
+      if (canceled || !canAnimate() || !input) return;
+      input.placeholder = frames[frameIndex] ?? base;
       const fullFrameIndex = frames.length / 2 - 1;
       const delay =
         frameIndex === fullFrameIndex
@@ -84,19 +89,19 @@ export function useTypingPlaceholder(
             : 30;
       frameIndex++;
       if (frameIndex === frames.length) {
-        exampleIndex = (exampleIndex + 1) % run.examples.length;
-        frames = typingFrames(run.examples[exampleIndex] ?? "");
+        exampleIndex = (exampleIndex + 1) % examples.length;
+        frames = typingFrames(examples[exampleIndex] ?? "");
         frameIndex = 0;
       }
       timer = setTimeout(step, delay);
     }
 
-    timer = setTimeout(step, 1500);
+    // Starts after the page has settled, not during the first seconds.
+    timer = setTimeout(step, 3000);
     return () => {
       canceled = true;
       clearTimeout(timer);
+      input.placeholder = base;
     };
-  }, [run]);
-
-  return enabled && frame?.run === run ? frame.text : base;
+  }, [ref, base, examplesKey, enabled]);
 }

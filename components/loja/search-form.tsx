@@ -39,7 +39,9 @@ export function SearchForm({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [focado, setFocado] = useState(false);
   // Placeholder types store examples while the field is idle (loja viva).
-  const placeholderAnimado = useTypingPlaceholder(
+  const inputRef = useRef<HTMLInputElement>(null);
+  useTypingPlaceholder(
+    inputRef,
     placeholder,
     EXEMPLOS,
     !focado && query === "",
@@ -123,7 +125,8 @@ export function SearchForm({
           id={id}
           name="q"
           type="search"
-          placeholder={placeholderAnimado}
+          ref={inputRef}
+          placeholder={placeholder}
           autoComplete="off"
           enterKeyHint="search"
           role="combobox"
