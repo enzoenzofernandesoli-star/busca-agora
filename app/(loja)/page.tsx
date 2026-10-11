@@ -113,7 +113,7 @@ function Hero() {
             390 px. */}
         <h1
           aria-label="Buscou? Tá aqui."
-          className="m-0 font-display text-[36px] leading-none font-extrabold tracking-[-0.03em] md:text-[clamp(44px,5.4vw,76px)] md:leading-[.98] md:tracking-[-0.035em]"
+          className="m-0 font-display text-[clamp(28px,9.2vw,36px)] leading-none font-extrabold tracking-[-0.03em] md:text-[clamp(44px,5.4vw,76px)] md:leading-[.98] md:tracking-[-0.035em]"
         >
           <span className="whitespace-nowrap">
             Buscou{" "}

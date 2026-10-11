@@ -50,11 +50,17 @@ export function useCartCount(): number {
   return count;
 }
 
-/** Counts "added to cart" events, so the icon bumps only on a real add. */
+/**
+ * Counts real adds (detail.adicionado), so the icon bumps only then: the
+ * same event also syncs the count on page load and after quantity changes.
+ */
 function useCartBumps(): number {
   const [bumps, setBumps] = useState(0);
   useEffect(() => {
-    const onAdd = () => setBumps((n) => n + 1);
+    const onAdd = (event: Event) => {
+      const detail = (event as CustomEvent<{ adicionado?: boolean }>).detail;
+      if (detail?.adicionado === true) setBumps((n) => n + 1);
+    };
     window.addEventListener("ba:carrinho", onAdd);
     return () => window.removeEventListener("ba:carrinho", onAdd);
   }, []);
