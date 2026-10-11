@@ -90,6 +90,10 @@ test.describe("layout da loja", () => {
 
   test("busca envia o termo para /busca", async ({ page }) => {
     await page.goto("/");
+    // The opening animation takes the focus on hydration: wait for it.
+    await expect(page.locator(".ba-splash")).toHaveCount(0, {
+      timeout: 10_000,
+    });
     const busca = page
       .getByRole("combobox", { name: "Buscar na loja" })
       .locator("visible=true");
