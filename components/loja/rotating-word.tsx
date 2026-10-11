@@ -34,10 +34,13 @@ export function RotatingWord({
   palavras,
   intervaloMs = 2200,
   className,
+  destaques,
 }: {
   palavras: string[];
   intervaloMs?: number;
   className?: string;
+  /** Highlighter class per word (default bg-lima). */
+  destaques?: string[];
 }) {
   // Equivalent inline arrays must not restart the timer on every render.
   const wordsKey = JSON.stringify(palavras);
@@ -112,6 +115,15 @@ export function RotatingWord({
     };
   }, [wordsKey, count, interval, reducedMotion, visible]);
 
+  // Tell the rest of the hero which word is showing (HeroTiles follows it).
+  const shownIndex =
+    reducedMotion || state.wordsKey !== wordsKey ? 0 : state.index;
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("ba:palavra", { detail: { index: shownIndex } }),
+    );
+  }, [shownIndex]);
+
   if (count === 0) return null;
   const matches = state.wordsKey === wordsKey;
   const index = reducedMotion || !matches ? 0 : state.index;
@@ -138,7 +150,8 @@ export function RotatingWord({
             <span
               key={`${wordIndex}-${state.cycle}`}
               className={cn(
-                "ba-rotating-word-highlight pointer-events-none absolute -inset-x-1 bottom-[6%] z-0 h-[38%] origin-left rounded-[6px] bg-lima",
+                "ba-rotating-word-highlight pointer-events-none absolute -inset-x-1 bottom-[6%] z-0 h-[38%] origin-left rounded-[6px]",
+                destaques?.[wordIndex] ?? "bg-lima",
                 current &&
                   state.cycle > 0 &&
                   !reducedMotion &&
