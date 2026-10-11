@@ -45,6 +45,31 @@ test.describe("layout da loja", () => {
     if (p && c) expect(p.x + p.width).toBeLessThanOrEqual(c.x + c.width - 16);
   });
 
+  test("busca digitando: só o campo visível digita, também ao trocar de tamanho", async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name !== "mobile", "começa no celular");
+    test.setTimeout(60_000);
+    await page.goto("/");
+    const celular = page.locator("#busca-m");
+    const computador = page.locator("#busca");
+    const baseCelular = await celular.getAttribute("placeholder");
+    const baseComputador = await computador.getAttribute("placeholder");
+    // Phone field types after ~3 s; the hidden desktop field never does.
+    await expect
+      .poll(() => celular.getAttribute("placeholder"), { timeout: 15_000 })
+      .toMatch(/^Busque /);
+    expect(await computador.getAttribute("placeholder")).toBe(baseComputador);
+
+    // Cross the md breakpoint: the phone field stops, the desktop one starts.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(celular).toHaveAttribute("placeholder", baseCelular ?? "");
+    await expect
+      .poll(() => computador.getAttribute("placeholder"), { timeout: 15_000 })
+      .toMatch(/^Busque /);
+    expect(await celular.getAttribute("placeholder")).toBe(baseCelular);
+  });
+
   test("barra de baixo sempre marca uma aba", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "barra só no celular");
     const casos: [string, string][] = [
@@ -65,6 +90,10 @@ test.describe("layout da loja", () => {
 
   test("busca envia o termo para /busca", async ({ page }) => {
     await page.goto("/");
+    // The opening animation takes the focus on hydration: wait for it.
+    await expect(page.locator(".ba-splash")).toHaveCount(0, {
+      timeout: 10_000,
+    });
     const busca = page
       .getByRole("combobox", { name: "Buscar na loja" })
       .locator("visible=true");
