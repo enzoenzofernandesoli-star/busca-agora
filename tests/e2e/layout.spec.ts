@@ -109,7 +109,9 @@ test.describe("layout da loja", () => {
   test("busca envia o termo para /busca", async ({ page }) => {
     await page.goto("/");
     // The opening animation takes the focus on hydration: wait for it.
-    await expect(page.locator(".ba-splash")).toHaveCount(0, {
+    // The controller sets [hidden] when it releases the focus (the CSS fade
+    // hides it a little earlier, while the focus is still held).
+    await expect(page.locator("#ba-splash")).toHaveAttribute("hidden", "", {
       timeout: 10_000,
     });
     const busca = page

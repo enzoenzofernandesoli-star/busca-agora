@@ -1,100 +1,17 @@
-"use client";
-
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-function subscribeMotion(callback: () => void) {
-  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-}
+import { SplashController } from "@/components/loja/splash-controller";
 
-function getReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function getServerReducedMotion() {
-  return false;
-}
-
-// Plays when the browser opens the store on the Home (new tab, typed URL,
-// F5, installed app). Never when the visitor reaches the Home by a link
-// inside the store: module state survives client navigations, and a page
-// load that started elsewhere (a product link) is not an opening.
-let shownThisPageLoad = false;
-
-function openedOnHome(): boolean {
-  const entry = performance.getEntriesByType("navigation")[0];
-  if (!entry) return false;
-  return new URL(entry.name).pathname === "/";
-}
-
+/**
+ * Opening animation of the Home. The markup is a Server Component (nothing
+ * of it hydrates); SplashController, a tiny client piece, closes it after
+ * 1.5 s, on "Pular" or Escape, locks the scroll and keeps the focus while it
+ * is open, and hides it when the Home was not the page that opened the store.
+ */
 export function Splash() {
-  // Open on the server and on hydration of a Home page load (same HTML);
-  // closed when the Home is rendered by a client navigation.
-  const [isClosed, setIsClosed] = useState(
-    () =>
-      typeof window !== "undefined" && (shownThisPageLoad || !openedOnHome()),
-  );
-  const skipButtonRef = useRef<HTMLButtonElement>(null);
-  const reducedMotion = useSyncExternalStore(
-    subscribeMotion,
-    getReducedMotion,
-    getServerReducedMotion,
-  );
-  const isOpen = !isClosed && !reducedMotion;
-
-  useEffect(() => {
-    shownThisPageLoad = true;
-  }, []);
-
-  useEffect(() => {
-    const body = document.body;
-    function focusBody() {
-      const previousTabIndex = body.getAttribute("tabindex");
-      body.setAttribute("tabindex", "-1");
-      body.focus({ preventScroll: true });
-      if (previousTabIndex === null) body.removeAttribute("tabindex");
-      else body.setAttribute("tabindex", previousTabIndex);
-    }
-    if (!isOpen || getReducedMotion()) {
-      focusBody();
-      return;
-    }
-    const previousOverflow = body.style.getPropertyValue("overflow");
-    const previousPriority = body.style.getPropertyPriority("overflow");
-    body.style.setProperty("overflow", "hidden", "important");
-    skipButtonRef.current?.focus({ preventScroll: true });
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setIsClosed(true);
-      } else if (event.key === "Tab") {
-        event.preventDefault();
-        skipButtonRef.current?.focus({ preventScroll: true });
-      }
-    }
-    // 1.5 s from the page load, like the CSS fade, not from hydration: on a
-    // slow phone the page must not stay locked after the splash faded out.
-    const timeoutId = window.setTimeout(
-      () => setIsClosed(true),
-      Math.max(0, 1500 - performance.now()),
-    );
-    document.addEventListener("keydown", handleKeyDown, true);
-    return () => {
-      window.clearTimeout(timeoutId);
-      document.removeEventListener("keydown", handleKeyDown, true);
-      if (previousOverflow)
-        body.style.setProperty("overflow", previousOverflow, previousPriority);
-      else body.style.removeProperty("overflow");
-      focusBody();
-    };
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
   return (
     <div
+      id="ba-splash"
       role="dialog"
       aria-modal="true"
       aria-label="Abertura da Busca Agora"
@@ -153,9 +70,8 @@ export function Splash() {
           <div className="ba-splash-bar h-full w-full origin-left rounded bg-lima" />
         </div>
         <button
-          ref={skipButtonRef}
           type="button"
-          onClick={() => setIsClosed(true)}
+          data-splash-pular=""
           className="fixed right-7 bottom-12 left-7 inline-flex min-h-14 cursor-pointer items-center justify-center gap-2.5 rounded-[18px] bg-lima px-8 font-display text-[17px] font-bold text-noite hover:bg-lima-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:static md:gap-3 md:rounded-full md:text-lg"
         >
           Pular
@@ -204,6 +120,7 @@ export function Splash() {
           .ba-splash, .ba-splash * { animation: none !important; }
         }
       `}</style>
+      <SplashController />
     </div>
   );
 }

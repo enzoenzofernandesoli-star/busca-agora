@@ -1,11 +1,7 @@
 import { z } from "zod";
-import { onlyDigits } from "@/lib/br/cpf";
+import { onlyDigits } from "@/lib/br/digits";
 
-export function formatCep(value: string): string {
-  return onlyDigits(value)
-    .slice(0, 8)
-    .replace(/^(\d{5})(\d)/, "$1-$2");
-}
+export { formatCep } from "@/lib/br/cep-format";
 
 export const cepSchema = z
   .string({ error: "CEP inválido" })

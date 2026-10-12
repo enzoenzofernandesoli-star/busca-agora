@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-export function onlyDigits(value: string): string {
-  return value.replace(/\D/g, "");
-}
+import { onlyDigits } from "@/lib/br/digits";
+
+export { onlyDigits };
 
 export function isValidCpf(value: string): boolean {
   if (!/^[\d.\-\s]+$/.test(value)) return false;

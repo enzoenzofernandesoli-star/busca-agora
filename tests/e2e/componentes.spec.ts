@@ -38,7 +38,9 @@ test.describe("acessibilidade do layout", () => {
     await page.goto("/");
     // The opening animation holds the focus until its timer removes it
     // (1.5 s after hydration; the CSS fade hides it a bit earlier).
-    await expect(page.locator(".ba-splash")).toHaveCount(0, {
+    // The controller sets [hidden] when it releases the focus (the CSS fade
+    // hides it a little earlier, while the focus is still held).
+    await expect(page.locator("#ba-splash")).toHaveAttribute("hidden", "", {
       timeout: 10_000,
     });
     const busca = page
