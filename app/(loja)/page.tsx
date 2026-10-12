@@ -15,6 +15,7 @@ import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
 import { Marquee } from "@/components/loja/marquee";
+import { HeroShowcase } from "@/components/loja/hero-showcase";
 import {
   HERO_WORD_COLORS,
   HERO_WORDS,
@@ -86,7 +87,7 @@ function BannerHero({ banner }: { banner: HomeBanner }) {
     </>
   );
   const className =
-    "relative block aspect-[1600/640] min-w-0 overflow-hidden rounded-3xl bg-noite md:min-h-[440px] md:flex-[2_1_600px] md:rounded-[28px]";
+    "relative block aspect-[1600/640] min-w-0 overflow-hidden rounded-3xl bg-noite md:aspect-auto md:min-h-[420px] md:rounded-[32px]";
   return banner.link ? (
     <Link
       href={banner.link}
@@ -102,12 +103,14 @@ function BannerHero({ banner }: { banner: HomeBanner }) {
 
 function Hero() {
   return (
-    <div className="relative flex min-w-0 flex-col items-start gap-4 overflow-hidden rounded-3xl bg-noite px-6 py-7 text-white md:min-h-[440px] md:flex-[2_1_600px] md:flex-row md:flex-wrap md:items-center md:gap-10 md:rounded-[28px] md:p-14">
+    // Full-width, compact hero (11/10): text on the left, the product of the
+    // rotating word on the right, its trail drawn between them.
+    <div className="relative isolate grid min-w-0 items-center gap-6 overflow-hidden rounded-3xl bg-noite px-6 pt-7 pb-6 text-white md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-8 md:rounded-[32px] md:px-12 md:py-8 lg:px-16">
       <div
         aria-hidden="true"
         className="ba-drift absolute -top-[90px] -right-20 size-60 rounded-full border-[40px] border-ultramar opacity-60 md:-top-[140px] md:-right-[120px] md:size-[420px] md:border-[64px] md:opacity-55"
       />
-      <div className="relative flex flex-col items-start gap-4 md:flex-[1_1_340px] md:gap-6">
+      <div className="relative flex flex-col items-start gap-4 md:gap-5">
         <span className="inline-flex rounded-full bg-lima px-3 py-[5px] text-xs font-bold tracking-[.06em] text-noite md:px-3.5 md:py-1.5 md:text-[13px]">
           NOVIDADES TODA SEMANA
         </span>
@@ -125,7 +128,7 @@ function Hero() {
           <br />
           <span className="text-lima">Tá aqui.</span>
         </h1>
-        <p className="m-0 max-w-[420px] text-[15px] leading-normal text-lavanda md:text-lg md:leading-[1.55]">
+        <p className="m-0 max-w-[56%] text-[15px] leading-normal text-lavanda md:max-w-[420px] md:text-lg md:leading-[1.55]">
           <span className="hidden md:inline">
             Eletrônicos e cosméticos selecionados, com frete calculado no seu
             CEP e nota fiscal em todo pedido.
@@ -148,8 +151,9 @@ function Hero() {
             Mais buscados
           </Link>
         </div>
+        <HeroTiles compacto />
       </div>
-      <HeroTiles />
+      <HeroShowcase />
     </div>
   );
 }
@@ -175,13 +179,13 @@ function CategoryCards() {
   return (
     <nav
       aria-label="Categorias da loja"
-      className="grid grid-cols-2 gap-3 md:flex md:flex-[1_1_300px] md:flex-col md:gap-6"
+      className="grid grid-cols-2 gap-3 md:gap-6"
     >
       {categorias.map(({ href, nome, texto, bg, Icon }) => (
         <Link
           key={href}
           href={href}
-          className={`group relative flex min-h-[132px] flex-col justify-between overflow-hidden rounded-[22px] p-[18px] text-noite no-underline transition-transform duration-200 hover:text-noite motion-safe:active:scale-[.98] md:min-h-[208px] md:flex-1 md:rounded-[28px] md:p-8 ${bg}`}
+          className={`group relative flex min-h-[132px] flex-col justify-between overflow-hidden rounded-[22px] p-[18px] text-noite no-underline transition-transform duration-200 hover:text-noite motion-safe:active:scale-[.98] md:min-h-[176px] md:min-h-[180px] md:rounded-[28px] md:p-8 ${bg}`}
         >
           <span className="ba-float flex md:hidden">
             <Icon size={34} strokeWidth={1.6} />
@@ -363,10 +367,8 @@ export default async function HomePage() {
       {/* Every time the store is opened on the Home (decision of 11/10). */}
       <Splash />
 
-      <section
-        aria-label="Destaques"
-        className="flex flex-col gap-6 md:flex-row md:flex-wrap"
-      >
+      {/* Hero across the full width, categories in a row right below. */}
+      <section aria-label="Destaques" className="flex flex-col gap-4 md:gap-6">
         {banners[0] ? <BannerHero banner={banners[0]} /> : <Hero />}
         <CategoryCards />
       </section>
