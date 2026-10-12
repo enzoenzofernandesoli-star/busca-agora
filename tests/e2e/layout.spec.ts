@@ -70,6 +70,24 @@ test.describe("layout da loja", () => {
     expect(await celular.getAttribute("placeholder")).toBe(baseCelular);
   });
 
+  test("trilha montada na primeira troca já mostra a palavra atual", async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name !== "desktop", "trilha só no computador");
+    // The browser never gets idle: the trail mounts on the first word change.
+    await page.addInitScript(() => {
+      window.requestIdleCallback = (() =>
+        0) as typeof window.requestIdleCallback;
+    });
+    await page.goto("/");
+    await expect(page.locator("svg path[id^='ba-trilha-']")).toHaveCount(0);
+    // First change: fone -> sérum (index 1).
+    await expect(page.locator("#ba-trilha-1")).toBeAttached({
+      timeout: 10_000,
+    });
+    await expect(page.locator("#ba-trilha-0")).toHaveCount(0);
+  });
+
   test("barra de baixo sempre marca uma aba", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "barra só no celular");
     const casos: [string, string][] = [

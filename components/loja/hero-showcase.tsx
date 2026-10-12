@@ -80,7 +80,9 @@ export function HeroShowcase() {
       aria-hidden="true"
       className="absolute right-1 bottom-2 aspect-square w-[44%] max-w-[180px] md:relative md:right-auto md:bottom-auto md:w-full md:max-w-[400px] md:justify-self-end lg:max-w-[440px] 2xl:max-w-[480px] 2xl:justify-self-center"
     >
-      {pronta || vez > 0 ? <HeroTrail /> : null}
+      {pronta || vez > 0 ? (
+        <HeroTrail tema={atual % trilhas.length} vez={vez} />
+      ) : null}
       {/* Soft glow in the word's colour, so dark products read on navy. */}
       <div
         className="absolute inset-[8%] rounded-full blur-3xl transition-[background-color] duration-700"
@@ -191,22 +193,9 @@ const trilhas: {
   },
 ];
 
-function HeroTrail() {
-  const [{ tema, vez }, setEstado] = useState({ tema: 0, vez: 0 });
+/** Driven by HeroShowcase's state: mounting late still shows the current word. */
+function HeroTrail({ tema, vez }: { tema: number; vez: number }) {
   const motionRef = useRef<SVGAnimateMotionElement>(null);
-
-  useEffect(() => {
-    function onWord(event: Event) {
-      const index = (event as CustomEvent<{ index?: number }>).detail?.index;
-      if (typeof index !== "number") return;
-      const proximo = index % trilhas.length;
-      setEstado((e) =>
-        e.tema === proximo ? e : { tema: proximo, vez: e.vez + 1 },
-      );
-    }
-    window.addEventListener("ba:palavra", onWord);
-    return () => window.removeEventListener("ba:palavra", onWord);
-  }, []);
 
   useEffect(() => {
     // SMIL begin times are document-relative: start each new run by hand.
