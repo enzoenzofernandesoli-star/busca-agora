@@ -97,6 +97,13 @@
   }
 }
 
+/* Without motion the trail stays drawn and the travelling mark is hidden. */
+@media (prefers-reduced-motion: reduce) {
+  .ba-trilha-viajante {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -193,6 +200,66 @@
     transform: none;
   }
 }
+/* Home hero showcase (components/loja/hero-showcase.tsx). */
+@keyframes ba-hero-in {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.92) rotate(-3deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.02) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ba-hero-out {
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.9);
+  }
+}
+@keyframes ba-trilha-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ba-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ba-onda {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+@keyframes ba-gota {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
 @keyframes ba-reveal {
   from {
     opacity: 0;
@@ -219,6 +286,37 @@
   }
   .ba-bump {
     animation: ba-bump 480ms ease-out;
+  }
+
+  .ba-trilha-desenha {
+    stroke-dasharray: 1;
+    animation: ba-trilha-draw 1.1s cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+  .ba-trilha[stroke-dasharray] {
+    animation: ba-fade-in 600ms ease-out both;
+  }
+  .ba-trilha-enfeites {
+    animation: ba-fade-in 400ms ease-out 900ms both;
+  }
+  .ba-onda,
+  .ba-gota {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .ba-onda {
+    animation: ba-onda 1.6s ease-out infinite;
+  }
+  .ba-onda-2 {
+    animation-delay: 0.25s;
+  }
+  .ba-onda-3 {
+    animation-delay: 0.5s;
+  }
+  .ba-gota {
+    animation: ba-gota 1.4s ease-in infinite;
+  }
+  .ba-gota-2 {
+    animation-delay: 0.5s;
   }
 
   /* Rises into place as it scrolls into view. Browsers without

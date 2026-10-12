@@ -68,7 +68,7 @@ const temas: Tile[][] = [
  * colours and symbols, and the tiles pop in one after the other. Without
  * motion (reduced motion) the word never changes, so the first set stays.
  */
-export function HeroTiles() {
+export function HeroTiles({ compacto = false }: { compacto?: boolean }) {
   // vez counts word changes, so going back to the first word animates too.
   const [{ tema, vez }, setEstado] = useState({ tema: 0, vez: 0 });
 
@@ -86,6 +86,27 @@ export function HeroTiles() {
   }, []);
 
   const tiles = temas[tema] ?? temas[0] ?? [];
+  if (compacto) {
+    // Small row under the hero buttons (desktop), same sets and entrance.
+    return (
+      <div aria-hidden="true" className="hidden gap-2 md:flex">
+        {tiles.map(({ Icon, cor }, i) => (
+          <div
+            key={`${vez}-${i}`}
+            className={cn(
+              "flex size-11 items-center justify-center rounded-[14px]",
+              vez > 0 &&
+                "motion-safe:animate-[ba-tile-in_460ms_cubic-bezier(.2,.8,.2,1)_both]",
+              cor,
+            )}
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
+            <Icon size={22} strokeWidth={2} />
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div
       aria-hidden="true"

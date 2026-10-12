@@ -78,6 +78,7 @@ Tokens (colocar no Tailwind como cores nomeadas):
 - Ícones: traço (stroke), estilo Lucide. Nunca emoji.
 - Acessibilidade: contraste mínimo 4.5:1, alvos de toque ≥ 44 px, `<button>`/`<a>` de verdade, `aria-label` em botão só de ícone.
 - **Abertura animada (splash)**: no máximo 1,5 s, TODA VEZ que o site é aberto na Home (aba nova, endereço digitado, F5, app instalado; decisão de 11/10, substitui a de 08/10). Nunca ao chegar na Home por um link de dentro da loja, nem em link direto de produto. A decisão é no navegador, então a Home é estática (cache de 5 min). Respeitar `prefers-reduced-motion`.
+- **Topo da Home (decisão de 12/10, substitui o hero de `Home.dc.html`)**: faixa escura na largura toda, compacta; à esquerda "Buscou {palavra}? Tá aqui." com a palavra trocando (fone, sérum, batom, cabo), texto, botões e 4 quadradinhos que seguem a palavra; à direita a foto ilustrativa da palavra (`public/hero/*.webp`, composições geradas, não são produtos do catálogo) com uma trilha animada que sai do título e chega ao produto. Categorias numa fileira logo abaixo. No celular a foto fica pequena no canto direito.
 - **Troca de página**: barra fina no topo do clique até a página nova aparecer, e a página entra com fade curto (só opacidade).
 
 ## 5. Fluxo de um pedido
