@@ -21,12 +21,44 @@ const fotos = [
 
 type Estado = { atual: number; anterior: number | null; vez: number };
 
+/**
+ * True once the page has loaded and the browser is idle: the trail and the
+ * next photo wait for it, so they never compete with the first paint and
+ * hydration (Lighthouse TBT rose when everything started at once).
+ */
+function usePagePronta(): boolean {
+  const [pronta, setPronta] = useState(false);
+  useEffect(() => {
+    let cancelado = false;
+    let idle: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const marcar = () => {
+      if (!cancelado) setPronta(true);
+    };
+    const agendar = () => {
+      if ("requestIdleCallback" in window)
+        idle = window.requestIdleCallback(marcar, { timeout: 2500 });
+      else timer = setTimeout(marcar, 1200);
+    };
+    if (document.readyState === "complete") agendar();
+    else window.addEventListener("load", agendar, { once: true });
+    return () => {
+      cancelado = true;
+      window.removeEventListener("load", agendar);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
+      clearTimeout(timer);
+    };
+  }, []);
+  return pronta;
+}
+
 export function HeroShowcase() {
   const [{ atual, anterior, vez }, setEstado] = useState<Estado>({
     atual: 0,
     anterior: null,
     vez: 0,
   });
+  const pronta = usePagePronta();
 
   useEffect(() => {
     function onWord(event: Event) {
@@ -48,14 +80,18 @@ export function HeroShowcase() {
       aria-hidden="true"
       className="absolute right-1 bottom-2 aspect-square w-[44%] max-w-[180px] md:relative md:right-auto md:bottom-auto md:w-full md:max-w-[400px] md:justify-self-end lg:max-w-[440px] 2xl:max-w-[480px] 2xl:justify-self-center"
     >
-      <HeroTrail />
+      {pronta || vez > 0 ? <HeroTrail /> : null}
       {/* Soft glow in the word's colour, so dark products read on navy. */}
       <div
         className="absolute inset-[8%] rounded-full blur-3xl transition-[background-color] duration-700"
         style={{ backgroundColor: fotos[atual]?.glow }}
       />
       {fotos.map((foto, i) => {
+        const proxima = (atual + 1) % fotos.length;
         const estado = i === atual ? "in" : i === anterior ? "out" : "hidden";
+        // Mount only what is on screen plus, once the page is idle, the next
+        // photo (hidden) so it is already loaded when the word changes.
+        if (estado === "hidden" && !(pronta && i === proxima)) return null;
         return (
           <Image
             // Re-mount the incoming photo so its entrance replays.
@@ -66,7 +102,9 @@ export function HeroShowcase() {
             sizes="(min-width: 1536px) 480px, (min-width: 1024px) 440px, (min-width: 768px) 400px, 180px"
             preload={i === 0}
             className={cn(
-              "object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,.35)]",
+              "object-contain",
+              // The shadow filter is costly to paint: only on the shown photo.
+              estado === "in" && "drop-shadow-[0_24px_40px_rgba(0,0,0,.35)]",
               estado === "hidden" && "opacity-0",
               estado === "in" &&
                 vez > 0 &&
