@@ -54,3 +54,32 @@ export function ProductPerks({ categoria }: { categoria: "eletronicos" | "cosmet
 
 Entregue o arquivo completo.
 ```
+
+---
+
+## C2 — Carrinho com personalidade (Codex)
+
+Pedido do Enzo (13/10). Branch: `carrinho-vivo`. `lib/cart/server.ts` já entrega `precoDeCents` por linha e `economiaCents` no carrinho (só exibição; o servidor recalcula no checkout).
+
+```
+Projeto: loja Busca Agora, pasta atual. Leia CLAUDE.md e as regras do topo de docs/design/produto-prompts.md (mesmas regras do C1). Mostre o plano e espere aprovação antes de codar (CLAUDE.md 2.12).
+
+Tarefa: deixar o carrinho com a mesma qualidade visual das páginas novas (Home, categorias, Ofertas, produto), sem mudar nenhum comportamento (quantidade, remover, frete, total, botão de continuar, mensagens de erro e estoque, acessibilidade).
+
+Arquivos permitidos: components/carrinho/cart-line.tsx, components/carrinho/cart-summary.tsx e um novo components/carrinho/checkout-steps.tsx. Nenhum outro.
+
+1) checkout-steps.tsx (Server Component): "Carrinho → Entrega → Pagamento", etapa atual = Carrinho (aria-current="step"), as outras apagadas; bolinhas numeradas ligadas por linha; atual em ultramar com lima, cabe em 320 px.
+2) cart-line.tsx:
+   - Foto sobre a placa da categoria (ciano-tile / rosa-tile) com um detalhe da categoria (fina borda ciano/rosa), cantos 16.
+   - Se item.precoDeCents > item.precoCents: preço anterior riscado e selo "-N%" em bg-oferta texto branco (percentual inteiro arredondado para baixo).
+   - Total da linha com uma pequena animação quando a quantidade muda (motion-safe, só transform/opacity).
+   - Mantenha a estrutura de celular (quantidade à esquerda, total à direita) e desktop.
+3) cart-summary.tsx:
+   - Faixa fina ultramar no topo do cartão e um anel decorativo no canto (atrás, aria-hidden, sem passar atrás de texto).
+   - Nova prop opcional economiaCents: quando > 0, linha "Você economiza" em text-oferta.
+   - Mini lista de garantias da loja abaixo do total (Nota fiscal em todo pedido, Despacho em até 24 h, Troca em até 7 dias) com ícones de traço de "@/components/loja/icons".
+   - Mantenha as props existentes e os textos de total/frete.
+4) Rode npm run lint, npm run typecheck e npx playwright test tests/e2e/carrinho.spec.ts. Capturas do carrinho com item em 390 e 1440 px em output/carrinho-c2/.
+
+Entregue um relatório curto. Sem commit nem push. O Claude Code integra o CheckoutSteps e a prop economiaCents na página.
+```
