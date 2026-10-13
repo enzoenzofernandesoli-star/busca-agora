@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { CatalogResults } from "@/components/loja/catalog-results";
 import { OffersHeader } from "@/components/loja/offers-header";
+import { SearchedHeader } from "@/components/loja/searched-header";
 import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
 
@@ -30,17 +31,26 @@ export default async function BuscaPage(props: PageProps<"/busca">) {
 
   // Offers shelf without a search term gets its own decorated header.
   const ofertas = filters.filtro === "ofertas" && !filters.q;
+  const maisBuscados = filters.filtro === "mais-buscados" && !filters.q;
 
   return (
     <>
       <Breadcrumb
         itens={[
           { nome: "Início", href: "/" },
-          { nome: ofertas ? "Ofertas" : "Busca" },
+          {
+            nome: ofertas
+              ? "Ofertas"
+              : maisBuscados
+                ? "Mais buscados"
+                : "Busca",
+          },
         ]}
       />
       {ofertas ? (
         <OffersHeader total={result.total} />
+      ) : maisBuscados ? (
+        <SearchedHeader total={result.total} />
       ) : (
         <header className="flex flex-col gap-1.5">
           <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
