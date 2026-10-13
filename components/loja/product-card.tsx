@@ -46,7 +46,11 @@ export function ProductCard({
     <Link
       href={href}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow] duration-200 ease-out hover:text-noite motion-safe:active:scale-[.98] md:rounded-[22px] md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)] md:focus-visible:shadow-[0_16px_32px_rgba(10,15,61,.10)] motion-safe:md:hover:-translate-y-1",
+        "group flex flex-col overflow-hidden rounded-[18px] border border-borda bg-white text-noite no-underline transition-[transform,box-shadow,border-color] duration-200 ease-out hover:text-noite motion-safe:active:scale-[.98] md:rounded-[22px] md:hover:shadow-[0_16px_32px_rgba(10,15,61,.10)] md:focus-visible:shadow-[0_16px_32px_rgba(10,15,61,.10)] motion-safe:md:hover:-translate-y-1",
+        // Border takes the category colour on hover (13/10 polish).
+        categoria === "eletronicos"
+          ? "md:hover:border-ciano"
+          : "md:hover:border-rosa",
         className,
       )}
     >

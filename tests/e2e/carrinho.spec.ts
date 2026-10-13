@@ -75,7 +75,7 @@ test.describe("carrinho", () => {
 
     await page.getByLabel(/Calcular frete/).fill("20040002");
     await page.getByRole("button", { name: "Calcular" }).click();
-    await expect(page.getByText("PAC")).toBeVisible();
+    await expect(page.getByText("PAC", { exact: true })).toBeVisible();
     await expect(page.getByText("R$ 23,45")).toBeVisible();
 
     await page.getByRole("button", { name: "Remover" }).click();

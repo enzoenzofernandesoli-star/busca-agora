@@ -13,6 +13,7 @@ type CartLineProps = {
     nome: string;
     varianteNome: string;
     precoCents: number;
+    precoDeCents?: number | null;
     quantidade: number;
     estoque: number;
     imagemUrl: string | null;
@@ -59,7 +60,7 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
     >
       <div className="flex min-w-0 flex-1 gap-3">
         <div
-          className={`flex size-[88px] shrink-0 items-center justify-center overflow-hidden rounded-[16px] ${item.imagemUrl ? "bg-white" : item.categoria === "eletronicos" ? "bg-ciano-tile text-ciano-ink" : "bg-rosa-tile text-rosa-ink"}`}
+          className={`flex size-[88px] shrink-0 items-center justify-center overflow-hidden rounded-[16px] border p-1 ${item.categoria === "eletronicos" ? "border-ciano bg-ciano-tile text-ciano-ink" : "border-rosa bg-rosa-tile text-rosa-ink"}`}
         >
           {item.imagemUrl ? (
             <Image
@@ -81,6 +82,20 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
             {item.nome}
           </Link>
           <p className="text-sm text-texto-2">{item.varianteNome}</p>
+          {item.precoDeCents != null && item.precoDeCents > item.precoCents && (
+            <p className="flex flex-wrap items-center gap-2 text-sm text-texto-2">
+              <span className="sr-only">Preço anterior: </span>
+              <s>{formatBRL(item.precoDeCents)}</s>
+              <span className="rounded-full bg-oferta px-2 py-1 font-display text-xs font-bold text-white">
+                -
+                {Math.floor(
+                  ((item.precoDeCents - item.precoCents) * 100) /
+                    item.precoDeCents,
+                )}
+                %<span className="sr-only"> de desconto</span>
+              </span>
+            </p>
+          )}
           <p className="text-sm text-noite">{formatBRL(item.precoCents)}</p>
           {item.estoque === 0 ? (
             <p className="text-sm font-bold text-rosa-ink">Esgotado</p>
@@ -150,10 +165,14 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
             </button>
           </form>
         </div>
-        <p className="pt-2 font-display text-xl font-extrabold text-noite md:ml-auto md:shrink-0 md:pt-0 md:text-lg md:font-bold">
+        <p
+          key={quantity}
+          className="pt-2 font-display text-xl font-extrabold text-noite motion-safe:animate-[ba-cart-total_220ms_ease-out] md:ml-auto md:shrink-0 md:pt-0 md:text-lg md:font-bold"
+        >
           {formatBRL(item.precoCents * quantity)}
         </p>
       </div>
+      <style>{`@keyframes ba-cart-total { from { opacity: .65; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       {error && (
         <p role="alert" className="text-sm text-rosa-ink">
           {error}

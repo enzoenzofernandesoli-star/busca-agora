@@ -77,6 +77,8 @@ export type CartLineData = {
   categoria: CategorySlug;
   /** Current price from the database, integer cents. */
   precoCents: number;
+  /** Crossed-out price (cents), display only; null when none. */
+  precoDeCents: number | null;
   quantidade: number;
   estoque: number;
   disponivel: boolean;
@@ -85,13 +87,23 @@ export type CartLineData = {
 
 export type CartData = {
   linhas: CartLineData[];
+  /**
+   * Savings of the available lines against their crossed-out prices
+   * (display only, integer cents; the server recomputes at checkout).
+   */
+  economiaCents: number;
   /** Units of the available lines. */
   quantidadeItens: number;
   /** Available lines only, integer cents. */
   subtotalCents: number;
 };
 
-const EMPTY: CartData = { linhas: [], quantidadeItens: 0, subtotalCents: 0 };
+const EMPTY: CartData = {
+  linhas: [],
+  economiaCents: 0,
+  quantidadeItens: 0,
+  subtotalCents: 0,
+};
 
 export async function getCart(): Promise<CartData> {
   const cartId = await resolveCartId(false);
@@ -103,7 +115,7 @@ export async function getCart(): Promise<CartData> {
     .select(
       `id, quantidade, created_at,
        product_variants!inner (
-         id, nome, preco_cents, estoque,
+         id, nome, preco_cents, preco_de_cents, estoque,
          products!inner (
            slug, nome, ativo,
            categories!inner ( slug, ativa ),
@@ -131,6 +143,7 @@ export async function getCart(): Promise<CartData> {
       varianteNome: v.nome,
       categoria,
       precoCents: v.preco_cents,
+      precoDeCents: v.preco_de_cents,
       quantidade: row.quantidade,
       estoque: v.estoque,
       disponivel: p.ativo && p.categories.ativa && v.estoque > 0,
@@ -141,6 +154,14 @@ export async function getCart(): Promise<CartData> {
   const ativas = linhas.filter((l) => l.disponivel);
   return {
     linhas,
+    economiaCents: ativas.reduce(
+      (sum, l) =>
+        l.precoDeCents && l.precoDeCents > l.precoCents
+          ? sum +
+            (l.precoDeCents - l.precoCents) * Math.min(l.quantidade, l.estoque)
+          : sum,
+      0,
+    ),
     quantidadeItens: ativas.reduce(
       (n, l) => n + Math.min(l.quantidade, l.estoque),
       0,

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { CartCountSync } from "@/components/carrinho/cart-count-sync";
 import { CartLine } from "@/components/carrinho/cart-line";
 import { CartSummary } from "@/components/carrinho/cart-summary";
+import { CheckoutSteps } from "@/components/carrinho/checkout-steps";
 import { EmptyState } from "@/components/loja/empty-state";
+import { Marquee } from "@/components/loja/marquee";
 import { ShippingQuote } from "@/components/loja/shipping-quote";
 import { removeFromCart, setCartQuantity } from "@/lib/cart/actions";
 import { getCart } from "@/lib/cart/server";
@@ -22,9 +24,24 @@ export default async function CarrinhoPage() {
   return (
     <>
       <CartCountSync count={cart.quantidadeItens} />
-      <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
-        Carrinho
-      </h1>
+      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="ba-entra m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[44px]">
+            Carrinho
+          </h1>
+          {cart.quantidadeItens > 0 ? (
+            <span
+              style={{ animationDelay: "120ms" }}
+              className="ba-entra inline-flex rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white"
+            >
+              {cart.quantidadeItens === 1
+                ? "1 item"
+                : `${cart.quantidadeItens} itens`}
+            </span>
+          ) : null}
+        </div>
+        {cart.linhas.length > 0 ? <CheckoutSteps /> : null}
+      </header>
 
       {cart.linhas.length === 0 ? (
         <EmptyState
@@ -63,6 +80,7 @@ export default async function CarrinhoPage() {
             <CartSummary
               subtotalCents={cart.subtotalCents}
               quantidadeItens={cart.quantidadeItens}
+              economiaCents={cart.economiaCents}
             >
               {disponiveis.length > 0 ? (
                 <>
@@ -88,6 +106,18 @@ export default async function CarrinhoPage() {
           </div>
         </div>
       )}
+      {cart.linhas.length > 0 ? (
+        <Marquee
+          itens={[
+            "Nota fiscal em todo pedido",
+            "Despacho em até 24 h",
+            "Troca em até 7 dias",
+            "Pix aprovado na hora",
+            "Buscou? Tá aqui.",
+          ]}
+          className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full md:rounded-[22px]"
+        />
+      ) : null}
     </>
   );
 }
