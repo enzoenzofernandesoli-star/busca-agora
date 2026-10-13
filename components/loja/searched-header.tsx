@@ -23,7 +23,9 @@ export function SearchedHeader({ total }: { total: number }) {
             Em alta
           </span>
           <h1 className="m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]">
-            Mais buscados
+            {/* Two lines on phones, so the corner art never touches it. */}
+            Mais <br className="md:hidden" />
+            buscados
           </h1>
           <p className="m-0 max-w-[460px] text-[15px] font-medium md:text-base">
             O que todo mundo está buscando agora.{" "}
