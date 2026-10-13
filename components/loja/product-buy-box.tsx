@@ -60,12 +60,28 @@ export function ProductBuyBox({ variantes }: ProductBuyBoxProps) {
       <div className="flex flex-col gap-1 border-y border-borda py-5">
         {variante.precoDeCents &&
         variante.precoDeCents > variante.precoCents ? (
-          <span className="text-[15px] text-texto-2">
+          <span className="flex flex-wrap items-center gap-2 text-[15px] text-texto-2">
             <span className="sr-only">Preço anterior: </span>
             <s>{formatBRL(variante.precoDeCents)}</s>
+            {/* Whole percent rounded down, integer maths (as on the cards). */}
+            <span className="rounded-full bg-oferta px-2.5 py-1 font-display text-[13px] leading-none font-extrabold text-white">
+              -
+              {Math.floor(
+                ((variante.precoDeCents - variante.precoCents) * 100) /
+                  variante.precoDeCents,
+              )}
+              %<span className="sr-only"> de desconto</span>
+            </span>
           </span>
         ) : null}
         <Price cents={variante.precoCents} size="xl" />
+        {variante.precoDeCents &&
+        variante.precoDeCents > variante.precoCents ? (
+          <span className="text-[15px] font-bold text-oferta">
+            Você economiza{" "}
+            {formatBRL(variante.precoDeCents - variante.precoCents)}
+          </span>
+        ) : null}
         <span className="text-[15px] text-texto-2">
           em até 12x no cartão · ou no Pix, aprovado na hora
         </span>
