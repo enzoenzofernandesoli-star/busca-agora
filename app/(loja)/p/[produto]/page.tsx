@@ -2,16 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Breadcrumb } from "@/components/loja/breadcrumb";
-import {
-  ExchangeIcon,
-  PinIcon,
-  ReceiptIcon,
-  ShieldCheckIcon,
-} from "@/components/loja/icons";
 import { Marquee } from "@/components/loja/marquee";
 import { ProductBuyBox } from "@/components/loja/product-buy-box";
 import { ProductCard } from "@/components/loja/product-card";
 import { ProductGallery } from "@/components/loja/product-gallery";
+import { ProductPerks } from "@/components/loja/product-perks";
 import { getProduct, getRelated } from "@/lib/catalog/queries";
 import { publicEnv } from "@/lib/env-public";
 import { categoryBand, categoryStyles } from "@/lib/site";
@@ -52,13 +47,6 @@ export async function generateMetadata(
     },
   };
 }
-
-const garantias = [
-  { texto: "Compra protegida", Icon: ShieldCheckIcon },
-  { texto: "Nota fiscal no pedido", Icon: ReceiptIcon },
-  { texto: "Troca em até 7 dias", Icon: ExchangeIcon },
-  { texto: "Envio com rastreio", Icon: PinIcon },
-];
 
 export default async function ProdutoPage(props: PageProps<"/p/[produto]">) {
   const produto = await getProduct((await props.params).produto);
@@ -155,14 +143,7 @@ export default async function ProdutoPage(props: PageProps<"/p/[produto]">) {
 
           <ProductBuyBox variantes={produto.variantes} />
 
-          <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-3 p-0 text-sm text-[#3A3F60]">
-            {garantias.map(({ texto, Icon }) => (
-              <li key={texto} className="flex items-center gap-2">
-                <Icon size={18} className="flex-none text-ultramar" />
-                {texto}
-              </li>
-            ))}
-          </ul>
+          <ProductPerks categoria={produto.categoria} />
         </div>
       </section>
 
