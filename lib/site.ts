@@ -21,6 +21,26 @@ export const categoryStyles: Record<
   },
 };
 
+/** Words of the running band on category and product pages. */
+export const categoryBand: Record<CategorySlug, string[]> = {
+  eletronicos: [
+    "Fones",
+    "Relógios",
+    "Caixas de som",
+    "Carregadores",
+    "Nota fiscal em todo pedido",
+    "Despacho em até 24 h",
+  ],
+  cosmeticos: [
+    "Skincare",
+    "Cabelo",
+    "Corpo",
+    "Proteção solar",
+    "Nota fiscal em todo pedido",
+    "Despacho em até 24 h",
+  ],
+};
+
 export const navCategories: { label: string; href: string; cor?: string }[] = [
   { label: "Eletrônicos", href: "/c/eletronicos", cor: "bg-ciano" },
   { label: "Cosméticos", href: "/c/cosmeticos", cor: "bg-rosa" },

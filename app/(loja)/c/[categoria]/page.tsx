@@ -8,7 +8,7 @@ import { CategoryArt } from "@/components/loja/category-art";
 import { Marquee } from "@/components/loja/marquee";
 import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
-import { categoryStyles, type CategorySlug } from "@/lib/site";
+import { categoryBand, categoryStyles, type CategorySlug } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 // Category texts from docs/design/Home.dc.html.
@@ -30,26 +30,6 @@ const atalhos: Record<CategorySlug, { label: string; q: string }[]> = {
     { label: "Cabelo", q: "cabelo" },
     { label: "Corpo", q: "corpo" },
     { label: "Proteção solar", q: "protetor" },
-  ],
-};
-
-// Running band under the header: the category's own words.
-const faixa: Record<CategorySlug, string[]> = {
-  eletronicos: [
-    "Fones",
-    "Relógios",
-    "Caixas de som",
-    "Carregadores",
-    "Nota fiscal em todo pedido",
-    "Despacho em até 24 h",
-  ],
-  cosmeticos: [
-    "Skincare",
-    "Cabelo",
-    "Corpo",
-    "Proteção solar",
-    "Nota fiscal em todo pedido",
-    "Despacho em até 24 h",
   ],
 };
 
@@ -183,7 +163,7 @@ export default async function CategoriaPage(
         />
       </header>
       <Marquee
-        itens={faixa[categoria]}
+        itens={categoryBand[categoria]}
         className={cn(
           "-mx-4 -mt-2 w-[calc(100%+2rem)] bg-noite md:mx-0 md:-mt-4 md:w-full md:rounded-[22px]",
           categoria === "eletronicos" ? "text-ciano" : "text-rosa",
