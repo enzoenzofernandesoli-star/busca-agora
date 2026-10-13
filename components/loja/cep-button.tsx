@@ -1,8 +1,14 @@
 "use client";
 
-import { useId, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { PinIcon } from "@/components/loja/icons";
-import { cepSchema, formatCep } from "@/lib/br/cep";
+import { formatCep, parseCep } from "@/lib/br/cep-format";
 import { getStoredCep, saveCep, subscribeStoredCep } from "@/lib/br/stored-cep";
 import { cn } from "@/lib/utils";
 
@@ -26,21 +32,28 @@ export function CepButton({ variant }: CepButtonProps) {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const id = useId();
+  // The dialog is created on the first click, not on every page: the header
+  // renders this button twice (phone and desktop), and nobody opens both.
+  const [aberturas, setAberturas] = useState(0);
+
+  useEffect(() => {
+    if (aberturas > 0) dialogRef.current?.showModal();
+  }, [aberturas]);
 
   function open() {
     setValue(formatCep(stored));
     setError(null);
-    dialogRef.current?.showModal();
+    setAberturas((n) => n + 1);
   }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const parsed = cepSchema.safeParse(value);
-    if (!parsed.success) {
+    const cep = parseCep(value);
+    if (!cep) {
       setError("CEP inválido. Confira os 8 números.");
       return;
     }
-    saveCep(parsed.data);
+    saveCep(cep);
     dialogRef.current?.close();
   }
 
@@ -63,71 +76,77 @@ export function CepButton({ variant }: CepButtonProps) {
           {desktop ? null : <span aria-hidden="true"> ›</span>}
         </span>
       </button>
-      <dialog
-        ref={dialogRef}
-        aria-labelledby={`${id}-titulo`}
-        className="m-auto w-[min(400px,calc(100%-32px))] rounded-[22px] border border-borda bg-white p-6 text-noite backdrop:bg-noite/60"
-        onClick={(event) => {
-          if (event.target === dialogRef.current) dialogRef.current?.close();
-        }}
-      >
-        <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-          <h2
-            id={`${id}-titulo`}
-            className="font-display text-xl font-bold text-noite"
-          >
-            Para onde vamos enviar?
-          </h2>
-          <p className="text-sm text-texto-2">
-            Usamos o CEP para calcular o frete e o prazo de entrega.
-          </p>
-          <label htmlFor={`${id}-cep`} className="text-sm font-bold">
-            CEP
-          </label>
-          <input
-            id={`${id}-cep`}
-            inputMode="numeric"
-            autoComplete="postal-code"
-            placeholder="00000-000"
-            value={value}
-            onChange={(event) => {
-              setValue(formatCep(event.target.value));
-              setError(null);
-            }}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `${id}-erro` : undefined}
-            className="min-h-12 rounded-[14px] border border-borda px-4 text-base text-noite focus-visible:outline-2 focus-visible:outline-ultramar"
-          />
-          {error && (
-            <p id={`${id}-erro`} role="alert" className="text-sm text-rosa-ink">
-              {error}
+      {aberturas > 0 ? (
+        <dialog
+          ref={dialogRef}
+          aria-labelledby={`${id}-titulo`}
+          className="m-auto w-[min(400px,calc(100%-32px))] rounded-[22px] border border-borda bg-white p-6 text-noite backdrop:bg-noite/60"
+          onClick={(event) => {
+            if (event.target === dialogRef.current) dialogRef.current?.close();
+          }}
+        >
+          <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+            <h2
+              id={`${id}-titulo`}
+              className="font-display text-xl font-bold text-noite"
+            >
+              Para onde vamos enviar?
+            </h2>
+            <p className="text-sm text-texto-2">
+              Usamos o CEP para calcular o frete e o prazo de entrega.
             </p>
-          )}
-          <a
-            href="https://buscacepinter.correios.com.br/app/endereco/index.php"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="self-start text-sm text-ultramar underline"
-          >
-            Não sei meu CEP
-          </a>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-              className="min-h-12 flex-1 cursor-pointer rounded-[14px] border border-borda bg-white font-bold text-noite hover:bg-fundo"
+            <label htmlFor={`${id}-cep`} className="text-sm font-bold">
+              CEP
+            </label>
+            <input
+              id={`${id}-cep`}
+              inputMode="numeric"
+              autoComplete="postal-code"
+              placeholder="00000-000"
+              value={value}
+              onChange={(event) => {
+                setValue(formatCep(event.target.value));
+                setError(null);
+              }}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? `${id}-erro` : undefined}
+              className="min-h-12 rounded-[14px] border border-borda px-4 text-base text-noite focus-visible:outline-2 focus-visible:outline-ultramar"
+            />
+            {error && (
+              <p
+                id={`${id}-erro`}
+                role="alert"
+                className="text-sm text-rosa-ink"
+              >
+                {error}
+              </p>
+            )}
+            <a
+              href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="self-start text-sm text-ultramar underline"
             >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="min-h-12 flex-1 cursor-pointer rounded-[14px] bg-ultramar font-bold text-white hover:bg-ultramar-700"
-            >
-              Salvar CEP
-            </button>
-          </div>
-        </form>
-      </dialog>
+              Não sei meu CEP
+            </a>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => dialogRef.current?.close()}
+                className="min-h-12 flex-1 cursor-pointer rounded-[14px] border border-borda bg-white font-bold text-noite hover:bg-fundo"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="min-h-12 flex-1 cursor-pointer rounded-[14px] bg-ultramar font-bold text-white hover:bg-ultramar-700"
+              >
+                Salvar CEP
+              </button>
+            </div>
+          </form>
+        </dialog>
+      ) : null}
     </>
   );
 }

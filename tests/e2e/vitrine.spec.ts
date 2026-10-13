@@ -163,7 +163,7 @@ test.describe("abertura (splash)", () => {
         delay?: number,
         ...args: unknown[]
       ) =>
-        String(handler).includes("setIsClosed")
+        String(handler).includes("fecharSplash")
           ? 0
           : realSetTimeout(
               handler,
