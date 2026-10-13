@@ -17,8 +17,18 @@ export function CheckoutBar({ subtotalCents }: { subtotalCents: number }) {
   useEffect(() => {
     const target = document.getElementById("carrinho-continuar");
     if (!target) return;
-    const observer = new IntersectionObserver((entries) =>
-      setSummaryVisible(entries.some((e) => e.isIntersecting)),
+    // Only the part of the screen above the fixed bottom nav counts, and the
+    // button must be fully there: a button half behind the nav is not usable.
+    const nav = document.querySelector<HTMLElement>(
+      'nav[aria-label="Navegação principal"]',
+    );
+    const navHeight = nav?.offsetHeight ?? 0;
+    const observer = new IntersectionObserver(
+      (entries) =>
+        setSummaryVisible(
+          entries.some((e) => e.isIntersecting && e.intersectionRatio >= 0.99),
+        ),
+      { rootMargin: `0px 0px -${navHeight}px 0px`, threshold: [0, 0.99, 1] },
     );
     observer.observe(target);
     return () => observer.disconnect();
@@ -30,7 +40,7 @@ export function CheckoutBar({ subtotalCents }: { subtotalCents: number }) {
       <div aria-hidden="true" className="h-16 md:hidden" />
       <div
         data-escondida={summaryVisible ? "" : undefined}
-        className="fixed inset-x-0 bottom-[calc(56px+max(22px,env(safe-area-inset-bottom)))] z-30 flex items-center gap-3 border-t border-borda bg-white/95 px-4 py-2.5 backdrop-blur transition-[opacity,transform] duration-200 data-escondida:pointer-events-none data-escondida:translate-y-3 data-escondida:opacity-0 md:hidden"
+        className="fixed inset-x-0 bottom-[calc(56px+max(22px,env(safe-area-inset-bottom)))] z-30 flex items-center gap-3 border-t border-borda bg-white/95 px-4 py-2.5 backdrop-blur data-escondida:pointer-events-none data-escondida:opacity-0 motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-safe:data-escondida:translate-y-3 md:hidden"
       >
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="text-[13px] text-texto-2">Total + frete</span>

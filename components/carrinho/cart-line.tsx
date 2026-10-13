@@ -61,7 +61,7 @@ export function CartLine({ item, setQuantity, remove }: CartLineProps) {
   return (
     <div
       aria-busy={pending}
-      className={`flex flex-col gap-4 rounded-[22px] border border-borda bg-white p-4 font-sans transition-[opacity,transform] duration-300 md:flex-row md:items-center md:p-5 ${removing ? "opacity-40 motion-safe:scale-[.97]" : ""}`}
+      className={`flex flex-col gap-4 rounded-[22px] border border-borda bg-white p-4 font-sans motion-safe:transition-[opacity,transform] motion-safe:duration-300 md:flex-row md:items-center md:p-5 ${removing ? "opacity-40 motion-safe:scale-[.97]" : ""}`}
     >
       <div className="flex min-w-0 flex-1 gap-3">
         <div
