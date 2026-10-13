@@ -138,6 +138,8 @@ test.describe("vitrine", () => {
     page,
   }, info) => {
     test.skip(info.project.name !== "desktop", "larguras ajustadas no teste");
+    // Measure the final layout, not the header's entrance animation.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     for (const [rota, titulo] of [
       ["/busca?filtro=ofertas", "Ofertas"],
       ["/busca?filtro=mais-buscados", "Mais buscados"],

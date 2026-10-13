@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const styles = `
-  .ba-marquee { height: 48px; overflow: hidden; }
+  .ba-marquee { height: 48px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
   .ba-marquee-track { display: flex; width: max-content; height: 100%; animation: ba-marquee 28s linear infinite; }
   .ba-marquee-list { display: flex; flex-shrink: 0; align-items: center; justify-content: space-around; min-width: 100vw; margin: 0; padding: 0; list-style: none; }
   .ba-marquee-item { display: flex; flex-shrink: 0; align-items: center; gap: 24px; padding: 0 12px; white-space: nowrap; }

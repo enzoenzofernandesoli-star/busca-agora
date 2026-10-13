@@ -15,23 +15,35 @@ export function SearchedHeader({ total }: { total: number }) {
           className="ba-drift pointer-events-none absolute -top-28 -right-28 -z-10 hidden size-[340px] rounded-full border-[56px] border-white/12 md:block"
         />
         <div className="flex min-w-0 flex-col gap-2">
-          <span className="inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] text-lavanda uppercase">
+          <span
+            style={{ animationDelay: "0ms" }}
+            className="ba-entra inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] text-lavanda uppercase"
+          >
             <span
               aria-hidden="true"
               className="size-2.5 rounded-[3px] bg-lima"
             />
             Em alta
           </span>
-          <h1 className="m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]">
+          <h1
+            style={{ animationDelay: "80ms" }}
+            className="ba-entra m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]"
+          >
             {/* Two lines on phones, so the corner art never touches it. */}
             Mais <br className="md:hidden" />
             buscados
           </h1>
-          <p className="m-0 max-w-[460px] text-[15px] font-medium md:text-base">
+          <p
+            style={{ animationDelay: "160ms" }}
+            className="ba-entra m-0 max-w-[460px] text-[15px] font-medium md:text-base"
+          >
             O que todo mundo está buscando agora.{" "}
             <span className="text-lima">Buscou? Tá aqui.</span>
           </p>
-          <p className="m-0 mt-1 inline-flex self-start rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white">
+          <p
+            style={{ animationDelay: "240ms" }}
+            className="ba-entra m-0 mt-1 inline-flex self-start rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white"
+          >
             {total === 1 ? "1 produto" : `${total} produtos`} em alta
           </p>
         </div>

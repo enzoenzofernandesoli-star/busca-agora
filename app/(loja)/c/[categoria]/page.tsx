@@ -93,20 +93,32 @@ export default async function CategoriaPage(
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-1.5">
-              <span className="inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] text-noite uppercase">
+              <span
+                style={{ animationDelay: "0ms" }}
+                className="ba-entra inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] text-noite uppercase"
+              >
                 <span
                   aria-hidden="true"
                   className="size-2.5 rounded-[3px] bg-noite"
                 />
                 Categoria
               </span>
-              <h1 className="m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]">
+              <h1
+                style={{ animationDelay: "80ms" }}
+                className="ba-entra m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]"
+              >
                 {cat.nome}
               </h1>
-              <p className="m-0 text-[15px] font-medium text-noite md:text-base">
+              <p
+                style={{ animationDelay: "160ms" }}
+                className="ba-entra m-0 text-[15px] font-medium text-noite md:text-base"
+              >
                 {intro[categoria]}
               </p>
-              <p className="m-0 mt-1 inline-flex self-start rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white">
+              <p
+                style={{ animationDelay: "240ms" }}
+                className="ba-entra m-0 mt-1 inline-flex self-start rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white"
+              >
                 {result.total === 1 ? "1 produto" : `${result.total} produtos`}
               </p>
             </div>
