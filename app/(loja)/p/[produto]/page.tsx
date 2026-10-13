@@ -216,6 +216,7 @@ export default async function ProdutoPage(props: PageProps<"/p/[produto]">) {
                   nome={p.nome}
                   categoria={p.categoria}
                   precoCents={p.precoCents}
+                  precoDeCents={p.precoDeCents}
                   imagemUrl={p.imagemUrl ?? undefined}
                   imagemAlt={p.imagemAlt ?? undefined}
                   className="w-full"

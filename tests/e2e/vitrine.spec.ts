@@ -118,6 +118,22 @@ test.describe("vitrine", () => {
     ).toBeVisible();
   });
 
+  test("ofertas: topo próprio e cards com desconto e preço riscado", async ({
+    page,
+  }) => {
+    await page.goto("/busca?filtro=ofertas");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Ofertas" }),
+    ).toBeVisible();
+    const card = page
+      .getByRole("list", { name: "Produtos" })
+      .getByRole("listitem")
+      .first();
+    // Seed has a product with a crossed-out price.
+    await expect(card.getByText(/^-\d+%/)).toBeVisible();
+    await expect(card.getByText("Preço anterior:")).toBeAttached();
+  });
+
   test("404 com a marca para URL e produto inexistentes", async ({ page }) => {
     for (const url of ["/nao-existe", "/p/nao-existe", "/c/roupas"]) {
       const res = await page.goto(url);

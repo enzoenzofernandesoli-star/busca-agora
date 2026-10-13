@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { CatalogResults } from "@/components/loja/catalog-results";
+import { OffersHeader } from "@/components/loja/offers-header";
 import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
 
@@ -27,25 +28,37 @@ export default async function BuscaPage(props: PageProps<"/busca">) {
     redirect(filtersHref("/busca", filters, { pagina: result.paginas }));
   }
 
+  // Offers shelf without a search term gets its own decorated header.
+  const ofertas = filters.filtro === "ofertas" && !filters.q;
+
   return (
     <>
-      <Breadcrumb itens={[{ nome: "Início", href: "/" }, { nome: "Busca" }]} />
-      <header className="flex flex-col gap-1.5">
-        <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
-          {filters.q ? (
-            <>
-              Resultados para{" "}
-              <span className="text-ultramar">“{filters.q}”</span>
-            </>
-          ) : filters.filtro === "ofertas" ? (
-            "Ofertas"
-          ) : filters.filtro === "mais-buscados" ? (
-            "Mais buscados"
-          ) : (
-            "Todos os produtos"
-          )}
-        </h1>
-      </header>
+      <Breadcrumb
+        itens={[
+          { nome: "Início", href: "/" },
+          { nome: ofertas ? "Ofertas" : "Busca" },
+        ]}
+      />
+      {ofertas ? (
+        <OffersHeader total={result.total} />
+      ) : (
+        <header className="flex flex-col gap-1.5">
+          <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
+            {filters.q ? (
+              <>
+                Resultados para{" "}
+                <span className="text-ultramar">“{filters.q}”</span>
+              </>
+            ) : filters.filtro === "ofertas" ? (
+              "Ofertas"
+            ) : filters.filtro === "mais-buscados" ? (
+              "Mais buscados"
+            ) : (
+              "Todos os produtos"
+            )}
+          </h1>
+        </header>
+      )}
       <CatalogResults
         pathname="/busca"
         filters={filters}

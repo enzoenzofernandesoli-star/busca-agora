@@ -70,6 +70,8 @@ Tokens (colocar no Tailwind como cores nomeadas):
 | `borda` | #E3E5F2 | Bordas de cards |
 | `texto-2` | #4A4F70 | Texto secundário |
 | `lavanda` | #DCDFFF | Texto claro sobre azul/noite |
+| `oferta` | #D7261E | Só ofertas (decisão de 12/10): selo de desconto, topo de Ofertas; texto branco (5,2:1) |
+| `oferta-sol` | #FFB020 | Só ofertas: fim do degradê do topo de Ofertas, nunca atrás de texto branco |
 
 - Títulos, preços e números: **Sora** 700/800. Texto: **DM Sans** 400/500/700.
 - Cantos: cards 22–28 px, botões 14–16 px, chips 999 px.

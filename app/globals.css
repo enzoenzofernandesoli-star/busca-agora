@@ -30,6 +30,9 @@
   --color-texto-3: #6b7094; /* input placeholder */
   --color-borda-forte: #d5d8ea; /* input / stepper border */
   --color-estoque: #1f7a3a; /* "Em estoque" */
+  /* Offers only (decision of 12/10): white on oferta is 5.2:1. */
+  --color-oferta: #d7261e;
+  --color-oferta-sol: #ffb020;
 
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
   --font-display: var(--font-sora), system-ui, sans-serif;
