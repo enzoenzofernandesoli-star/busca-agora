@@ -134,6 +134,65 @@ test.describe("vitrine", () => {
     await expect(card.getByText("Preço anterior:")).toBeAttached();
   });
 
+  test("ofertas: decoração clara nunca atrás do texto", async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name !== "desktop", "larguras ajustadas no teste");
+    for (const width of [320, 390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/busca?filtro=ofertas");
+      const header = page
+        .locator("header")
+        .filter({ has: page.getByRole("heading", { name: "Ofertas" }) });
+      // Real text lines (Range rects), not the paragraph boxes.
+      const textos = await header
+        .locator("h1 ~ p, h1, span.uppercase")
+        .evaluateAll((els) =>
+          els.flatMap((el) => {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            return [...range.getClientRects()].map(
+              (r) => r.toJSON() as DOMRect,
+            );
+          }),
+        );
+      // Light layers (white ring, yellow glow), grown by their 24 px blur.
+      const camadas = await header
+        .locator(":scope > div[aria-hidden='true']")
+        .evaluateAll((els) =>
+          els
+            .filter((el) => getComputedStyle(el).display !== "none")
+            .map((el) => {
+              const r = el.getBoundingClientRect();
+              return {
+                left: r.left - 24,
+                right: r.right + 24,
+                top: r.top - 24,
+                bottom: r.bottom + 24,
+              };
+            }),
+        );
+      // The art must not cover the text either (no blur there).
+      const arte = await header.locator(":scope > svg").boundingBox();
+      if (arte)
+        camadas.push({
+          left: arte.x,
+          right: arte.x + arte.width,
+          top: arte.y,
+          bottom: arte.y + arte.height,
+        });
+      for (const t of textos)
+        for (const c of camadas) {
+          const cruza =
+            t.left < c.right &&
+            c.left < t.right &&
+            t.top < c.bottom &&
+            c.top < t.bottom;
+          expect(cruza, `${width}px: camada clara atrás do texto`).toBe(false);
+        }
+    }
+  });
+
   test("404 com a marca para URL e produto inexistentes", async ({ page }) => {
     for (const url of ["/nao-existe", "/p/nao-existe", "/c/roupas"]) {
       const res = await page.goto(url);

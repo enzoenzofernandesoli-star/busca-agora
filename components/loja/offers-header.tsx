@@ -10,15 +10,12 @@ export function OffersHeader({ total }: { total: number }) {
   return (
     <div className="flex flex-col gap-4">
       <header className="relative isolate grid items-center gap-6 overflow-hidden rounded-[24px] bg-oferta p-6 text-white md:min-h-[216px] md:grid-cols-[3fr_2fr] md:gap-8 md:bg-[linear-gradient(110deg,#D7261E_0%,#D7261E_52%,#F2611B_76%,#FFB020_100%)] md:p-8">
-        {/* Phone: the yellow lives only in the corner behind the art, so
-            white text always sits on red (contrast 5.2:1). */}
+        {/* White text must always sit on plain red (5.2:1): the yellow glow
+            was dropped on phones; the light ring (desktop, anchored to the right edge,
+            behind the art) never reach the text column. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-10 -bottom-14 -z-10 size-40 rounded-full bg-oferta-sol/70 blur-2xl md:hidden"
-        />
-        <div
-          aria-hidden="true"
-          className="ba-drift pointer-events-none absolute -top-24 -right-16 -z-10 size-72 rounded-full border-[48px] border-white/20 md:-top-40 md:right-[30%] md:size-[420px] md:border-[64px]"
+          className="ba-drift pointer-events-none absolute -top-28 -right-28 -z-10 hidden size-[340px] rounded-full border-[56px] border-white/20 md:block"
         />
         <div className="flex min-w-0 flex-col gap-2">
           <span className="inline-flex items-center gap-2 text-[13px] font-bold tracking-[.1em] uppercase">
@@ -61,7 +58,7 @@ function OffersArt() {
       aria-hidden="true"
       focusable="false"
       viewBox="0 0 320 160"
-      className="pointer-events-none absolute right-3 bottom-3 h-auto w-[46%] max-w-[200px] opacity-90 md:relative md:right-auto md:bottom-auto md:w-full md:max-w-[320px] md:justify-self-end md:opacity-100"
+      className="pointer-events-none absolute top-3 right-3 h-auto w-[34%] max-w-[150px] md:relative md:top-auto md:right-auto md:bottom-auto md:w-full md:max-w-[320px] md:justify-self-end md:opacity-100"
       fill="none"
       stroke="#0A0F3D"
       strokeWidth="3"
