@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { CatalogResults } from "@/components/loja/catalog-results";
 import { CategoryArt } from "@/components/loja/category-art";
+import { Marquee } from "@/components/loja/marquee";
 import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
 import { categoryStyles, type CategorySlug } from "@/lib/site";
@@ -29,6 +30,26 @@ const atalhos: Record<CategorySlug, { label: string; q: string }[]> = {
     { label: "Cabelo", q: "cabelo" },
     { label: "Corpo", q: "corpo" },
     { label: "Proteção solar", q: "protetor" },
+  ],
+};
+
+// Running band under the header: the category's own words.
+const faixa: Record<CategorySlug, string[]> = {
+  eletronicos: [
+    "Fones",
+    "Relógios",
+    "Caixas de som",
+    "Carregadores",
+    "Nota fiscal em todo pedido",
+    "Despacho em até 24 h",
+  ],
+  cosmeticos: [
+    "Skincare",
+    "Cabelo",
+    "Corpo",
+    "Proteção solar",
+    "Nota fiscal em todo pedido",
+    "Despacho em até 24 h",
   ],
 };
 
@@ -83,7 +104,11 @@ export default async function CategoriaPage(
         {/* Brand rings, as on the Home hero. */}
         <div
           aria-hidden="true"
-          className="ba-drift pointer-events-none absolute -top-24 -right-16 -z-10 size-72 rounded-full border-[48px] border-white/25 md:-top-40 md:right-[30%] md:size-[420px] md:border-[64px]"
+          className="ba-drift pointer-events-none absolute -top-24 -right-16 -z-10 size-72 rounded-full border-[48px] border-white/25 md:-top-28 md:-right-28 md:size-[360px] md:border-[56px]"
+        />
+        <div
+          aria-hidden="true"
+          className="ba-drift pointer-events-none absolute -bottom-40 left-[38%] -z-10 hidden size-[300px] rounded-full border-2 border-noite/10 [animation-delay:-4s] md:block"
         />
         <div className="flex min-w-0 flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
@@ -95,11 +120,14 @@ export default async function CategoriaPage(
                 />
                 Categoria
               </span>
-              <h1 className="m-0 font-display text-[28px] font-extrabold tracking-[-0.02em] md:text-[34px]">
+              <h1 className="m-0 font-display text-[34px] leading-none font-extrabold tracking-[-0.03em] md:text-[52px]">
                 {cat.nome}
               </h1>
-              <p className="m-0 text-[15px] text-noite md:text-base">
+              <p className="m-0 text-[15px] font-medium text-noite md:text-base">
                 {intro[categoria]}
+              </p>
+              <p className="m-0 mt-1 inline-flex self-start rounded-full bg-noite px-3 py-1 text-[13px] font-bold text-white">
+                {result.total === 1 ? "1 produto" : `${result.total} produtos`}
               </p>
             </div>
             <CategoryArt
@@ -154,6 +182,13 @@ export default async function CategoriaPage(
           className="ba-float hidden w-full max-w-[320px] justify-self-end md:block"
         />
       </header>
+      <Marquee
+        itens={faixa[categoria]}
+        className={cn(
+          "-mx-4 -mt-2 w-[calc(100%+2rem)] bg-noite md:mx-0 md:-mt-4 md:w-full md:rounded-[22px]",
+          categoria === "eletronicos" ? "text-ciano" : "text-rosa",
+        )}
+      />
       <CatalogResults
         pathname={`/c/${categoria}`}
         filters={filters}
