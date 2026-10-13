@@ -54,7 +54,7 @@ export function AuthCard({
         : UserIcon;
 
   return (
-    <section className="relative isolate -mx-4 -mt-3 grid min-h-[calc(100svh-180px)] items-center gap-6 overflow-hidden bg-noite px-4 py-8 md:mx-0 md:mt-0 md:min-h-[680px] md:gap-8 md:rounded-[28px] md:p-12 lg:grid-cols-[minmax(0,1fr)_480px] lg:gap-12 xl:px-20">
+    <section className="relative isolate -mx-4 -mt-3 grid min-h-[calc(100svh-180px)] items-center gap-6 overflow-hidden bg-noite px-4 pt-8 pb-[132px] md:mx-0 md:mt-0 md:min-h-[680px] md:gap-8 md:rounded-[28px] md:p-12 lg:grid-cols-[minmax(0,1fr)_480px] lg:gap-12 xl:px-20">
       <AuthBackdrop />
       <div className="flex flex-col gap-3 text-white md:gap-5">
         <p

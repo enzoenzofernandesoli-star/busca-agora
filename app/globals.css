@@ -402,3 +402,9 @@
     }
   }
 }
+
+/* Off-screen page blocks stop their looping decorations (MotionGate). */
+.ba-fora,
+.ba-fora * {
+  animation-play-state: paused !important;
+}

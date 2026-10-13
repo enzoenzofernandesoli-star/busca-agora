@@ -207,13 +207,16 @@ function HeroTrail({ tema, vez }: { tema: number; vez: number }) {
   if (!t) return null;
   const id = `ba-trilha-${tema}`;
   return (
+    // Desktop: from the title on the left to the photo. Phone: the same trail
+    // turned 90°, falling from under the word to the photo in the right
+    // column only, never behind the white text.
     <svg
       key={vez}
       aria-hidden="true"
       focusable="false"
       viewBox="0 0 160 120"
       preserveAspectRatio="none"
-      className="pointer-events-none absolute -inset-y-[10%] right-0 -left-[60%] hidden h-[120%] w-[160%] overflow-visible md:block"
+      className="pointer-events-none absolute -top-[27.5%] left-[12.5%] h-full w-[75%] rotate-90 overflow-visible md:-top-[10%] md:right-0 md:-left-[60%] md:h-[120%] md:w-[160%] md:rotate-0"
     >
       <path
         id={id}
