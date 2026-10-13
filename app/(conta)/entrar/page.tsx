@@ -41,6 +41,8 @@ export default async function EntrarPage(props: PageProps<"/entrar">) {
           {erro}
         </p>
       ) : null}
+      <GoogleButton volta={volta} />
+      <OrDivider texto="ou com e-mail" />
       <AuthForm
         action={signIn}
         submitLabel="Entrar"
@@ -68,8 +70,6 @@ export default async function EntrarPage(props: PageProps<"/entrar">) {
           required
         />
       </AuthForm>
-      <OrDivider />
-      <GoogleButton volta={volta} />
       <p className="m-0 text-center text-[15px] text-texto-2">
         Ainda não tem conta?{" "}
         <Link

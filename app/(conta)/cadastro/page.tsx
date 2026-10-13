@@ -27,6 +27,8 @@ export default async function CadastroPage(props: PageProps<"/cadastro">) {
       titulo="Crie sua conta"
       subtitulo="Leva menos de um minuto e seus pedidos ficam sempre à mão."
     >
+      <GoogleButton volta={volta} />
+      <OrDivider texto="ou com e-mail" />
       <AuthForm action={signUp} submitLabel="Criar conta">
         <input type="hidden" name="volta" value={volta} />
         <Field
@@ -57,8 +59,6 @@ export default async function CadastroPage(props: PageProps<"/cadastro">) {
         />
         <TermsCheckbox />
       </AuthForm>
-      <OrDivider />
-      <GoogleButton volta={volta} />
       <p className="m-0 text-center text-[15px] text-texto-2">
         Já tem conta?{" "}
         <Link

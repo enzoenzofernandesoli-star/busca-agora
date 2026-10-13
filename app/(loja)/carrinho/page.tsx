@@ -4,8 +4,9 @@ import Link from "next/link";
 import { CartCountSync } from "@/components/carrinho/cart-count-sync";
 import { CartLine } from "@/components/carrinho/cart-line";
 import { CartSummary } from "@/components/carrinho/cart-summary";
+import { EmptyCart } from "@/components/carrinho/empty-cart";
+import { CheckoutBar } from "@/components/carrinho/checkout-bar";
 import { CheckoutSteps } from "@/components/carrinho/checkout-steps";
-import { EmptyState } from "@/components/loja/empty-state";
 import { Marquee } from "@/components/loja/marquee";
 import { ShippingQuote } from "@/components/loja/shipping-quote";
 import { removeFromCart, setCartQuantity } from "@/lib/cart/actions";
@@ -44,16 +45,7 @@ export default async function CarrinhoPage() {
       </header>
 
       {cart.linhas.length === 0 ? (
-        <EmptyState
-          icone="carrinho"
-          titulo="Seu próximo achado começa aqui."
-          texto="Seu carrinho está vazio. Que tal dar uma olhada nos eletrônicos e cosméticos?"
-          acao={{ label: "Buscar produtos", href: "/busca" }}
-          links={[
-            { label: "Eletrônicos", href: "/c/eletronicos" },
-            { label: "Cosméticos", href: "/c/cosmeticos" },
-          ]}
-        />
+        <EmptyCart />
       ) : (
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-8">
           <section
@@ -91,6 +83,7 @@ export default async function CarrinhoPage() {
                     }))}
                   />
                   <Link
+                    id="carrinho-continuar"
                     href="/checkout"
                     className="flex min-h-14 items-center justify-center rounded-2xl bg-ultramar font-display text-[17px] font-bold text-white no-underline hover:bg-ultramar-700 hover:text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ultramar"
                   >
@@ -117,6 +110,9 @@ export default async function CarrinhoPage() {
           ]}
           className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full md:rounded-[22px]"
         />
+      ) : null}
+      {disponiveis.length > 0 ? (
+        <CheckoutBar subtotalCents={cart.subtotalCents} />
       ) : null}
     </>
   );

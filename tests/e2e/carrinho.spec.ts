@@ -87,6 +87,19 @@ test.describe("carrinho", () => {
     ).toBeAttached();
   });
 
+  test("no celular a barra fixa leva ao pagamento e some perto do resumo", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await addFromProductPage(page, SMARTWATCH);
+    await page.goto("/carrinho");
+    const barra = page.getByRole("link", { name: "Continuar", exact: true });
+    await expect(barra).toBeVisible();
+    await expect(barra).toHaveAttribute("href", "/checkout");
+    await page.locator("#carrinho-continuar").scrollIntoViewIfNeeded();
+    await expect(barra).toBeHidden();
+  });
+
   test("CEP inválido mostra mensagem clara", async ({ page }) => {
     await mockFrete(page);
     await page.goto(SMARTWATCH);
