@@ -88,12 +88,22 @@ export function CategoryArt({
           <g transform="translate(48 30)">
             <Headphones />
           </g>
+          {/* Sound leaving the headphones. */}
+          <g strokeWidth={2.5}>
+            <path className="ba-onda ba-onda-1" d="M142 66a16 16 0 0 1 0 30" />
+            <path className="ba-onda ba-onda-2" d="M150 58a26 26 0 0 1 0 46" />
+            <path className="ba-onda ba-onda-3" d="M158 50a36 36 0 0 1 0 62" />
+          </g>
           <g transform="rotate(12 226 80)">
             <rect x="215" y="21" width="22" height="29" rx="7" />
             <rect x="215" y="110" width="22" height="29" rx="7" />
             <rect x="202" y="46" width="48" height="68" rx="15" />
             <rect x="209" y="53" width="34" height="54" rx="9" />
-            <path d="m229 66-13 17h10l-4 13 14-18h-10Z" fill="#C6FF3D" />
+            <path
+              className="ba-pulso"
+              d="m229 66-13 17h10l-4 13 14-18h-10Z"
+              fill="#C6FF3D"
+            />
             <path d="M250 70h4v12h-4" />
           </g>
         </>
@@ -102,7 +112,28 @@ export function CategoryArt({
           <g transform="translate(52 26)">
             <DropperBottle />
           </g>
-          <path d="M227 33s-16 18-16 28a16 16 0 0 0 32 0c0-10-16-28-16-28Z" />
+          <g className="ba-balanco">
+            <path d="M227 33s-16 18-16 28a16 16 0 0 0 32 0c0-10-16-28-16-28Z" />
+          </g>
+          {/* Drops falling from the big drop into the jar. */}
+          <path
+            className="ba-gota ba-gota-1"
+            d="M227 82c0 0-4 5-4 7.5a4 4 0 0 0 8 0c0-2.5-4-7.5-4-7.5Z"
+            fill="#C6FF3D"
+          />
+          {/* Sparkles. */}
+          <path
+            className="ba-brilho"
+            d="M168 30l3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"
+            fill="#fff"
+            stroke="none"
+          />
+          <path
+            className="ba-brilho ba-brilho-2"
+            d="M286 96l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"
+            fill="#fff"
+            stroke="none"
+          />
           <path d="M219 62a8 8 0 0 0 8 8" />
           <rect x="198" y="106" width="62" height="15" rx="5" />
           <path d="M202 121v13a6 6 0 0 0 6 6h42a6 6 0 0 0 6-6v-13" />
