@@ -87,6 +87,68 @@ test.describe("carrinho", () => {
     ).toBeAttached();
   });
 
+  test("no celular a barra fixa leva ao pagamento e some perto do resumo", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await addFromProductPage(page, SMARTWATCH);
+    await page.goto("/carrinho");
+    const barra = page.getByRole("link", { name: "Continuar", exact: true });
+    await expect(barra).toBeVisible();
+    await expect(barra).toHaveAttribute("href", "/checkout");
+    // Button half behind the bottom nav: not usable yet, so the bar stays.
+    const navTop = await page
+      .getByRole("navigation", { name: "Navegação principal" })
+      .evaluate((n) => n.getBoundingClientRect().top);
+    await page.locator("#carrinho-continuar").evaluate((el, top) => {
+      const r = el.getBoundingClientRect();
+      window.scrollBy(0, r.top - (top - r.height / 2));
+    }, navTop);
+    await expect(barra).toBeVisible();
+    // Fully above the nav: the summary button takes over.
+    await page
+      .locator("#carrinho-continuar")
+      .evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(barra).toBeHidden();
+  });
+
+  test("com movimento reduzido a barra e a linha não animam", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await addFromProductPage(page, SMARTWATCH);
+    await page.goto("/carrinho");
+    const barra = page.getByRole("link", { name: "Continuar", exact: true });
+    await expect(barra).toBeVisible();
+    for (const el of [
+      barra.locator(".."),
+      page
+        .getByRole("list")
+        .filter({ hasText: "Smartwatch" })
+        .locator("li > div")
+        .first(),
+    ]) {
+      const estilo = await el.evaluate((n) => {
+        const cs = getComputedStyle(n);
+        return { dur: cs.transitionDuration, anim: cs.animationName };
+      });
+      expect(
+        estilo.dur.split(",").every((d) => parseFloat(d) < 0.001),
+        JSON.stringify(estilo),
+      ).toBe(true);
+      expect(estilo.anim).toBe("none");
+    }
+    await page
+      .locator("#carrinho-continuar")
+      .evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await expect(barra).toBeHidden();
+    const transform = await page
+      .locator("[data-escondida]")
+      .evaluate((n) => getComputedStyle(n).transform);
+    expect(transform).toBe("none");
+  });
+
   test("CEP inválido mostra mensagem clara", async ({ page }) => {
     await mockFrete(page);
     await page.goto(SMARTWATCH);

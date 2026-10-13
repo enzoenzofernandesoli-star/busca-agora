@@ -146,3 +146,58 @@ test.describe("conta do cliente", () => {
     await expect(page.getByText("E-mail ou senha incorretos.")).toBeVisible();
   });
 });
+
+test.describe("telas de entrada", () => {
+  test("Google vem primeiro e o fundo vivo nunca fica atrás do texto branco", async ({
+    page,
+  }, info) => {
+    test.skip(info.project.name !== "desktop", "larguras ajustadas no teste");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const rota of ["/entrar", "/cadastro"])
+      for (const width of [320, 390, 768, 1024, 1440]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(rota);
+        const google = page.getByRole("button", {
+          name: "Continuar com Google",
+        });
+        const email = page.getByLabel("E-mail");
+        const g = await google.boundingBox();
+        const e = await email.boundingBox();
+        expect(g && e && g.y < e.y, `${rota} ${width}px: Google primeiro`).toBe(
+          true,
+        );
+        const section = page.locator("section").filter({ has: google });
+        // White copy on the dark stage (left column on desktop, top on phones).
+        const textos = await section
+          .locator(":scope > div:not([aria-hidden]) >> nth=0")
+          .locator("p, li")
+          .evaluateAll((els) =>
+            els
+              .filter((el) => el.getClientRects().length > 0)
+              .flatMap((el) => {
+                const range = document.createRange();
+                range.selectNodeContents(el);
+                return [...range.getClientRects()].map(
+                  (r) => r.toJSON() as DOMRect,
+                );
+              }),
+          );
+        expect(textos.length).toBeGreaterThan(0);
+        // Bright layers: the magnifier and the coloured wave band.
+        const camadas = await section
+          .locator(".ba-auth-sweep, .ba-auth-wave")
+          .evaluateAll((els) =>
+            els.map((el) => el.getBoundingClientRect().toJSON() as DOMRect),
+          );
+        for (const t of textos)
+          for (const c of camadas)
+            expect(
+              t.left < c.right &&
+                c.left < t.right &&
+                t.top < c.bottom &&
+                c.top < t.bottom,
+              `${rota} ${width}px: decoração clara atrás do texto`,
+            ).toBe(false);
+      }
+  });
+});
