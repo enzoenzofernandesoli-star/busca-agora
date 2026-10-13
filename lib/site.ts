@@ -24,6 +24,6 @@ export const categoryStyles: Record<
 export const navCategories: { label: string; href: string; cor?: string }[] = [
   { label: "Eletrônicos", href: "/c/eletronicos", cor: "bg-ciano" },
   { label: "Cosméticos", href: "/c/cosmeticos", cor: "bg-rosa" },
-  { label: "Ofertas", href: "/busca?filtro=ofertas", cor: "bg-lima" },
+  { label: "Ofertas", href: "/busca?filtro=ofertas", cor: "bg-oferta" },
   { label: "Mais buscados", href: "/busca?filtro=mais-buscados" },
 ];

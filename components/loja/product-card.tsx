@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { ChipIcon, DropIcon } from "@/components/loja/icons";
 import { Price } from "@/components/loja/price";
+import { formatBRL } from "@/lib/format";
 import { categoryStyles, type CategorySlug } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,8 @@ type ProductCardProps = {
   categoria: CategorySlug;
   /** Integer cents. */
   precoCents: number;
+  /** Crossed-out price (cents); shown with a discount tag only when higher. */
+  precoDeCents?: number | null;
   imagemUrl?: string;
   imagemAlt?: string;
   /** Show the category tag above the name (desktop "Mais buscados"). */
@@ -24,6 +27,7 @@ export function ProductCard({
   nome,
   categoria,
   precoCents,
+  precoDeCents,
   imagemUrl,
   imagemAlt,
   mostrarCategoria = false,
@@ -31,6 +35,12 @@ export function ProductCard({
 }: ProductCardProps) {
   const cat = categoryStyles[categoria];
   const Placeholder = categoria === "eletronicos" ? ChipIcon : DropIcon;
+  const emOferta =
+    typeof precoDeCents === "number" && precoDeCents > precoCents;
+  // Whole percent, rounded down (integer maths: never promise more).
+  const desconto = emOferta
+    ? Math.floor(((precoDeCents - precoCents) * 100) / precoDeCents)
+    : 0;
 
   return (
     <Link
@@ -58,6 +68,11 @@ export function ProductCard({
         ) : (
           <Placeholder className="ba-float size-[52px] md:size-[72px]" />
         )}
+        {emOferta && desconto > 0 ? (
+          <span className="ba-reveal absolute top-2 left-2 rounded-full bg-oferta px-2.5 py-1 font-display text-[13px] leading-none font-extrabold text-white shadow-[0_4px_10px_rgba(215,38,30,.35)] md:top-3 md:left-3 md:text-sm">
+            -{desconto}%<span className="sr-only"> de desconto</span>
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-col gap-1.5 px-3 pt-3 pb-3.5 md:gap-2 md:px-[18px] md:pt-4 md:pb-5">
         {mostrarCategoria ? (
@@ -72,6 +87,12 @@ export function ProductCard({
         <span className="line-clamp-2 min-h-[38px] text-sm leading-[1.35] md:min-h-[43px] md:text-base">
           {nome}
         </span>
+        {emOferta ? (
+          <span className="-mb-1 text-xs text-texto-2 line-through md:text-[13px]">
+            <span className="sr-only">Preço anterior: </span>
+            {formatBRL(precoDeCents)}
+          </span>
+        ) : null}
         <Price
           cents={precoCents}
           size="sm"

@@ -270,6 +270,7 @@ function ProductGrid({
             nome={p.nome}
             categoria={p.categoria}
             precoCents={p.precoCents}
+            precoDeCents={p.precoDeCents}
             imagemUrl={p.imagemUrl ?? undefined}
             imagemAlt={p.imagemAlt ?? undefined}
             mostrarCategoria={mostrarCategoria}
