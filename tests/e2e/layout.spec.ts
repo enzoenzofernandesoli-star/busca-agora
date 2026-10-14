@@ -122,3 +122,25 @@ test.describe("layout da loja", () => {
     await expect(page).toHaveURL(/\/busca\?q=fone/);
   });
 });
+
+test("animações em loop pausam fora da tela, inclusive em blocos novos", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/c/eletronicos");
+  const footer = page.locator("#conteudo ~ footer:visible");
+  await expect(footer).toHaveClass(/ba-fora/);
+  // A block that arrives later on the same route is registered too.
+  await page.evaluate(() => {
+    const wrapper = document.querySelector("#conteudo > *");
+    const novo = document.createElement("div");
+    novo.id = "bloco-novo";
+    novo.style.marginTop = "3000px";
+    novo.style.height = "10px";
+    wrapper?.appendChild(novo);
+  });
+  await expect(page.locator("#bloco-novo")).toHaveClass(/ba-fora/);
+  await footer.scrollIntoViewIfNeeded();
+  await expect(footer).not.toHaveClass(/ba-fora/);
+  await expect(page.locator("#bloco-novo")).not.toHaveClass(/ba-fora/);
+});
