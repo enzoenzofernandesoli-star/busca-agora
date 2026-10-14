@@ -403,8 +403,10 @@
   }
 }
 
-/* Off-screen page blocks stop their looping decorations (MotionGate). */
-.ba-fora,
-.ba-fora * {
+/* Off-screen page blocks stop their looping decorations (MotionGate).
+   Finite entrances (ba-entra, ba-reveal) are left alone: they control when
+   content becomes visible. */
+.ba-fora:not(.ba-entra):not([class*="ba-reveal"]),
+.ba-fora *:not(.ba-entra):not([class*="ba-reveal"]) {
   animation-play-state: paused !important;
 }

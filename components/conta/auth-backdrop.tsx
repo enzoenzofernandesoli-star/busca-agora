@@ -46,7 +46,7 @@ const styles = `
 // translate of -50% loops without a seam.
 function wavePath(y: number, amp: number, fill: boolean) {
   let d = `M0 ${y}`;
-  for (let x = 0; x < 3200; x += 800)
+  for (let x = 0; x < 3200; x += 1600)
     d += ` C${x + 200} ${y - amp} ${x + 600} ${y - amp} ${x + 800} ${y} C${x + 1000} ${y + amp} ${x + 1400} ${y + amp} ${x + 1600} ${y}`;
   return fill ? `${d} V200 H0 Z` : d;
 }
