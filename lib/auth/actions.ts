@@ -5,9 +5,9 @@ import { redirect } from "next/navigation";
 import { mergeGuestCart } from "@/lib/cart/server";
 import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
-import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
 
+import { requestOrigin } from "./origin";
 import { allowAttempt, clientIp } from "./rate-limit";
 import { safeNext } from "./redirect";
 import {
@@ -30,12 +30,9 @@ const GENERIC_ERROR: FormState = {
   message: "Não deu certo agora. Tente de novo em instantes.",
 };
 
-function siteUrl(path: string): string {
-  return `${publicEnv.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}${path}`;
-}
-
-function callbackUrl(next: string): string {
-  return siteUrl(`/auth/callback?volta=${encodeURIComponent(safeNext(next))}`);
+// Back to the address the visitor is on (see lib/auth/origin.ts).
+async function callbackUrl(next: string): Promise<string> {
+  return `${await requestOrigin()}/auth/callback?volta=${encodeURIComponent(safeNext(next))}`;
 }
 
 /** Terms and privacy acceptance is written by the server, never the form. */
@@ -71,7 +68,7 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({
     email,
     password: senha,
-    options: { data: { nome }, emailRedirectTo: callbackUrl(volta) },
+    options: { data: { nome }, emailRedirectTo: await callbackUrl(volta) },
   });
 
   if (error) {
@@ -151,7 +148,7 @@ export async function signInWithGoogle(formData: FormData): Promise<void> {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: callbackUrl(safeNext(formData.get("volta"))) },
+    options: { redirectTo: await callbackUrl(safeNext(formData.get("volta"))) },
   });
   if (error || !data.url) redirect("/entrar?erro=google");
   redirect(data.url);
@@ -178,7 +175,7 @@ export async function requestPasswordReset(
 
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: callbackUrl("/redefinir-senha"),
+    redirectTo: await callbackUrl("/redefinir-senha"),
   });
   // Same message whether or not the e-mail has an account.
   return {
