@@ -29,6 +29,7 @@ import {
 import { RETURN_REASONS } from "@/lib/orders/return-schema";
 
 import { invoiceHandler, labelHandler, printHandler } from "./fulfillment";
+import { refundHandler } from "./refund";
 import type { Job, JobHandler, JobType } from "./worker";
 
 function baseProps(o: OrderNotice): OrderEmailBase {
@@ -214,5 +215,6 @@ export function defaultHandlers(): Partial<Record<JobType, JobHandler>> {
     invoice: invoiceHandler(),
     label: labelHandler(),
     print: printHandler(),
+    refund: refundHandler(),
   };
 }

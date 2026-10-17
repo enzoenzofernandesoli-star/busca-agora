@@ -3,7 +3,7 @@ import "server-only";
 import { requireEnv } from "@/lib/env";
 import { publicEnv } from "@/lib/env-public";
 
-import type { PaymentProvider } from "../types";
+import { PaymentProviderError, type PaymentProvider } from "../types";
 import { buildPreferenceBody } from "./preference-body";
 import {
   paymentResponse,
@@ -19,25 +19,49 @@ async function mp(
   init: RequestInit & { idempotencyKey?: string } = {},
 ) {
   const { idempotencyKey, ...rest } = init;
-  const res = await fetch(`${API}${path}`, {
-    ...rest,
-    headers: {
-      Authorization: `Bearer ${requireEnv("MP_ACCESS_TOKEN")}`,
-      "Content-Type": "application/json",
-      ...(idempotencyKey ? { "X-Idempotency-Key": idempotencyKey } : {}),
-      ...rest.headers,
-    },
-    cache: "no-store",
-    signal: AbortSignal.timeout(15_000),
-  });
-  const text = await res.text();
-  if (!res.ok) {
-    // Status and Mercado Pago's message only: never the token or the body we sent.
-    throw new Error(
-      `mercadopago ${path.split("?")[0]}: HTTP ${res.status} ${text.slice(0, 300)}`,
+  const route = path.split("?")[0];
+  let res: Response;
+  let text: string;
+  try {
+    res = await fetch(`${API}${path}`, {
+      ...rest,
+      headers: {
+        Authorization: `Bearer ${requireEnv("MP_ACCESS_TOKEN")}`,
+        "Content-Type": "application/json",
+        ...(idempotencyKey ? { "X-Idempotency-Key": idempotencyKey } : {}),
+        ...rest.headers,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
+    });
+    text = await res.text();
+  } catch (e) {
+    // Timeout or connection lost: the request may have been processed.
+    throw new PaymentProviderError(
+      `mercadopago ${route}: ${e instanceof Error ? e.message : "falha de rede"}`,
+      false,
     );
   }
-  return text ? (JSON.parse(text) as unknown) : null;
+  if (!res.ok) {
+    // Status and Mercado Pago's message only: never the token or the body we sent.
+    const definitive =
+      res.status >= 400 &&
+      res.status < 500 &&
+      res.status !== 408 &&
+      res.status !== 429;
+    throw new PaymentProviderError(
+      `mercadopago ${route}: HTTP ${res.status} ${text.slice(0, 300)}`,
+      definitive,
+    );
+  }
+  try {
+    return text ? (JSON.parse(text) as unknown) : null;
+  } catch {
+    throw new PaymentProviderError(
+      `mercadopago ${route}: resposta ilegível`,
+      false,
+    );
+  }
 }
 
 function metodoFrom(
@@ -91,13 +115,18 @@ export const mercadoPagoProvider: PaymentProvider = {
   async refund(paymentId) {
     if (!/^\d+$/.test(paymentId))
       throw new Error("mercadopago: invalid payment id");
-    refundResponse.parse(
-      await mp(`/v1/payments/${paymentId}/refunds`, {
-        method: "POST",
-        body: "{}",
-        idempotencyKey: `refund-${paymentId}`,
-      }),
-    );
+    const json = await mp(`/v1/payments/${paymentId}/refunds`, {
+      method: "POST",
+      body: "{}",
+      idempotencyKey: `refund-${paymentId}`,
+    });
+    // Accepted (2xx) but unexpected body: the refund may exist, not a refusal.
+    if (!refundResponse.safeParse(json).success) {
+      throw new PaymentProviderError(
+        "mercadopago refund: resposta inesperada",
+        false,
+      );
+    }
   },
 
   webhookSecret() {

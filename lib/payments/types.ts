@@ -44,3 +44,19 @@ export interface PaymentProvider {
   /** Secret used to sign webhooks for this provider. */
   webhookSecret(): string;
 }
+
+/**
+ * Error from the payment provider. `definitive` is true only when the
+ * provider clearly refused the request (4xx other than 408/429): nothing
+ * happened on their side. Timeouts, network failures, 5xx and unreadable
+ * answers are NOT definitive: the operation may have gone through.
+ */
+export class PaymentProviderError extends Error {
+  constructor(
+    message: string,
+    readonly definitive: boolean,
+  ) {
+    super(message);
+    this.name = "PaymentProviderError";
+  }
+}

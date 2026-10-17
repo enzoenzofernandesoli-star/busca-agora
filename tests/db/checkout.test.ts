@@ -347,45 +347,76 @@ describe("revisão do Codex (fase 5)", () => {
     expect((await orderRow(order.id)).status).toBe("refunded");
   });
 
-  it("a trava do estorno bloqueia a expedição e respeita a trava da etiqueta", async () => {
-    const admin = serviceClient();
-    // Label job working: the refund waits.
-    const first = await paidOrder();
-    expect(
-      (
-        await admin.rpc("fulfillment_lock", {
-          p_order_id: first.order.id,
-          p_tipo: "label",
-        })
-      ).data,
-    ).toBe("ok");
-    expect(
-      (await admin.rpc("begin_refund", { p_order_id: first.order.id })).data,
-    ).toBe("ocupado");
+  async function beginRefund(orderId: string) {
+    const { data, error } = await serviceClient()
+      .rpc("begin_refund", { p_order_id: orderId })
+      .single<{ resultado: string; token: string | null }>();
+    if (error) throw error;
+    return data;
+  }
+  async function labelLock(orderId: string) {
+    return (
+      await serviceClient().rpc("fulfillment_lock", {
+        p_order_id: orderId,
+        p_tipo: "label",
+      })
+    ).data;
+  }
 
-    // Refund first: no label meanwhile, and the refund goes through.
-    const second = await paidOrder();
-    expect(
-      (await admin.rpc("begin_refund", { p_order_id: second.order.id })).data,
-    ).toBe("ok");
+  it("estorno espera a etiqueta em andamento", async () => {
+    const { order } = await paidOrder();
+    expect(await labelLock(order.id)).toBe("ok");
+    expect((await beginRefund(order.id)).resultado).toBe("ocupado");
+  });
+
+  it("estorno aberto bloqueia a expedição sem prazo e cria a conferência", async () => {
+    const { order, paymentId } = await paidOrder();
+    const begin = await beginRefund(order.id);
+    expect(begin.resultado).toBe("ok");
+    expect(begin.token).toBeTruthy();
+    // Even with no shipment lease at all, nothing ships while the refund is open.
+    await serviceClient()
+      .from("shipments")
+      .update({ trava_ate: null, trava_tipo: null })
+      .eq("order_id", order.id);
+    expect(await labelLock(order.id)).toBe("ocupado");
+    const { data: job } = await serviceClient()
+      .from("jobs")
+      .select("etapa, status")
+      .eq("order_id", order.id)
+      .eq("tipo", "refund")
+      .single();
+    expect(job).toEqual({ etapa: begin.token, status: "pending" });
     expect(
       (
-        await admin.rpc("fulfillment_lock", {
-          p_order_id: second.order.id,
-          p_tipo: "label",
-        })
-      ).data,
-    ).toBe("ocupado");
-    expect(
-      (
-        await pay(second.order.id, {
-          paymentId: second.paymentId,
+        await pay(order.id, {
+          paymentId,
           status: "refunded",
-          valor: second.order.total_cents,
+          valor: order.total_cents,
         })
       ).data,
     ).toBe("refunded");
-    expect((await orderRow(second.order.id)).status).toBe("refunded");
+    expect((await orderRow(order.id)).status).toBe("refunded");
+  });
+
+  it("um estorno por vez, e só o dono do token fecha", async () => {
+    const { order } = await paidOrder();
+    const first = await beginRefund(order.id);
+    expect(first.resultado).toBe("ok");
+    expect((await beginRefund(order.id)).resultado).toBe("em_andamento");
+    const admin = serviceClient();
+    const wrong = await admin.rpc("end_refund", {
+      p_order_id: order.id,
+      p_token: randomUUID(),
+    });
+    expect(wrong.data).toBe(false);
+    expect(await labelLock(order.id)).toBe("ocupado");
+    const right = await admin.rpc("end_refund", {
+      p_order_id: order.id,
+      p_token: first.token,
+    });
+    expect(right.data).toBe(true);
+    expect(await labelLock(order.id)).toBe("ok");
   });
 
   it("pedido sem pagamento confirmado não pode ser estornado", async () => {
@@ -394,9 +425,6 @@ describe("revisão do Codex (fase 5)", () => {
       userId: null,
       itens: [{ variant_id: variantId, quantidade: 1 }],
     });
-    expect(
-      (await serviceClient().rpc("begin_refund", { p_order_id: order!.id }))
-        .data,
-    ).toBe("inelegivel");
+    expect((await beginRefund(order!.id)).resultado).toBe("inelegivel");
   });
 });

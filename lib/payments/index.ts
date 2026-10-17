@@ -8,6 +8,7 @@ import { mercadoPagoProvider } from "./mercadopago/client";
 import type { PaymentProvider } from "./types";
 
 export type { CheckoutRequest, PaymentInfo, PaymentProvider } from "./types";
+export { PaymentProviderError } from "./types";
 
 /**
  * The payment provider for this deployment. The fake one only exists in

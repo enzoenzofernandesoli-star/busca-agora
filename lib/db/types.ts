@@ -451,6 +451,9 @@ export type Database = {
           endereco: NonNullable<Json>;
           estoque_baixado_em: string | null;
           estoque_devolvido_em: string | null;
+          estorno_em: string | null;
+          estorno_status: string | null;
+          estorno_token: string | null;
           expira_em: string | null;
           frete_cents: number;
           frete_servico: string | null;
@@ -475,6 +478,9 @@ export type Database = {
           endereco: NonNullable<Json>;
           estoque_baixado_em?: string | null;
           estoque_devolvido_em?: string | null;
+          estorno_em?: string | null;
+          estorno_status?: string | null;
+          estorno_token?: string | null;
           expira_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
@@ -499,6 +505,9 @@ export type Database = {
           endereco?: NonNullable<Json>;
           estoque_baixado_em?: string | null;
           estoque_devolvido_em?: string | null;
+          estorno_em?: string | null;
+          estorno_status?: string | null;
+          estorno_token?: string | null;
           expira_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
@@ -1026,7 +1035,13 @@ export type Database = {
         };
         Returns: undefined;
       };
-      begin_refund: { Args: { p_order_id: string }; Returns: string };
+      begin_refund: {
+        Args: { p_order_id: string };
+        Returns: {
+          resultado: string;
+          token: string;
+        }[];
+      };
       cart_add: {
         Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
         Returns: number;
@@ -1093,7 +1108,10 @@ export type Database = {
       };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
-      end_refund: { Args: { p_order_id: string }; Returns: undefined };
+      end_refund: {
+        Args: { p_order_id: string; p_token: string };
+        Returns: boolean;
+      };
       enqueue_job: {
         Args: {
           p_etapa: string;
@@ -1209,7 +1227,7 @@ export type Database = {
     };
     Enums: {
       job_status: "pending" | "running" | "done" | "failed";
-      job_type: "notify" | "invoice" | "label" | "print" | "email";
+      job_type: "notify" | "invoice" | "label" | "print" | "email" | "refund";
       order_status:
         | "pending_payment"
         | "paid"
@@ -1350,7 +1368,7 @@ export const Constants = {
   public: {
     Enums: {
       job_status: ["pending", "running", "done", "failed"],
-      job_type: ["notify", "invoice", "label", "print", "email"],
+      job_type: ["notify", "invoice", "label", "print", "email", "refund"],
       order_status: [
         "pending_payment",
         "paid",
