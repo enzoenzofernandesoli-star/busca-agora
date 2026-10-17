@@ -16,7 +16,7 @@ export default async function PrivacyPage() {
   return (
     <LegalPage
       titulo="Política de privacidade"
-      atualizadoEm="08/10/2026"
+      atualizadoEm="18/10/2026"
       aviso
       indice={[
         { id: "controlador", label: "Quem cuida dos seus dados" },
@@ -25,6 +25,7 @@ export default async function PrivacyPage() {
         { id: "compartilhamento", label: "Com quem compartilhamos" },
         { id: "internacional", label: "Dados guardados fora do Brasil" },
         { id: "prazos", label: "Por quanto tempo guardamos" },
+        { id: "navegacao", label: "Navegação nas páginas de produto" },
         { id: "cookies", label: "Cookies" },
         { id: "direitos", label: "Seus direitos" },
         { id: "seguranca", label: "Como protegemos" },
@@ -107,11 +108,19 @@ export default async function PrivacyPage() {
           <strong>Defender direitos</strong> em eventual reclamação ou processo:
           exercício regular de direitos (art. 7º, VI).
         </li>
+        <li>
+          <strong>Melhorar ofertas e o serviço</strong> (entender quais produtos
+          são vistos, colocados no carrinho e comprados, e de onde vêm as
+          visitas): legítimo interesse (art. 7º, IX), com os dados descritos em
+          &quot;Navegação nas páginas de produto&quot;.
+        </li>
       </ul>
       <p>
-        Os e-mails que mandamos são sobre os seus pedidos. Se um dia enviarmos
-        novidades ou ofertas, será só com o seu consentimento, e você poderá
-        cancelar a qualquer momento.
+        Os e-mails que mandamos são sobre os seus pedidos. Ofertas, descontos e
+        novidades por e-mail ou WhatsApp só vão para quem marcou essa opção no
+        cadastro, na compra ou em Minha conta (consentimento, art. 7º, I). A
+        opção nunca vem marcada, não é exigida para comprar e pode ser desligada
+        a qualquer momento em Minha conta.
       </p>
 
       <h2 id="compartilhamento">Com quem compartilhamos</h2>
@@ -183,6 +192,22 @@ export default async function PrivacyPage() {
         </li>
       </ul>
 
+      <h2 id="navegacao">Navegação nas páginas de produto</h2>
+      <p>
+        Para melhorar as ofertas e o serviço, a loja registra a navegação nas
+        páginas de produto: quais produtos foram vistos, colocados no carrinho,
+        levados ao pagamento e comprados, com a data, o tipo de aparelho
+        (celular ou computador) e a origem da visita (por exemplo, o link de uma
+        rede social, de um anúncio ou o código de um criador de conteúdo).
+      </p>
+      <p>
+        Quem visita sem conta aparece nesse registro só como um código
+        aleatório. Quem está logado é identificado pela conta, para a loja
+        entender o que interessa a cada cliente. Robôs de busca não são
+        registrados. Esses dados ficam com a Busca Agora, só a equipe da loja
+        tem acesso e eles <strong>nunca são vendidos</strong>.
+      </p>
+
       <h2 id="cookies">Cookies</h2>
       <p>
         Usamos <strong>só cookies necessários</strong> para o site funcionar:
@@ -194,6 +219,14 @@ export default async function PrivacyPage() {
           abertura animada (mostrar uma vez a cada vez que você abre o site);
         </li>
         <li>aviso de cookies (não mostrar o aviso de novo).</li>
+      </ul>
+      <p>E dois cookies próprios da loja para a navegação descrita acima:</p>
+      <ul>
+        <li>visitante (um código aleatório, guardado por 1 ano);</li>
+        <li>
+          origem da visita (fonte, campanha e código de criador do link pelo
+          qual você chegou, guardada por 30 dias).
+        </li>
       </ul>
       <p>
         Não usamos cookies de anúncios, de redes sociais nem de rastreio de

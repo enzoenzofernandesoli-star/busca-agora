@@ -3,12 +3,15 @@ import Link from "next/link";
 export function StatCard({
   titulo,
   valor,
+  compacto,
   detalhe,
   href,
   tom = "neutro",
 }: {
   titulo: string;
   valor: string;
+  /** Smaller figure, for rows of five cards (metrics panel). */
+  compacto?: boolean;
   detalhe?: string;
   href?: string;
   tom?: "neutro" | "alerta" | "ok";
@@ -28,7 +31,9 @@ export function StatCard({
   const content = (
     <>
       <h2 className="text-[15px] font-bold text-texto-2">{titulo}</h2>
-      <p className={`font-display text-[32px] font-extrabold ${text}`}>
+      <p
+        className={`font-display font-extrabold ${compacto ? "text-[24px] xl:text-[26px]" : "text-[32px]"} ${text}`}
+      >
         {valor}
       </p>
       {detalhe && <p className="text-sm text-texto-2">{detalhe}</p>}

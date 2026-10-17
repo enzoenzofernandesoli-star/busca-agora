@@ -71,6 +71,7 @@ export async function resolveCartId(create: boolean): Promise<string | null> {
 export type CartLineData = {
   id: string;
   variantId: string;
+  productId: string;
   slug: string;
   nome: string;
   varianteNome: string;
@@ -117,7 +118,7 @@ export async function getCart(): Promise<CartData> {
        product_variants!inner (
          id, nome, preco_cents, preco_de_cents, estoque,
          products!inner (
-           slug, nome, ativo,
+           id, slug, nome, ativo,
            categories!inner ( slug, ativa ),
            product_images ( url, ordem )
          )
@@ -138,6 +139,7 @@ export async function getCart(): Promise<CartData> {
     return {
       id: row.id,
       variantId: v.id,
+      productId: p.id,
       slug: p.slug,
       nome: p.nome,
       varianteNome: v.nome,

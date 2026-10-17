@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 
+import { getCurrentUser } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/db/admin";
+import { recordProductEvents, requestContext } from "@/lib/metrics/events";
 
 import { getCartCount, resolveCartId } from "./server";
 
@@ -47,6 +50,26 @@ export async function addToCart(formData: FormData): Promise<AddToCartResult> {
     };
   }
   revalidatePath("/carrinho");
+
+  // Metrics: recorded after the response, never slowing the button down.
+  const ctx = await requestContext();
+  const user = await getCurrentUser();
+  const variantId = parsed.data.variantId;
+  after(async () => {
+    const { data } = await createAdminClient()
+      .from("product_variants")
+      .select("product_id")
+      .eq("id", variantId)
+      .maybeSingle();
+    if (data) {
+      await recordProductEvents(
+        ctx,
+        "add_to_cart",
+        [{ productId: data.product_id, variantId }],
+        { userId: user?.id },
+      );
+    }
+  });
   return { ok: true, cartCount: await getCartCount() };
 }
 
