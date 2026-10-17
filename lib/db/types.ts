@@ -809,6 +809,42 @@ export type Database = {
           },
         ];
       };
+      product_metrics_product_daily: {
+        Row: {
+          dia: string;
+          pedidos: number;
+          product_id: string;
+          visitantes: number;
+        };
+        Insert: {
+          dia: string;
+          pedidos?: number;
+          product_id: string;
+          visitantes?: number;
+        };
+        Update: {
+          dia?: string;
+          pedidos?: number;
+          product_id?: string;
+          visitantes?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_metrics_product_daily_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_metrics_product_daily_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       product_variants: {
         Row: {
           altura_cm: number;
@@ -1104,6 +1140,33 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      store_metrics_daily: {
+        Row: {
+          custo_cents: number;
+          dia: string;
+          faturamento_cents: number;
+          pedidos: number;
+          unidades: number;
+          visitantes: number;
+        };
+        Insert: {
+          custo_cents?: number;
+          dia: string;
+          faturamento_cents?: number;
+          pedidos?: number;
+          unidades?: number;
+          visitantes?: number;
+        };
+        Update: {
+          custo_cents?: number;
+          dia?: string;
+          faturamento_cents?: number;
+          pedidos?: number;
+          unidades?: number;
+          visitantes?: number;
+        };
+        Relationships: [];
       };
       webhook_logs: {
         Row: {

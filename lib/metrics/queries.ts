@@ -67,6 +67,66 @@ async function dailyRows(
   }
 }
 
+type ProductDayRow = {
+  dia: string;
+  product_id: string;
+  visitantes: number;
+  pedidos: number;
+};
+type StoreDayRow = {
+  dia: string;
+  visitantes: number;
+  pedidos: number;
+  unidades: number;
+  faturamento_cents: number;
+  custo_cents: number;
+};
+
+/**
+ * Distinct counts (visitors, orders) per product and day, across origins.
+ * Never sum the per-origin "visitantes"/"pedidos": the same visitor or order
+ * would count more than once.
+ */
+async function productDayRows(
+  de: string,
+  ate: string,
+  productId?: string,
+): Promise<ProductDayRow[]> {
+  const admin = createAdminClient();
+  const out: ProductDayRow[] = [];
+  for (let from = 0; ; from += PAGE) {
+    let q = admin
+      .from("product_metrics_product_daily")
+      .select("dia, product_id, visitantes, pedidos")
+      .gte("dia", de)
+      .lte("dia", ate)
+      .order("dia")
+      .order("product_id")
+      .range(from, from + PAGE - 1);
+    if (productId) q = q.eq("product_id", productId);
+    const { data, error } = await q;
+    if (error) {
+      throw new Error(`product_metrics_product_daily: ${error.message}`);
+    }
+    out.push(...(data ?? []));
+    if (!data || data.length < PAGE) return out;
+  }
+}
+
+/** The whole store per day: distinct visitors and orders across products. */
+async function storeDayRows(de: string, ate: string): Promise<StoreDayRow[]> {
+  const { data, error } = await createAdminClient()
+    .from("store_metrics_daily")
+    .select(
+      "dia, visitantes, pedidos, unidades, faturamento_cents, custo_cents",
+    )
+    .gte("dia", de)
+    .lte("dia", ate)
+    .order("dia");
+  if (error) throw new Error(`store_metrics_daily: ${error.message}`);
+  return data ?? [];
+}
+
 const rate = (a: number, b: number) => (b > 0 ? a / b : null);
 
 type ProductInfo = {
@@ -78,12 +138,27 @@ type ProductInfo = {
 };
 
 async function allProducts(): Promise<ProductInfo[]> {
-  const { data, error } = await createAdminClient()
-    .from("products")
-    .select("id, slug, nome, ativo, categories!inner(slug)")
-    .order("nome");
-  if (error) throw new Error(`products: ${error.message}`);
-  return (data ?? []).map((p) => ({
+  const admin = createAdminClient();
+  const data: {
+    id: string;
+    slug: string;
+    nome: string;
+    ativo: boolean;
+    categories: { slug: string };
+  }[] = [];
+  // Paged (the API returns at most 1000 rows), stable order with id.
+  for (let from = 0; ; from += PAGE) {
+    const { data: page, error } = await admin
+      .from("products")
+      .select("id, slug, nome, ativo, categories!inner(slug)")
+      .order("nome")
+      .order("id")
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`products: ${error.message}`);
+    data.push(...(page ?? []));
+    if (!page || page.length < PAGE) break;
+  }
+  return data.map((p) => ({
     ativo: p.ativo,
     id: p.id,
     slug: p.slug,
@@ -144,9 +219,11 @@ export async function productsTable(period: Period): Promise<{
   rows: ProductMetricsRow[];
   summary: MetricsSummary;
 }> {
-  const [produtos, daily] = await Promise.all([
+  const [produtos, daily, porProduto, loja] = await Promise.all([
     allProducts(),
     dailyRows(period.de, period.ate),
+    productDayRows(period.de, period.ate),
+    storeDayRows(period.de, period.ate),
   ]);
   // Every product on sale, plus products no longer on sale that still had
   // movement in the period.
@@ -157,14 +234,20 @@ export async function productsTable(period: Period): Promise<{
       .map((p) => [p.id, emptyRow(p)]),
   );
   const custo = new Map<string, number>();
+  // Distinct visitors and orders per product and day (summed over days).
+  for (const d of porProduto) {
+    const r = byId.get(d.product_id);
+    if (!r) continue;
+    r.visitantes += d.visitantes;
+    r.compras += d.pedidos;
+  }
+  // Additive figures from the origin breakdown.
   for (const d of daily) {
     const r = byId.get(d.product_id);
     if (!r) continue;
     r.views += d.views;
-    r.visitantes += d.visitantes;
     r.carrinho += d.add_to_cart;
     r.checkout += d.begin_checkout;
-    r.compras += d.pedidos;
     r.unidades += d.unidades;
     r.faturamentoCents += Number(d.faturamento_cents);
     custo.set(
@@ -179,10 +262,16 @@ export async function productsTable(period: Period): Promise<{
     conversao: rate(r.compras, r.visitantes),
     margemCents: r.faturamentoCents - (custo.get(r.productId) ?? 0),
   }));
-  const visitantes = rows.reduce((n, r) => n + r.visitantes, 0);
-  const compras = rows.reduce((n, r) => n + r.compras, 0);
-  const faturamentoCents = rows.reduce((n, r) => n + r.faturamentoCents, 0);
-  const margemCents = rows.reduce((n, r) => n + r.margemCents, 0);
+  // Store totals from the store summary: one order with two products is one
+  // purchase, one visitor of two products is one visitor.
+  const visitantes = loja.reduce((n, d) => n + d.visitantes, 0);
+  const compras = loja.reduce((n, d) => n + d.pedidos, 0);
+  const faturamentoCents = loja.reduce(
+    (n, d) => n + Number(d.faturamento_cents),
+    0,
+  );
+  const margemCents =
+    faturamentoCents - loja.reduce((n, d) => n + Number(d.custo_cents), 0);
   return {
     rows,
     summary: {
@@ -195,7 +284,15 @@ export async function productsTable(period: Period): Promise<{
   };
 }
 
-function seriesOf(daily: DailyRow[], days: string[]): DailyPoint[] {
+/**
+ * Daily series: views and revenue add up from the origin breakdown; sales
+ * come from a distinct-orders summary (store or product).
+ */
+function seriesOf(
+  daily: DailyRow[],
+  vendas: { dia: string; pedidos: number }[],
+  days: string[],
+): DailyPoint[] {
   const map = new Map<string, DailyPoint>(
     days.map((d) => [d, { data: d, views: 0, vendas: 0, faturamentoCents: 0 }]),
   );
@@ -203,8 +300,11 @@ function seriesOf(daily: DailyRow[], days: string[]): DailyPoint[] {
     const p = map.get(r.dia);
     if (!p) continue;
     p.views += r.views;
-    p.vendas += r.pedidos;
     p.faturamentoCents += Number(r.faturamento_cents);
+  }
+  for (const v of vendas) {
+    const p = map.get(v.dia);
+    if (p) p.vendas += v.pedidos;
   }
   return [...map.values()];
 }
@@ -223,13 +323,16 @@ export async function forecastFor(
   const ontem = addDays(hoje, -1);
   const inicioJanela = addDays(hoje, -28);
   const admin = createAdminClient();
-  let first = admin
-    .from("product_metrics_daily")
-    .select("dia")
-    .order("dia")
-    .limit(1);
-  if (productId) first = first.eq("product_id", productId);
-  const { data: primeiro } = await first.maybeSingle();
+  const { data: primeiro } = await (
+    productId
+      ? admin
+          .from("product_metrics_product_daily")
+          .select("dia")
+          .eq("product_id", productId)
+          .order("dia")
+          .limit(1)
+      : admin.from("store_metrics_daily").select("dia").order("dia").limit(1)
+  ).maybeSingle();
   if (!primeiro) {
     return { suficiente: false, motivo: "Ainda não há dados registrados." };
   }
@@ -237,8 +340,15 @@ export async function forecastFor(
   if (de > ontem) {
     return { suficiente: false, motivo: "Menos de 14 dias de dados." };
   }
-  const daily = await dailyRows(de, ontem, productId);
-  return forecast(seriesOf(daily, daysBetween(de, ontem)), horizonDays, now);
+  const [daily, vendas] = await Promise.all([
+    dailyRows(de, ontem, productId),
+    productId ? productDayRows(de, ontem, productId) : storeDayRows(de, ontem),
+  ]);
+  return forecast(
+    seriesOf(daily, vendas, daysBetween(de, ontem)),
+    horizonDays,
+    now,
+  );
 }
 
 export async function productBySlug(slug: string): Promise<ProductInfo | null> {
@@ -274,15 +384,22 @@ export async function productDetail(
   origens: OriginRow[];
   quemViu: ViewerRow[];
 }> {
-  const daily = await dailyRows(period.de, period.ate, productId);
-  const dias = seriesOf(daily, daysBetween(period.de, period.ate));
-  const funil: FunnelData = { viu: 0, carrinho: 0, checkout: 0, comprou: 0 };
+  const [daily, porDia] = await Promise.all([
+    dailyRows(period.de, period.ate, productId),
+    productDayRows(period.de, period.ate, productId),
+  ]);
+  const dias = seriesOf(daily, porDia, daysBetween(period.de, period.ate));
+  const funil: FunnelData = {
+    // Distinct across origins (one visitor, one order).
+    viu: porDia.reduce((n, d) => n + d.visitantes, 0),
+    carrinho: 0,
+    checkout: 0,
+    comprou: porDia.reduce((n, d) => n + d.pedidos, 0),
+  };
   const origens = new Map<string, OriginRow>();
   for (const d of daily) {
-    funil.viu += d.visitantes;
     funil.carrinho += d.add_to_cart;
     funil.checkout += d.begin_checkout;
-    funil.comprou += d.pedidos;
     const grupo = originGroup(d);
     const detalhe = originLabel(d);
     const key = `${grupo}|${detalhe}`;
