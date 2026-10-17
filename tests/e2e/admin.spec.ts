@@ -12,7 +12,7 @@ const PNG = Buffer.from(
 
 async function login(page: Page, email: string, senha: string, volta: string) {
   await page.goto(`/entrar?volta=${encodeURIComponent(volta)}`);
-  await page.getByLabel("E-mail").fill(email);
+  await page.getByLabel("E-mail", { exact: true }).fill(email);
   await page.getByLabel("Senha", { exact: true }).fill(senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("button", { name: "Aguarde..." })).toHaveCount(

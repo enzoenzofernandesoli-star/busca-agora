@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { DataTable } from "@/components/admin/data-table";
+import { canaisTexto } from "@/lib/admin/customer-format";
 import { listCustomers } from "@/lib/admin/queries";
 import { formatBRL } from "@/lib/format";
 
@@ -25,18 +28,23 @@ export default async function AdminClientes() {
           {
             titulo: "Nome",
             render: (c) => (
-              <span className="font-bold">
+              <Link href={`/admin/clientes/${c.id}`} className="font-bold">
                 {c.nome}
                 {c.admin ? (
                   <span className="ml-2 rounded-full bg-lima px-2 py-0.5 text-xs text-noite">
                     admin
                   </span>
                 ) : null}
-              </span>
+              </Link>
             ),
           },
           { titulo: "E-mail", render: (c) => c.email },
           { titulo: "CPF", render: (c) => c.cpf || "—" },
+          {
+            titulo: "Aceita ofertas",
+            render: (c) =>
+              c.marketing ? `Sim (${canaisTexto(c.canais)})` : "Não",
+          },
           { titulo: "Pedidos", render: (c) => String(c.pedidos) },
           { titulo: "Total comprado", render: (c) => formatBRL(c.totalCents) },
           { titulo: "Desde", render: (c) => data.format(new Date(c.criadoEm)) },

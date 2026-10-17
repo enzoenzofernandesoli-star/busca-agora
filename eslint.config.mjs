@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "test-results/**",
     "next-env.d.ts",
     "docs/design/**",
+    // Temporary git worktrees of parallel sessions (Claude Code).
+    ".claude/**",
   ]),
 ]);
 

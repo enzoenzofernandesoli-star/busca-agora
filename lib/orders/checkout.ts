@@ -2,8 +2,10 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { ORIGIN_COOKIE, parseOriginCookie } from "@/lib/attribution/origin";
 import { fieldErrors } from "@/lib/auth/schemas";
 import { allowAttempt } from "@/lib/auth/rate-limit";
 import { requireUser } from "@/lib/auth/session";
@@ -138,6 +140,14 @@ export async function placeOrder(
     );
   }
 
+  // Optional marketing consent (LGPD): only ever turns it on, never off here.
+  if (formData.get("marketing") === "on") {
+    await supabase.rpc("set_my_marketing_consent", {
+      p_opt_in: true,
+      p_channels: ["email", "whatsapp"],
+    });
+  }
+
   // The customer's CPF goes to the profile the first time (column grant).
   await supabase
     .from("profiles")
@@ -161,6 +171,8 @@ export async function placeOrder(
         quantidade: i.quantidade,
       })),
       p_validade: PAYMENT_WINDOW[pagamento],
+      // Re-validated here: the cookie is written by the browser.
+      p_origem: parseOriginCookie((await cookies()).get(ORIGIN_COOKIE)?.value),
     })
     .single<{ id: string; numero: string; total_cents: number }>();
   if (error || !order) {

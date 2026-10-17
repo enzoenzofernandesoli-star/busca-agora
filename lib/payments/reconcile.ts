@@ -3,7 +3,6 @@ import "server-only";
 import { createAdminClient } from "@/lib/db/admin";
 import type { Json } from "@/lib/db/types";
 
-import { getPaymentProvider } from "./index";
 
 /**
  * Reads the payment that settled the order from the provider and records
@@ -22,6 +21,9 @@ export async function reconcileSettlingPayment(orderId: string): Promise<{
     .single();
   if (error) throw new Error(`orders: ${error.message}`);
   if (!order.paid_payment_id) return null;
+  // Loaded only when used: importing this module (the job queue does) must
+  // not read the environment.
+  const { getPaymentProvider } = await import("./index");
   const info = await getPaymentProvider().getPayment(order.paid_payment_id);
   const { data, error: rpcError } = await admin.rpc("record_payment", {
     p_order_id: orderId,

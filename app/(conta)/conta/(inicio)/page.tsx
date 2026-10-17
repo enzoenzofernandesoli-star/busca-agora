@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 
 import { AuthForm } from "@/components/conta/auth-form";
+import { MarketingPreferences } from "@/components/conta/marketing-preferences";
 import { DeleteAccountDialog } from "@/components/conta/delete-account-dialog";
 import { Field } from "@/components/conta/field";
-import { deleteAccount, updateProfile } from "@/lib/account/actions";
+import {
+  deleteAccount,
+  updateMarketingConsent,
+  updateProfile,
+} from "@/lib/account/actions";
 import { requireUser } from "@/lib/auth/session";
 import { formatCpf } from "@/lib/br/cpf";
 import { formatTelefone } from "@/lib/br/telefone";
@@ -23,7 +28,9 @@ export default async function ContaPage(props: PageProps<"/conta">) {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nome, cpf, telefone")
+    .select(
+      "nome, cpf, telefone, marketing_opt_in, marketing_channels, marketing_opt_out_at",
+    )
     .eq("id", user.id)
     .single();
 
@@ -82,6 +89,18 @@ export default async function ContaPage(props: PageProps<"/conta">) {
             maxLength={15}
           />
         </AuthForm>
+      </section>
+
+      <section aria-labelledby="comunicacoes" className={card}>
+        <h2 id="comunicacoes" className="m-0 font-display text-xl font-bold">
+          Comunicações
+        </h2>
+        <MarketingPreferences
+          action={updateMarketingConsent}
+          optIn={profile?.marketing_opt_in ?? false}
+          canais={profile?.marketing_channels ?? []}
+          desligadoEm={profile?.marketing_opt_out_at ?? null}
+        />
       </section>
 
       <section aria-labelledby="excluir" className={card}>

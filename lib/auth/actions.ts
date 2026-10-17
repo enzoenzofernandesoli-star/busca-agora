@@ -79,7 +79,25 @@ export async function signUp(
         "Não foi possível criar a conta com esse e-mail. Se você já tem conta, entre ou recupere a senha.",
     };
   }
-  if (data.user) await markTermsAccepted(data.user.id);
+  // An e-mail that already has a confirmed account comes back as an
+  // obfuscated user (random id, no identities): nothing is written for it,
+  // and the answer below is the same as for a new account.
+  const contaNova = !!data.user && (data.user.identities?.length ?? 0) > 0;
+  if (data.user && contaNova) {
+    await markTermsAccepted(data.user.id);
+    // Optional, separate consent: only when the box was checked.
+    if (formData.get("marketing") === "on") {
+      const { error: consentError } = await createAdminClient().rpc(
+        "set_marketing_consent",
+        {
+          p_user_id: data.user.id,
+          p_opt_in: true,
+          p_channels: ["email", "whatsapp"],
+        },
+      );
+      if (consentError) throw new Error(`marketing: ${consentError.message}`);
+    }
+  }
 
   // E-mail confirmation on (production): no session until the link is used.
   if (!data.session) {
