@@ -21,11 +21,25 @@ async function login(page: Page, email: string, senha: string, volta: string) {
   );
 }
 
+const admins: string[] = [];
+
 async function createAdmin() {
   const c = await createTestCustomer("Pai Admin");
   await localAdmin().from("profiles").update({ role: "admin" }).eq("id", c.id);
+  admins.push(c.id);
   return c;
 }
+
+// Demote the admins this file created, so runs do not pile up admins.
+test.afterAll(async () => {
+  for (let i = 0; i < admins.length; i += 50) {
+    const { error } = await localAdmin()
+      .from("profiles")
+      .update({ role: "customer" })
+      .in("id", admins.slice(i, i + 50));
+    if (error) throw error;
+  }
+});
 
 test.describe("painel admin", () => {
   test("cliente comum recebe 404 em todas as telas do admin", async ({

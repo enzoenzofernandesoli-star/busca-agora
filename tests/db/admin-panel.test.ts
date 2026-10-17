@@ -73,12 +73,19 @@ describe("admin_set_role", () => {
     const a = await createCustomer("equipe-a");
     const b = await createCustomer("equipe-b");
     // Only admins in this test's world matter: remember who was admin.
-    const { data: antes } = await admin
+    // Filter by role, never by an id list: e2e runs leave hundreds of admins
+    // and a long `in (...)` overflows the PostgREST URL.
+    const { data: antes, error: lerErr } = await admin
       .from("profiles")
       .select("id")
       .eq("role", "admin");
+    expect(lerErr).toBeNull();
     const outros = (antes ?? []).map((x) => x.id);
-    await admin.from("profiles").update({ role: "customer" }).in("id", outros);
+    const { error: rebaixarErr } = await admin
+      .from("profiles")
+      .update({ role: "customer" })
+      .eq("role", "admin");
+    expect(rebaixarErr).toBeNull();
     try {
       await admin.from("profiles").update({ role: "admin" }).eq("id", a.id);
       expect(
@@ -116,8 +123,12 @@ describe("admin_set_role", () => {
         .from("profiles")
         .update({ role: "customer" })
         .in("id", [a.id, b.id]);
-      if (outros.length) {
-        await admin.from("profiles").update({ role: "admin" }).in("id", outros);
+      for (let i = 0; i < outros.length; i += 50) {
+        const { error } = await admin
+          .from("profiles")
+          .update({ role: "admin" })
+          .in("id", outros.slice(i, i + 50));
+        expect(error).toBeNull();
       }
     }
   });
