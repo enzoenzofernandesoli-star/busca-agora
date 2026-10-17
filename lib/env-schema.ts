@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { fakeIntegrationsAllowed } from "@/lib/payments/policy";
+
 // Pure schema (no "server-only") so it can be unit tested.
 // Error messages list variable NAMES only, never values.
 
@@ -49,6 +51,16 @@ export const serverEnvSchema = publicEnvSchema.extend({
         error: 'precisa ser "homologacao" ou "producao"',
       })
       .default("homologacao"),
+  ),
+
+  // Fake Mercado Pago for development and e2e tests (phase 5). Refused in
+  // production by lib/payments (never takes real money paths).
+  PAYMENTS_FAKE: z.preprocess(
+    emptyToUndefined,
+    z
+      .enum(["true", "false"], { error: 'precisa ser "true" ou "false"' })
+      .default("false")
+      .transform((value) => value === "true"),
   ),
 
   // Optional at boot; demanded at the point of use through requireEnv().
@@ -123,7 +135,15 @@ export function parsePublicEnv(
 export function parseServerEnv(
   source: Record<string, string | undefined>,
 ): ServerEnv {
-  return parseOrThrow(serverEnvSchema, source);
+  const env = parseOrThrow(serverEnvSchema, source);
+  // Fail at boot, not at the first payment: the fake Mercado Pago never
+  // runs outside development, tests and Vercel previews.
+  if (env.PAYMENTS_FAKE && !fakeIntegrationsAllowed(source)) {
+    throw new EnvError(
+      "PAYMENTS_FAKE=true só é permitido em desenvolvimento, testes e prévias da Vercel. Remova a variável deste ambiente.",
+    );
+  }
+  return env;
 }
 
 export function createRequireEnv(env: ServerEnv) {

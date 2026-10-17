@@ -43,7 +43,7 @@ export function paidOrderMessage(p: {
   );
 }
 export function jobFailedMessage(p: {
-  tipo: "notify" | "invoice" | "label" | "print" | "email";
+  tipo: "notify" | "invoice" | "label" | "print" | "email" | "refund";
   numero: string;
   tentativas: number;
   erro: string;
@@ -55,6 +55,7 @@ export function jobFailedMessage(p: {
     label: "Etiqueta",
     print: "Impressão",
     email: "E-mail ao cliente",
+    refund: "Conferência do estorno (pedido segue bloqueado para envio)",
   };
   return boundedHtml(
     `<b>Falha na fila</b>\n${labels[p.tipo]} do pedido <b>${escapeHtml(p.numero)}</b> falhou ${p.tentativas} vezes.\nÚltimo erro: ${escapeHtml(cut(p.erro, 300))}\n<a href="${escapeHtml(p.adminUrl)}">Abrir pedido no admin</a>`,

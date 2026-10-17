@@ -1,5 +1,7 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
+
 import { randomUUID } from "node:crypto";
 
 import { revalidatePath, updateTag } from "next/cache";
@@ -11,6 +13,8 @@ import { requireAdmin } from "@/lib/auth/session";
 import { cepSchema } from "@/lib/br/cep";
 import { isValidCpf } from "@/lib/br/cpf";
 import { createAdminClient } from "@/lib/db/admin";
+import { getPaymentProvider, PaymentProviderError } from "@/lib/payments";
+import { reconcileSettlingPayment } from "@/lib/payments/reconcile";
 import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
 import { kickJobs } from "@/lib/jobs/run";
@@ -493,6 +497,127 @@ export async function cancelOrder(formData: FormData): Promise<ActionResult> {
   }
   await logAdminAction(admin, parsed.data.orderId, user.email, "cancelou", {
     motivo: parsed.data.motivo ?? null,
+  });
+  revalidateOrder();
+  return { ok: true };
+}
+
+/**
+ * Refunds a paid order. Order of things (Codex reviews of PR #41):
+ * 1. begin_refund opens ONE refund (owner token) and blocks fulfillment
+ *    durably (orders.estorno_status) before any money moves;
+ * 2. only the payment that settled the order is refunded;
+ * 3. only a definite refusal from the provider reopens fulfillment
+ *    (end_refund with the token). A timeout or unclear answer keeps the
+ *    order blocked; the 'refund' job reconciles with Mercado Pago.
+ * The order becomes refunded only through record_payment, after the
+ * provider says the payment was refunded.
+ */
+export async function refundOrder(formData: FormData): Promise<ActionResult> {
+  const user = await requireAdmin();
+  const parsed = orderActionSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: "Pedido inválido." };
+  const orderId = parsed.data.orderId;
+  const admin = createAdminClient();
+
+  const { data: begin, error: beginError } = await admin
+    .rpc("begin_refund", { p_order_id: orderId })
+    .single<{ resultado: string; token: string | null }>();
+  if (beginError || !begin) return { ok: false, message: GENERIC.message };
+
+  if (begin.resultado === "em_andamento") {
+    // Already asked: only check with Mercado Pago, never refund twice here.
+    const r = await reconcileSettlingPayment(orderId).catch((e: unknown) => {
+      Sentry.captureException(e);
+      return null;
+    });
+    revalidateOrder();
+    return r?.resultado === "refunded"
+      ? { ok: true }
+      : {
+          ok: false,
+          message:
+            "O estorno já foi pedido e o Mercado Pago ainda não confirmou. O pedido continua bloqueado para envio; a loja confere de novo sozinha.",
+        };
+  }
+  if (begin.resultado === "ocupado") {
+    return {
+      ok: false,
+      message:
+        "A etiqueta ou a impressão deste pedido está sendo feita agora. Tente de novo em alguns minutos.",
+    };
+  }
+  if (begin.resultado !== "ok" || !begin.token) {
+    return {
+      ok: false,
+      message: "Este pedido não tem pagamento confirmado para estornar.",
+    };
+  }
+
+  const { data: order } = await admin
+    .from("orders")
+    .select("paid_payment_id")
+    .eq("id", orderId)
+    .single();
+  const paymentId = order?.paid_payment_id;
+  if (!paymentId) {
+    await admin.rpc("end_refund", {
+      p_order_id: orderId,
+      p_token: begin.token,
+    });
+    return { ok: false, message: GENERIC.message };
+  }
+
+  try {
+    await getPaymentProvider().refund(paymentId);
+  } catch (e) {
+    Sentry.captureException(e);
+    // A refused request is not proof the money is still with the store (it
+    // may have been refunded in Mercado Pago's panel already). Fulfillment
+    // reopens only when the provider says the payment is still approved.
+    const r = await reconcileSettlingPayment(orderId).catch((err: unknown) => {
+      Sentry.captureException(err);
+      return null;
+    });
+    if (r?.resultado === "refunded") {
+      revalidateOrder();
+      return { ok: true };
+    }
+    if (
+      e instanceof PaymentProviderError &&
+      e.definitive &&
+      r?.statusProvedor === "approved"
+    ) {
+      await admin.rpc("end_refund", {
+        p_order_id: orderId,
+        p_token: begin.token,
+      });
+      revalidateOrder();
+      return {
+        ok: false,
+        message:
+          "O Mercado Pago recusou o estorno e confirmou que o pagamento continua aprovado. Nada foi devolvido e o pedido segue normalmente.",
+      };
+    }
+    // Unknown outcome: stays blocked; the refund job checks with Mercado Pago.
+    await logAdminAction(admin, orderId, user.email, "estorno_incerto", {
+      mp_payment_id: paymentId,
+    });
+    revalidateOrder();
+    return {
+      ok: false,
+      message:
+        "Não deu para confirmar o estorno agora. O pedido fica bloqueado para envio e a loja confere com o Mercado Pago sozinha.",
+    };
+  }
+  await logAdminAction(admin, orderId, user.email, "estornou", {
+    motivo: parsed.data.motivo ?? null,
+    mp_payment_id: paymentId,
+  });
+
+  // Usually confirmed right away; if not, the job (and the webhook) finish it.
+  await reconcileSettlingPayment(orderId).catch((e: unknown) => {
+    Sentry.captureException(e);
   });
   revalidateOrder();
   return { ok: true };

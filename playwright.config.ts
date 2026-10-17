@@ -54,5 +54,8 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // Fake Mercado Pago and fixed shipping quotes (phase 5): the checkout
+    // runs end to end without any real account. Never set in production.
+    env: { PAYMENTS_FAKE: "true", MELHORENVIO_TOKEN: "" },
   },
 });

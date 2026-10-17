@@ -7,6 +7,7 @@ import { OrderTimeline } from "@/components/admin/order-timeline";
 import { StatusBadge } from "@/components/admin/status-badge";
 import {
   cancelOrder,
+  refundOrder,
   markInvoiceManual,
   requeueJob,
   retryJob,
@@ -97,6 +98,19 @@ export default async function AdminPedido(
               confirmarLabel="Cancelar pedido"
               perigo
               action={cancelOrder}
+              campos={{ orderId: order.id }}
+            />
+          ) : null}
+          {["paid", "invoiced", "label_ready", "printed", "delivered"].includes(
+            order.status,
+          ) ? (
+            <ConfirmDialog
+              gatilho="Estornar pagamento"
+              titulo={`Estornar ${order.numero}?`}
+              texto="O valor volta inteiro para o cliente pelo Mercado Pago e o pedido fica como estornado. Isso não pode ser desfeito."
+              confirmarLabel="Estornar"
+              perigo
+              action={refundOrder}
               campos={{ orderId: order.id }}
             />
           ) : null}

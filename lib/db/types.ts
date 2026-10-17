@@ -451,11 +451,17 @@ export type Database = {
           endereco: NonNullable<Json>;
           estoque_baixado_em: string | null;
           estoque_devolvido_em: string | null;
+          estorno_em: string | null;
+          estorno_status: string | null;
+          estorno_token: string | null;
+          expira_em: string | null;
           frete_cents: number;
           frete_servico: string | null;
           frete_servico_id: number | null;
           id: string;
+          mp_preference_id: string | null;
           numero: string;
+          paid_payment_id: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
           status: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
@@ -472,11 +478,17 @@ export type Database = {
           endereco: NonNullable<Json>;
           estoque_baixado_em?: string | null;
           estoque_devolvido_em?: string | null;
+          estorno_em?: string | null;
+          estorno_status?: string | null;
+          estorno_token?: string | null;
+          expira_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
           frete_servico_id?: number | null;
           id?: string;
+          mp_preference_id?: string | null;
           numero?: string;
+          paid_payment_id?: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
@@ -493,11 +505,17 @@ export type Database = {
           endereco?: NonNullable<Json>;
           estoque_baixado_em?: string | null;
           estoque_devolvido_em?: string | null;
+          estorno_em?: string | null;
+          estorno_status?: string | null;
+          estorno_token?: string | null;
+          expira_em?: string | null;
           frete_cents?: number;
           frete_servico?: string | null;
           frete_servico_id?: number | null;
           id?: string;
+          mp_preference_id?: string | null;
           numero?: string;
+          paid_payment_id?: string | null;
           payment_method?: Database["public"]["Enums"]["payment_method"];
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents?: number;
@@ -518,6 +536,7 @@ export type Database = {
       payments: {
         Row: {
           created_at: string;
+          divergente: boolean;
           id: string;
           metodo: Database["public"]["Enums"]["payment_method"];
           mp_payment_id: string;
@@ -530,6 +549,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          divergente?: boolean;
           id?: string;
           metodo: Database["public"]["Enums"]["payment_method"];
           mp_payment_id: string;
@@ -542,6 +562,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          divergente?: boolean;
           id?: string;
           metodo?: Database["public"]["Enums"]["payment_method"];
           mp_payment_id?: string;
@@ -1014,6 +1035,13 @@ export type Database = {
         };
         Returns: undefined;
       };
+      begin_refund: {
+        Args: { p_order_id: string };
+        Returns: {
+          resultado: string;
+          token: string;
+        }[];
+      };
       cart_add: {
         Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
         Returns: number;
@@ -1059,8 +1087,31 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
+      create_order: {
+        Args: {
+          p_cliente_cpf: string;
+          p_cliente_nome: string;
+          p_endereco: Json;
+          p_frete_cents: number;
+          p_frete_servico: string;
+          p_frete_servico_id: number;
+          p_itens: Json;
+          p_payment_method: Database["public"]["Enums"]["payment_method"];
+          p_user_id: string;
+          p_validade: string;
+        };
+        Returns: {
+          id: string;
+          numero: string;
+          total_cents: number;
+        }[];
+      };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
+      end_refund: {
+        Args: { p_order_id: string; p_token: string };
+        Returns: boolean;
+      };
       enqueue_job: {
         Args: {
           p_etapa: string;
@@ -1069,6 +1120,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      expire_orders: { Args: Record<PropertyKey, never>; Returns: number };
       f_unaccent: { Args: { "": string }; Returns: string };
       format_order_number: { Args: { p_n: number }; Returns: string };
       fulfillment_lock: {
@@ -1091,7 +1143,21 @@ export type Database = {
         };
         Returns: boolean;
       };
+      payment_status_rank: { Args: { p_status: string }; Returns: number };
       prefix_tsquery: { Args: { p_text: string }; Returns: unknown };
+      record_payment: {
+        Args: {
+          p_metodo: Database["public"]["Enums"]["payment_method"];
+          p_moeda: string;
+          p_mp_payment_id: string;
+          p_order_id: string;
+          p_parcelas: number;
+          p_raw: Json;
+          p_status: string;
+          p_valor_cents: number;
+        };
+        Returns: string;
+      };
       reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
       restore_stock: { Args: { p_order_id: string }; Returns: undefined };
       save_address: {
@@ -1161,7 +1227,7 @@ export type Database = {
     };
     Enums: {
       job_status: "pending" | "running" | "done" | "failed";
-      job_type: "notify" | "invoice" | "label" | "print" | "email";
+      job_type: "notify" | "invoice" | "label" | "print" | "email" | "refund";
       order_status:
         | "pending_payment"
         | "paid"
@@ -1302,7 +1368,7 @@ export const Constants = {
   public: {
     Enums: {
       job_status: ["pending", "running", "done", "failed"],
-      job_type: ["notify", "invoice", "label", "print", "email"],
+      job_type: ["notify", "invoice", "label", "print", "email", "refund"],
       order_status: [
         "pending_payment",
         "paid",
