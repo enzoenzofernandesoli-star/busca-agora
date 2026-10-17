@@ -13,6 +13,11 @@ const entries = [
     path: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
   },
   {
+    title: "Métricas",
+    href: "/admin/metricas",
+    path: "M3 3v18h18M7 15l4-4 3 3 5-6",
+  },
+  {
     title: "Pedidos",
     href: "/admin/pedidos",
     path: "m3 7 9-4 9 4v10l-9 4-9-4ZM3 7l9 5 9-5M12 12v9",
