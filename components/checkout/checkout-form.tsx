@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { MARKETING_LABEL } from "@/components/conta/marketing-checkbox";
 import { useActionState, useEffect, useId, useState } from "react";
 import { z } from "zod";
 import {
@@ -120,6 +121,7 @@ export function CheckoutForm({
     cidade: "",
     uf: "",
     salvarEndereco: "",
+    marketing: "",
   }));
   const [lastState, setLastState] = useState(state);
   const [formVersion, setFormVersion] = useState(0);
@@ -546,6 +548,23 @@ export function CheckoutForm({
               </span>
               Você paga na página segura do Mercado Pago.
             </p>
+            {data.marketingOptIn ? null : (
+              <label className="flex min-h-11 cursor-pointer items-start gap-3 text-[15px] leading-normal">
+                <input
+                  type="checkbox"
+                  name="marketing"
+                  checked={values.marketing === "on"}
+                  onChange={(e) =>
+                    update("marketing", e.target.checked ? "on" : "")
+                  }
+                  className="mt-0.5 size-5 flex-none accent-ultramar"
+                />
+                <span>
+                  {MARKETING_LABEL}{" "}
+                  <span className="text-texto-2">(opcional)</span>
+                </span>
+              </label>
+            )}
           </section>
         </div>
         <aside

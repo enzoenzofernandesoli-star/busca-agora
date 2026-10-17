@@ -79,7 +79,21 @@ export async function signUp(
         "Não foi possível criar a conta com esse e-mail. Se você já tem conta, entre ou recupere a senha.",
     };
   }
-  if (data.user) await markTermsAccepted(data.user.id);
+  if (data.user) {
+    await markTermsAccepted(data.user.id);
+    // Optional, separate consent: only when the box was checked.
+    if (formData.get("marketing") === "on") {
+      const { error: consentError } = await createAdminClient().rpc(
+        "set_marketing_consent",
+        {
+          p_user_id: data.user.id,
+          p_opt_in: true,
+          p_channels: ["email", "whatsapp"],
+        },
+      );
+      if (consentError) throw new Error(`marketing: ${consentError.message}`);
+    }
+  }
 
   // E-mail confirmation on (production): no session until the link is used.
   if (!data.session) {

@@ -765,6 +765,10 @@ export type Database = {
           cpf: string | null;
           created_at: string;
           id: string;
+          marketing_channels: string[];
+          marketing_opt_in: boolean;
+          marketing_opt_in_at: string | null;
+          marketing_opt_out_at: string | null;
           nome: string;
           role: Database["public"]["Enums"]["user_role"];
           telefone: string | null;
@@ -775,6 +779,10 @@ export type Database = {
           cpf?: string | null;
           created_at?: string;
           id: string;
+          marketing_channels?: string[];
+          marketing_opt_in?: boolean;
+          marketing_opt_in_at?: string | null;
+          marketing_opt_out_at?: string | null;
           nome?: string;
           role?: Database["public"]["Enums"]["user_role"];
           telefone?: string | null;
@@ -785,6 +793,10 @@ export type Database = {
           cpf?: string | null;
           created_at?: string;
           id?: string;
+          marketing_channels?: string[];
+          marketing_opt_in?: boolean;
+          marketing_opt_in_at?: string | null;
+          marketing_opt_out_at?: string | null;
           nome?: string;
           role?: Database["public"]["Enums"]["user_role"];
           telefone?: string | null;
@@ -1206,6 +1218,14 @@ export type Database = {
         }[];
       };
       set_main_address: { Args: { p_address_id: string }; Returns: undefined };
+      set_marketing_consent: {
+        Args: { p_channels: string[]; p_opt_in: boolean; p_user_id: string };
+        Returns: undefined;
+      };
+      set_my_marketing_consent: {
+        Args: { p_channels: string[]; p_opt_in: boolean };
+        Returns: undefined;
+      };
       set_order_status: {
         Args: {
           p_detalhe?: Json;

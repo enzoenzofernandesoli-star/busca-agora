@@ -25,6 +25,8 @@ export type CheckoutData = {
   enderecos: Address[];
   itens: CheckoutItem[];
   subtotalCents: number;
+  /** Already accepted marketing: the optional box is not shown again. */
+  marketingOptIn: boolean;
 };
 
 export type PaymentChoice = "pix" | "card";
@@ -37,6 +39,7 @@ export type PaymentChoice = "pix" | "card";
  * - cpf: 11 digits (formatting is stripped on the server)
  * - freteServicoId: ShippingOption.servicoId chosen by the customer
  * - pagamento: PaymentChoice
+ * - marketing: "on" when the optional marketing box was checked
  * On success the action redirects to the Mercado Pago page; on error it
  * returns FormState (message + fieldErrors keyed by the names above).
  */
@@ -53,4 +56,5 @@ export const CHECKOUT_FIELDS = [
   "cpf",
   "freteServicoId",
   "pagamento",
+  "marketing",
 ] as const;

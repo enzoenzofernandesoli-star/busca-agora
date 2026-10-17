@@ -6,6 +6,7 @@ import { AuthCard, OrDivider } from "@/components/conta/auth-card";
 import { AuthForm } from "@/components/conta/auth-form";
 import { Field } from "@/components/conta/field";
 import { GoogleButton } from "@/components/conta/google-button";
+import { MarketingCheckbox } from "@/components/conta/marketing-checkbox";
 import { PasswordField } from "@/components/conta/password-field";
 import { TermsCheckbox } from "@/components/conta/terms-checkbox";
 import { signUp } from "@/lib/auth/actions";
@@ -58,6 +59,7 @@ export default async function CadastroPage(props: PageProps<"/cadastro">) {
           required
         />
         <TermsCheckbox />
+        <MarketingCheckbox />
       </AuthForm>
       <p className="m-0 text-center text-[15px] text-texto-2">
         Já tem conta?{" "}

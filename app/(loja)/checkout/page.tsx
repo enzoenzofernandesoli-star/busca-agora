@@ -26,7 +26,11 @@ export default async function CheckoutPage() {
 
   const supabase = await createClient();
   const [{ data: perfil }, { data: enderecos }] = await Promise.all([
-    supabase.from("profiles").select("cpf").eq("id", user.id).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("cpf, marketing_opt_in")
+      .eq("id", user.id)
+      .maybeSingle(),
     supabase
       .from("addresses")
       .select(
@@ -51,6 +55,7 @@ export default async function CheckoutPage() {
       categoria: l.categoria,
     })),
     subtotalCents: cart.subtotalCents,
+    marketingOptIn: perfil?.marketing_opt_in ?? false,
   };
 
   return (

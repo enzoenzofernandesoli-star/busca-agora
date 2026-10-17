@@ -281,7 +281,9 @@ export async function listCustomers() {
     [
       admin
         .from("profiles")
-        .select("id, nome, cpf, telefone, role, created_at")
+        .select(
+          "id, nome, cpf, telefone, role, created_at, marketing_opt_in, marketing_channels",
+        )
         .order("created_at", { ascending: false })
         .limit(200),
       admin.auth.admin.listUsers({ perPage: 1000 }),
@@ -311,7 +313,47 @@ export async function listCustomers() {
     criadoEm: p.created_at,
     pedidos: totais.get(p.id)?.pedidos ?? 0,
     totalCents: totais.get(p.id)?.totalCents ?? 0,
+    marketing: p.marketing_opt_in,
+    canais: p.marketing_channels,
   }));
+}
+
+/** One customer for /admin/clientes/[id]: data, consent and orders. */
+export async function getCustomer(id: string) {
+  const admin = await adminDb();
+  const [{ data: p, error }, { data: user }, { data: pedidos }] =
+    await Promise.all([
+      admin
+        .from("profiles")
+        .select(
+          "id, nome, cpf, telefone, role, created_at, marketing_opt_in, marketing_opt_in_at, marketing_opt_out_at, marketing_channels",
+        )
+        .eq("id", id)
+        .maybeSingle(),
+      admin.auth.admin.getUserById(id),
+      admin
+        .from("orders")
+        .select("numero, status, total_cents, created_at")
+        .eq("user_id", id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+  if (error) fail("customer", error);
+  if (!p) return null;
+  return {
+    id: p.id,
+    nome: p.nome || "(sem nome)",
+    email: user?.user?.email ?? "",
+    cpf: p.cpf ? `***.${p.cpf.slice(3, 6)}.***-**` : "",
+    telefone: p.telefone ?? "",
+    admin: p.role === "admin",
+    criadoEm: p.created_at,
+    marketing: p.marketing_opt_in,
+    marketingDesde: p.marketing_opt_in_at,
+    marketingDesligadoEm: p.marketing_opt_out_at,
+    canais: p.marketing_channels,
+    pedidos: pedidos ?? [],
+  };
 }
 
 export async function getSettings() {

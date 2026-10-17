@@ -138,6 +138,14 @@ export async function placeOrder(
     );
   }
 
+  // Optional marketing consent (LGPD): only ever turns it on, never off here.
+  if (formData.get("marketing") === "on") {
+    await supabase.rpc("set_my_marketing_consent", {
+      p_opt_in: true,
+      p_channels: ["email", "whatsapp"],
+    });
+  }
+
   // The customer's CPF goes to the profile the first time (column grant).
   await supabase
     .from("profiles")

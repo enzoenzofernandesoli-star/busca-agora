@@ -200,3 +200,47 @@ export async function deleteAccount(
   await supabase.auth.signOut();
   redirect("/?conta=excluida");
 }
+
+const marketingSchema = z.object({
+  marketing: z.preprocess((v) => v === "on", z.boolean()),
+  canal_email: z.preprocess((v) => v === "on", z.boolean()),
+  canal_whatsapp: z.preprocess((v) => v === "on", z.boolean()),
+});
+
+/**
+ * Marketing consent from /conta (LGPD): turn on or off at any time. The
+ * database writes when it was given or withdrawn (set_my_marketing_consent).
+ */
+export async function updateMarketingConsent(
+  _state: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUser("/conta");
+  const parsed = marketingSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return GENERIC_ERROR;
+  const { marketing, canal_email, canal_whatsapp } = parsed.data;
+  const canais = [
+    ...(canal_email ? ["email"] : []),
+    ...(canal_whatsapp ? ["whatsapp"] : []),
+  ];
+  if (marketing && canais.length === 0) {
+    return {
+      ok: false,
+      message: "Escolha pelo menos um canal, ou desmarque as ofertas.",
+      values: echoValues(formData),
+    };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_my_marketing_consent", {
+    p_opt_in: marketing,
+    p_channels: canais,
+  });
+  if (error) return GENERIC_ERROR;
+  revalidatePath("/conta");
+  return {
+    ok: true,
+    message: marketing
+      ? "Pronto: você vai receber nossas ofertas."
+      : "Pronto: não vamos mais enviar ofertas.",
+  };
+}
