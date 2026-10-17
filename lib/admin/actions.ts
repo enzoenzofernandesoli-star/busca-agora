@@ -572,8 +572,22 @@ export async function refundOrder(formData: FormData): Promise<ActionResult> {
     await getPaymentProvider().refund(paymentId);
   } catch (e) {
     Sentry.captureException(e);
-    if (e instanceof PaymentProviderError && e.definitive) {
-      // Refused for sure: nothing was refunded, fulfillment may go on.
+    // A refused request is not proof the money is still with the store (it
+    // may have been refunded in Mercado Pago's panel already). Fulfillment
+    // reopens only when the provider says the payment is still approved.
+    const r = await reconcileSettlingPayment(orderId).catch((err: unknown) => {
+      Sentry.captureException(err);
+      return null;
+    });
+    if (r?.resultado === "refunded") {
+      revalidateOrder();
+      return { ok: true };
+    }
+    if (
+      e instanceof PaymentProviderError &&
+      e.definitive &&
+      r?.statusProvedor === "approved"
+    ) {
       await admin.rpc("end_refund", {
         p_order_id: orderId,
         p_token: begin.token,
@@ -582,7 +596,7 @@ export async function refundOrder(formData: FormData): Promise<ActionResult> {
       return {
         ok: false,
         message:
-          "O Mercado Pago recusou o estorno. Nada foi devolvido e o pedido segue normalmente.",
+          "O Mercado Pago recusou o estorno e confirmou que o pagamento continua aprovado. Nada foi devolvido e o pedido segue normalmente.",
       };
     }
     // Unknown outcome: stays blocked; the refund job checks with Mercado Pago.
