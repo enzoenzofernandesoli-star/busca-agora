@@ -32,8 +32,10 @@ export function CookieNotice() {
       className="fixed inset-x-3 bottom-[calc(86px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-[900px] flex-row items-center gap-3 rounded-[18px] bg-noite py-2 pr-2 pl-4 text-lavanda shadow-lg motion-safe:animate-[cookie-notice-in_200ms_ease-out_both] md:bottom-4 md:gap-4 md:rounded-[22px] md:p-5"
     >
       <p className="flex-1 font-sans text-[13px] leading-snug md:text-sm md:leading-relaxed">
-        Só cookies necessários (login, carrinho).{" "}
-        <span className="hidden md:inline">Nada de anúncios. </span>
+        Cookies da própria loja (login, carrinho e visitas).{" "}
+        <span className="hidden md:inline">
+          Nada de anúncios nem de terceiros.{" "}
+        </span>
         <Link
           href="/privacidade#cookies"
           className="inline-flex min-h-11 items-center align-middle font-bold text-lima underline underline-offset-4 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lima"
