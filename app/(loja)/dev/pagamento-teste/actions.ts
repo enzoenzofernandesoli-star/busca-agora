@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { env } from "@/lib/env";
+import { fakeIntegrationsAllowed } from "@/lib/payments/policy";
 import { requestOrigin } from "@/lib/auth/origin";
 import { FAKE_WEBHOOK_SECRET } from "@/lib/payments/fake";
 import { signatureManifest, signWebhook } from "@/lib/payments/signature";
@@ -22,7 +23,7 @@ const schema = z.object({
  * to the thank-you page. Development and previews only.
  */
 export async function simulatePayment(formData: FormData): Promise<void> {
-  if (!env.PAYMENTS_FAKE || process.env.VERCEL_ENV === "production") {
+  if (!env.PAYMENTS_FAKE || !fakeIntegrationsAllowed()) {
     throw new Error("pagamento de teste desligado");
   }
   const { ref, pedido, resultado } = schema.parse(Object.fromEntries(formData));

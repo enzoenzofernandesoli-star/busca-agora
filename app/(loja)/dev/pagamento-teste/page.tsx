@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { env } from "@/lib/env";
+import { fakeIntegrationsAllowed } from "@/lib/payments/policy";
 
 import { simulatePayment } from "./actions";
 
@@ -22,7 +23,7 @@ const resultados = [
 export default async function PagamentoTestePage(
   props: PageProps<"/dev/pagamento-teste">,
 ) {
-  if (!env.PAYMENTS_FAKE || process.env.VERCEL_ENV === "production") notFound();
+  if (!env.PAYMENTS_FAKE || !fakeIntegrationsAllowed()) notFound();
   const params = await props.searchParams;
   const ref = typeof params.ref === "string" ? params.ref : "";
   const pedido = typeof params.pedido === "string" ? params.pedido : "";

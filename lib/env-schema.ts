@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { fakeIntegrationsAllowed } from "@/lib/payments/policy";
+
 // Pure schema (no "server-only") so it can be unit tested.
 // Error messages list variable NAMES only, never values.
 
@@ -133,7 +135,15 @@ export function parsePublicEnv(
 export function parseServerEnv(
   source: Record<string, string | undefined>,
 ): ServerEnv {
-  return parseOrThrow(serverEnvSchema, source);
+  const env = parseOrThrow(serverEnvSchema, source);
+  // Fail at boot, not at the first payment: the fake Mercado Pago never
+  // runs outside development, tests and Vercel previews.
+  if (env.PAYMENTS_FAKE && !fakeIntegrationsAllowed(source)) {
+    throw new EnvError(
+      "PAYMENTS_FAKE=true só é permitido em desenvolvimento, testes e prévias da Vercel. Remova a variável deste ambiente.",
+    );
+  }
+  return env;
 }
 
 export function createRequireEnv(env: ServerEnv) {

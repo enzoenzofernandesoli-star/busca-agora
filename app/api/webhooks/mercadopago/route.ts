@@ -85,11 +85,13 @@ export async function POST(request: Request) {
     await markProcessed(externalId);
     return new Response("not ours", { status: 200 });
   }
-  const { data: order } = await admin
+  const { data: order, error: orderError } = await admin
     .from("orders")
     .select("id")
     .eq("id", orderId)
     .maybeSingle();
+  // A failed lookup is retried (500), never acknowledged as "not ours".
+  if (orderError) throw new Error(`orders: ${orderError.message}`);
   if (!order) {
     await markProcessed(externalId);
     return new Response("unknown order", { status: 200 });

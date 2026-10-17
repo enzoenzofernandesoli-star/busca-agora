@@ -1,6 +1,7 @@
 import "server-only";
 
 import { env } from "@/lib/env";
+import { fakeIntegrationsAllowed } from "@/lib/payments/policy";
 
 import { fakeShipping } from "./fake";
 import { createMelhorEnvio } from "./melhorenvio/client";
@@ -12,7 +13,7 @@ export function shippingProvider(): ShippingProvider {
   if (
     env.PAYMENTS_FAKE &&
     !env.MELHORENVIO_TOKEN &&
-    process.env.VERCEL_ENV !== "production"
+    fakeIntegrationsAllowed()
   ) {
     return fakeShipping;
   }

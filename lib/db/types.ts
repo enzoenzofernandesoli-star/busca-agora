@@ -458,6 +458,7 @@ export type Database = {
           id: string;
           mp_preference_id: string | null;
           numero: string;
+          paid_payment_id: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
           status: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
@@ -481,6 +482,7 @@ export type Database = {
           id?: string;
           mp_preference_id?: string | null;
           numero?: string;
+          paid_payment_id?: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
@@ -504,6 +506,7 @@ export type Database = {
           id?: string;
           mp_preference_id?: string | null;
           numero?: string;
+          paid_payment_id?: string | null;
           payment_method?: Database["public"]["Enums"]["payment_method"];
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents?: number;
@@ -524,6 +527,7 @@ export type Database = {
       payments: {
         Row: {
           created_at: string;
+          divergente: boolean;
           id: string;
           metodo: Database["public"]["Enums"]["payment_method"];
           mp_payment_id: string;
@@ -536,6 +540,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          divergente?: boolean;
           id?: string;
           metodo: Database["public"]["Enums"]["payment_method"];
           mp_payment_id: string;
@@ -548,6 +553,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          divergente?: boolean;
           id?: string;
           metodo?: Database["public"]["Enums"]["payment_method"];
           mp_payment_id?: string;
@@ -1020,6 +1026,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      begin_refund: { Args: { p_order_id: string }; Returns: string };
       cart_add: {
         Args: { p_cart_id: string; p_quantidade: number; p_variant_id: string };
         Returns: number;
@@ -1086,6 +1093,7 @@ export type Database = {
       };
       delete_account: { Args: { p_user_id: string }; Returns: undefined };
       delete_address: { Args: { p_address_id: string }; Returns: undefined };
+      end_refund: { Args: { p_order_id: string }; Returns: undefined };
       enqueue_job: {
         Args: {
           p_etapa: string;
@@ -1117,6 +1125,7 @@ export type Database = {
         };
         Returns: boolean;
       };
+      payment_status_rank: { Args: { p_status: string }; Returns: number };
       prefix_tsquery: { Args: { p_text: string }; Returns: unknown };
       record_payment: {
         Args: {

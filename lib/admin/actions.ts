@@ -511,27 +511,65 @@ export async function refundOrder(formData: FormData): Promise<ActionResult> {
   const user = await requireAdmin();
   const parsed = orderActionSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { ok: false, message: "Pedido inválido." };
+  const orderId = parsed.data.orderId;
   const admin = createAdminClient();
-  const { data: payment } = await admin
-    .from("payments")
-    .select("mp_payment_id")
-    .eq("order_id", parsed.data.orderId)
-    .eq("status", "approved")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!payment) {
+
+  // 1. Refund lease first: no label is bought or printed while the money
+  //    goes back (begin_refund, same lease the fulfillment jobs use).
+  const { data: lease, error: leaseError } = await admin.rpc("begin_refund", {
+    p_order_id: orderId,
+  });
+  if (leaseError) return { ok: false, message: GENERIC.message };
+  if (lease === "ocupado") {
     return {
       ok: false,
-      message: "Este pedido não tem pagamento aprovado para estornar.",
+      message:
+        "A etiqueta ou a impressão deste pedido está sendo feita agora. Tente de novo em alguns minutos.",
     };
   }
+  if (lease !== "ok") {
+    return {
+      ok: false,
+      message: "Este pedido não tem pagamento confirmado para estornar.",
+    };
+  }
+
+  // 2. Only the payment that settled the order is refunded.
+  const { data: order } = await admin
+    .from("orders")
+    .select("paid_payment_id")
+    .eq("id", orderId)
+    .single();
+  const paymentId = order?.paid_payment_id;
+  if (!paymentId) {
+    await admin.rpc("end_refund", { p_order_id: orderId });
+    return { ok: false, message: GENERIC.message };
+  }
+
   const provider = getPaymentProvider();
   try {
-    await provider.refund(payment.mp_payment_id);
-    const info = await provider.getPayment(payment.mp_payment_id);
+    await provider.refund(paymentId);
+  } catch (e) {
+    // Nothing was refunded: fulfillment may go on.
+    await admin.rpc("end_refund", { p_order_id: orderId });
+    Sentry.captureException(e);
+    return {
+      ok: false,
+      message:
+        "O Mercado Pago não aceitou o estorno agora. Nada foi devolvido; tente de novo em instantes.",
+    };
+  }
+  await logAdminAction(admin, orderId, user.email, "estornou", {
+    motivo: parsed.data.motivo ?? null,
+    mp_payment_id: paymentId,
+  });
+
+  // 3. The status follows what Mercado Pago says (the webhook does the same;
+  //    if the refund is still processing, the lease keeps fulfillment off).
+  try {
+    const info = await provider.getPayment(paymentId);
     const { error } = await admin.rpc("record_payment", {
-      p_order_id: parsed.data.orderId,
+      p_order_id: orderId,
       p_mp_payment_id: info.id,
       p_status: info.status,
       p_metodo: info.metodo,
@@ -543,15 +581,7 @@ export async function refundOrder(formData: FormData): Promise<ActionResult> {
     if (error) throw new Error(`record_payment: ${error.message}`);
   } catch (e) {
     Sentry.captureException(e);
-    return {
-      ok: false,
-      message:
-        "O Mercado Pago não confirmou o estorno agora. Tente de novo em instantes.",
-    };
   }
-  await logAdminAction(admin, parsed.data.orderId, user.email, "estornou", {
-    motivo: parsed.data.motivo ?? null,
-  });
   revalidateOrder();
   return { ok: true };
 }

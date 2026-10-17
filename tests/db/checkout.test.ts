@@ -270,3 +270,133 @@ describe("expire_orders", () => {
     expect((await orderRow(order!.id)).status).toBe("pending_payment");
   });
 });
+
+describe("revisão do Codex (fase 5)", () => {
+  async function paidOrder() {
+    const { variantId } = await createVariant({ estoque: 5 });
+    const { data: order } = await placeOrder({
+      userId: null,
+      itens: [{ variant_id: variantId, quantidade: 1 }],
+    });
+    const paymentId = randomUUID();
+    expect(
+      (await pay(order!.id, { paymentId, valor: order!.total_cents })).data,
+    ).toBe("paid");
+    return { order: order!, paymentId };
+  }
+
+  it("estornar um pagamento divergente não desfaz a venda", async () => {
+    const { order } = await paidOrder();
+    const wrong = randomUUID();
+    expect((await pay(order.id, { paymentId: wrong, valor: 1 })).data).toBe(
+      "mismatch",
+    );
+    expect(
+      (await pay(order.id, { paymentId: wrong, status: "refunded", valor: 1 }))
+        .data,
+    ).toBe("refunded_other");
+    expect((await orderRow(order.id)).status).toBe("paid");
+  });
+
+  it("segundo pagamento aprovado é marcado como duplicado", async () => {
+    const { order } = await paidOrder();
+    expect((await pay(order.id, { valor: order.total_cents })).data).toBe(
+      "duplicate",
+    );
+    expect((await orderRow(order.id)).status).toBe("paid");
+  });
+
+  it("um retrato antigo nunca faz o pagamento voltar", async () => {
+    const { order, paymentId } = await paidOrder();
+    expect(
+      (
+        await pay(order.id, {
+          paymentId,
+          status: "pending",
+          valor: order.total_cents,
+        })
+      ).data,
+    ).toBe("stale");
+    const { data } = await serviceClient()
+      .from("payments")
+      .select("status")
+      .eq("mp_payment_id", paymentId)
+      .single();
+    expect(data?.status).toBe("approved");
+  });
+
+  it("estorno com o pedido em trânsito muda para estornado", async () => {
+    const { order, paymentId } = await paidOrder();
+    const admin = serviceClient();
+    for (const s of ["label_ready", "shipped"] as const) {
+      const { error } = await admin.rpc("set_order_status", {
+        p_order_id: order.id,
+        p_status: s,
+      });
+      expect(error).toBeNull();
+    }
+    expect(
+      (
+        await pay(order.id, {
+          paymentId,
+          status: "charged_back",
+          valor: order.total_cents,
+        })
+      ).data,
+    ).toBe("refunded");
+    expect((await orderRow(order.id)).status).toBe("refunded");
+  });
+
+  it("a trava do estorno bloqueia a expedição e respeita a trava da etiqueta", async () => {
+    const admin = serviceClient();
+    // Label job working: the refund waits.
+    const first = await paidOrder();
+    expect(
+      (
+        await admin.rpc("fulfillment_lock", {
+          p_order_id: first.order.id,
+          p_tipo: "label",
+        })
+      ).data,
+    ).toBe("ok");
+    expect(
+      (await admin.rpc("begin_refund", { p_order_id: first.order.id })).data,
+    ).toBe("ocupado");
+
+    // Refund first: no label meanwhile, and the refund goes through.
+    const second = await paidOrder();
+    expect(
+      (await admin.rpc("begin_refund", { p_order_id: second.order.id })).data,
+    ).toBe("ok");
+    expect(
+      (
+        await admin.rpc("fulfillment_lock", {
+          p_order_id: second.order.id,
+          p_tipo: "label",
+        })
+      ).data,
+    ).toBe("ocupado");
+    expect(
+      (
+        await pay(second.order.id, {
+          paymentId: second.paymentId,
+          status: "refunded",
+          valor: second.order.total_cents,
+        })
+      ).data,
+    ).toBe("refunded");
+    expect((await orderRow(second.order.id)).status).toBe("refunded");
+  });
+
+  it("pedido sem pagamento confirmado não pode ser estornado", async () => {
+    const { variantId } = await createVariant({ estoque: 2 });
+    const { data: order } = await placeOrder({
+      userId: null,
+      itens: [{ variant_id: variantId, quantidade: 1 }],
+    });
+    expect(
+      (await serviceClient().rpc("begin_refund", { p_order_id: order!.id }))
+        .data,
+    ).toBe("inelegivel");
+  });
+});
