@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "test:db": "vitest run --config vitest.db.config.mts",
     "db:types": "supabase gen types typescript --local --schema public > lib/db/types.ts && prettier --write lib/db/types.ts",
-    "db:seed-dev": "node scripts/seed-dev.ts"
+    "db:seed-dev": "node scripts/seed-dev.ts",
+    "db:seed-metricas": "node scripts/seed-metricas.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.4.0",
