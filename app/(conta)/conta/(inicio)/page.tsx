@@ -96,7 +96,6 @@ export default async function ContaPage(props: PageProps<"/conta">) {
           Comunicações
         </h2>
         <MarketingPreferences
-          key={`${profile?.marketing_opt_in}-${profile?.marketing_channels?.join()}`}
           action={updateMarketingConsent}
           optIn={profile?.marketing_opt_in ?? false}
           canais={profile?.marketing_channels ?? []}

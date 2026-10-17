@@ -8,7 +8,7 @@ async function login(page: Page, email: string, senha: string, volta = "") {
   await page.goto(
     `/entrar${volta ? `?volta=${encodeURIComponent(volta)}` : ""}`,
   );
-  await page.getByLabel("E-mail").fill(email);
+  await page.getByLabel("E-mail", { exact: true }).fill(email);
   await page.getByLabel("Senha", { exact: true }).fill(senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   // The action answers with a redirect or an error; the first dev compile
@@ -26,22 +26,36 @@ test.describe("conta do cliente", () => {
     const email = `cadastro-${randomUUID().slice(0, 8)}@example.test`;
     await page.goto("/cadastro");
     await page.getByLabel("Nome completo").fill("Maria Teste");
-    await page.getByLabel("E-mail").fill(email);
+    await page.getByLabel("E-mail", { exact: true }).fill(email);
     await page.getByLabel("Senha", { exact: true }).fill("senha12345");
     await page.getByRole("button", { name: "Criar conta" }).click();
 
     // Without the checkbox: error, and what was typed stays in the form.
     await expect(page.getByText(/aceite os Termos de uso/)).toBeVisible();
-    await expect(page.getByLabel("E-mail")).toHaveValue(email);
+    await expect(page.getByLabel("E-mail", { exact: true })).toHaveValue(email);
 
     await page.getByLabel("Senha", { exact: true }).fill("senha12345");
-    await page.getByRole("checkbox").check();
+    // Marketing consent is separate, optional and never pre-checked (LGPD).
+    await expect(
+      page.getByRole("checkbox", { name: /Quero receber ofertas/ }),
+    ).not.toBeChecked();
+    await page.getByRole("checkbox", { name: /Li e aceito/ }).check();
     await page.getByRole("button", { name: "Criar conta" }).click();
     await expect(page).toHaveURL(/\/conta$/);
     await expect(
       page.getByRole("heading", { level: 1, name: "Meus dados" }),
     ).toBeVisible();
     await expect(page.getByLabel("Nome completo")).toHaveValue("Maria Teste");
+    // Not accepted at sign-up: turned on later in /conta, and off again.
+    const ofertas = page.getByRole("checkbox", {
+      name: /Quero receber ofertas/,
+    });
+    await expect(ofertas).not.toBeChecked();
+    await ofertas.check();
+    await page.getByRole("button", { name: "Salvar preferências" }).click();
+    await expect(
+      page.getByText("Pronto: você vai receber nossas ofertas."),
+    ).toBeVisible();
   });
 
   test("login, logout e volta para a página pedida", async ({ page }) => {
@@ -160,7 +174,7 @@ test.describe("telas de entrada", () => {
         const google = page.getByRole("button", {
           name: "Continuar com Google",
         });
-        const email = page.getByLabel("E-mail");
+        const email = page.getByLabel("E-mail", { exact: true });
         const g = await google.boundingBox();
         const e = await email.boundingBox();
         expect(g && e && g.y < e.y, `${rota} ${width}px: Google primeiro`).toBe(

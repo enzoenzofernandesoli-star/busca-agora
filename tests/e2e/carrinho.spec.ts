@@ -206,7 +206,7 @@ test.describe("carrinho", () => {
     await addFromProductPage(page, CAIXA);
 
     await page.goto("/entrar?volta=%2Fcarrinho");
-    await page.getByLabel("E-mail").fill(c.email);
+    await page.getByLabel("E-mail", { exact: true }).fill(c.email);
     await page.getByLabel("Senha", { exact: true }).fill(c.senha);
     await page.getByRole("button", { name: "Entrar", exact: true }).click();
     await expect(page).toHaveURL(/\/carrinho$/, { timeout: 30_000 });

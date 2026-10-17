@@ -68,7 +68,7 @@ async function customerWithCart(estoque = 5) {
 
 async function login(page: Page, email: string, senha: string) {
   await page.goto("/entrar?volta=%2Fcheckout");
-  await page.getByLabel("E-mail").fill(email);
+  await page.getByLabel("E-mail", { exact: true }).fill(email);
   await page.getByLabel("Senha", { exact: true }).fill(senha);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page).toHaveURL(/\/checkout$/, { timeout: 60_000 });
