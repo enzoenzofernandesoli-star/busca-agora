@@ -2,10 +2,9 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 
-import { ORIGIN_COOKIE, parseOriginCookie } from "@/lib/attribution/origin";
 import { fieldErrors } from "@/lib/auth/schemas";
 import { allowAttempt } from "@/lib/auth/rate-limit";
 import { requireUser } from "@/lib/auth/session";
@@ -13,6 +12,7 @@ import { getCart } from "@/lib/cart/server";
 import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
 import { echoValues, type FormState } from "@/lib/forms/state";
+import { recordProductEvents, requestContext } from "@/lib/metrics/events";
 import { getPaymentProvider } from "@/lib/payments";
 import { quoteShipping } from "@/lib/shipping/quote";
 
@@ -155,6 +155,9 @@ export async function placeOrder(
     .eq("id", user.id)
     .is("cpf", null);
 
+  // Visitor and origin (cookies re-validated on the server) for the order
+  // and the metrics.
+  const ctx = await requestContext();
   const admin = createAdminClient();
   const { data: order, error } = await admin
     .rpc("create_order", {
@@ -172,7 +175,7 @@ export async function placeOrder(
       })),
       p_validade: PAYMENT_WINDOW[pagamento],
       // Re-validated here: the cookie is written by the browser.
-      p_origem: parseOriginCookie((await cookies()).get(ORIGIN_COOKIE)?.value),
+      p_origem: { ...(ctx.origem ?? {}), visitor_id: ctx.visitorId },
     })
     .single<{ id: string; numero: string; total_cents: number }>();
   if (error || !order) {
@@ -187,6 +190,16 @@ export async function placeOrder(
     }
     throw new Error(`create_order: ${error?.message ?? "sem retorno"}`);
   }
+
+  // Metrics: begin_checkout per product, after the response.
+  after(() =>
+    recordProductEvents(
+      ctx,
+      "begin_checkout",
+      linhas.map((l) => ({ productId: l.productId, variantId: l.variantId })),
+      { userId: user.id, orderId: order.id },
+    ),
+  );
 
   const { data: orderItems, error: itemsError } = await admin
     .from("order_items")

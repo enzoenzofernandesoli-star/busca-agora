@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ViewBeacon } from "@/components/loja/view-beacon";
+
 import { Breadcrumb } from "@/components/loja/breadcrumb";
 import { Marquee } from "@/components/loja/marquee";
 import { ProductBuyBox } from "@/components/loja/product-buy-box";
@@ -80,6 +82,7 @@ export default async function ProdutoPage(props: PageProps<"/p/[produto]">) {
 
   return (
     <>
+      <ViewBeacon productId={produto.id} />
       <script
         type="application/ld+json"
         // jsonLdScript escapes "<", so the payload cannot close this tag.

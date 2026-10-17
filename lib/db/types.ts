@@ -472,6 +472,7 @@ export type Database = {
           utm_campaign: string | null;
           utm_medium: string | null;
           utm_source: string | null;
+          visitor_id: string | null;
         };
         Insert: {
           cliente_cpf: string;
@@ -503,6 +504,7 @@ export type Database = {
           utm_campaign?: string | null;
           utm_medium?: string | null;
           utm_source?: string | null;
+          visitor_id?: string | null;
         };
         Update: {
           cliente_cpf?: string;
@@ -534,6 +536,7 @@ export type Database = {
           utm_campaign?: string | null;
           utm_medium?: string | null;
           utm_source?: string | null;
+          visitor_id?: string | null;
         };
         Relationships: [
           {
@@ -595,6 +598,106 @@ export type Database = {
           },
         ];
       };
+      product_events: {
+        Row: {
+          created_at: string;
+          custo_cents: number | null;
+          device: string | null;
+          event: string;
+          id: number;
+          order_id: string | null;
+          product_id: string;
+          quantidade: number | null;
+          ref: string | null;
+          session_id: string;
+          user_id: string | null;
+          utm_campaign: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
+          valor_cents: number | null;
+          variant_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          custo_cents?: number | null;
+          device?: string | null;
+          event: string;
+          id?: never;
+          order_id?: string | null;
+          product_id: string;
+          quantidade?: number | null;
+          ref?: string | null;
+          session_id: string;
+          user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          valor_cents?: number | null;
+          variant_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          custo_cents?: number | null;
+          device?: string | null;
+          event?: string;
+          id?: never;
+          order_id?: string | null;
+          product_id?: string;
+          quantidade?: number | null;
+          ref?: string | null;
+          session_id?: string;
+          user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          valor_cents?: number | null;
+          variant_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_events_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_events_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_events_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_events_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_events_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_events_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants_public";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       product_images: {
         Row: {
           alt: string;
@@ -630,6 +733,75 @@ export type Database = {
           },
           {
             foreignKeyName: "product_images_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      product_metrics_daily: {
+        Row: {
+          add_to_cart: number;
+          atualizado_em: string;
+          begin_checkout: number;
+          custo_cents: number;
+          dia: string;
+          faturamento_cents: number;
+          pedidos: number;
+          product_id: string;
+          ref: string;
+          unidades: number;
+          utm_campaign: string;
+          utm_medium: string;
+          utm_source: string;
+          views: number;
+          visitantes: number;
+        };
+        Insert: {
+          add_to_cart?: number;
+          atualizado_em?: string;
+          begin_checkout?: number;
+          custo_cents?: number;
+          dia: string;
+          faturamento_cents?: number;
+          pedidos?: number;
+          product_id: string;
+          ref?: string;
+          unidades?: number;
+          utm_campaign?: string;
+          utm_medium?: string;
+          utm_source?: string;
+          views?: number;
+          visitantes?: number;
+        };
+        Update: {
+          add_to_cart?: number;
+          atualizado_em?: string;
+          begin_checkout?: number;
+          custo_cents?: number;
+          dia?: string;
+          faturamento_cents?: number;
+          pedidos?: number;
+          product_id?: string;
+          ref?: string;
+          unidades?: number;
+          utm_campaign?: string;
+          utm_medium?: string;
+          utm_source?: string;
+          views?: number;
+          visitantes?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_metrics_daily_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "product_listing";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_metrics_daily_product_id_fkey";
             columns: ["product_id"];
             isOneToOne: false;
             referencedRelation: "products";
@@ -1182,6 +1354,20 @@ export type Database = {
           p_valor_cents: number;
         };
         Returns: string;
+      };
+      record_product_view: {
+        Args: {
+          p_device: string;
+          p_origem: Json;
+          p_product_id: string;
+          p_session_id: string;
+          p_user_id: string;
+        };
+        Returns: boolean;
+      };
+      refresh_product_metrics: {
+        Args: { p_ate: string; p_de: string };
+        Returns: number;
       };
       reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
       restore_stock: { Args: { p_order_id: string }; Returns: undefined };
