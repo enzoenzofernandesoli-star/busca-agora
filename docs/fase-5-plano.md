@@ -1,4 +1,4 @@
-# Fase 5 — Checkout e pagamento: plano (aguardando aprovação)
+# Fase 5 — Checkout e pagamento: plano (aprovado em 17/10; tudo do Codex, sem ChatGPT)
 
 Branch `fase-5-checkout`. Pedido do Enzo (17/10): fazer tudo o que não depende do CNPJ novo nem da conta do Mercado Pago.
 Objetivo: o cliente fecha a compra, paga no Mercado Pago (Checkout Pro) e o pedido vira `paid` com segurança.
@@ -28,8 +28,8 @@ Objetivo: o cliente fecha a compra, paga no Mercado Pago (Checkout Pro) e o pedi
 | Webhook, Server Action do pedido, estorno | Claude Code | `app/api/webhooks/mercadopago/`, `lib/orders/checkout.ts` |
 | C4 Tela de checkout (componentes) | **Codex** | `components/checkout/*` |
 | C5 Página de obrigado + atualização automática | **Codex** | `app/(loja)/pedido/[numero]/obrigado/`, `components/checkout/order-status-poller.tsx` |
-| G52 Schemas zod das respostas do Mercado Pago + testes | ChatGPT | `lib/payments/mercadopago/schemas.ts` |
-| G53 Montagem do corpo da preferência a partir do pedido + testes | ChatGPT | `lib/payments/mercadopago/preference-body.ts` |
+| C6 Schemas zod das respostas do Mercado Pago + testes | **Codex** | `lib/payments/mercadopago/schemas.ts` |
+| C7 Montagem do corpo da preferência a partir do pedido + testes | **Codex** | `lib/payments/mercadopago/preference-body.ts` |
 | Integração, testes ponta a ponta, revisão | Claude Code; revisão final Codex | — |
 
 ## Testes
