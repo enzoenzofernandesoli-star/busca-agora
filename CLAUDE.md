@@ -8,7 +8,7 @@ O mesmo conteúdo existe em `AGENTS.md` (para o Codex). Se mudar um, mude o outr
 - Loja virtual própria da **Busca Agora**: eletrônicos e cosméticos. Um vendedor só (nós). NÃO é marketplace de vários vendedores.
 - Experiência de compra no nível do Mercado Livre: busca forte, filtros, página de produto completa, frete por CEP, acompanhamento do pedido.
 - Donos: Enzo (produto e tecnologia) e o pai (operação: fornecedores, estoque, expedição).
-- **Prazo: loja no ar em 20/10/2026.** Decisão em 13/10: se o pagamento não funcionar de ponta a ponta, a v1 sobe só com Pix.
+- **Prazo: indefinido (decisão de 17/10, substitui o 20/10).** O lançamento espera o CNPJ novo (MEI aberto com o pai) e a conta do Mercado Pago nesse CNPJ. Quando sair, a v1 sobe com Pix (e cartão, se o pagamento funcionar de ponta a ponta).
 - A estrutura sobe VAZIA de produtos. Produtos entram pelo painel admin depois.
 - "App" = **PWA** (site instalável no celular). Não existe app nativo na v1.
 
