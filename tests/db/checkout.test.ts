@@ -428,3 +428,36 @@ describe("revisão do Codex (fase 5)", () => {
     expect((await beginRefund(order!.id)).resultado).toBe("inelegivel");
   });
 });
+
+describe("origem do pedido", () => {
+  it("grava UTM e ref no pedido, cortando o que for longo", async () => {
+    const { variantId } = await createVariant({ estoque: 2 });
+    const { data, error } = await serviceClient()
+      .rpc("create_order", {
+        p_user_id: null,
+        p_endereco: endereco,
+        p_cliente_nome: "Cliente Teste",
+        p_cliente_cpf: "52998224725",
+        p_payment_method: "pix",
+        p_frete_cents: 0,
+        p_frete_servico: "Correios · PAC",
+        p_frete_servico_id: 1,
+        p_itens: [{ variant_id: variantId, quantidade: 1 }],
+        p_validade: "30 minutes",
+        p_origem: { utm_source: "instagram", ref: "joana", utm_medium: "" },
+      })
+      .single<{ id: string }>();
+    expect(error).toBeNull();
+    const { data: o } = await serviceClient()
+      .from("orders")
+      .select("utm_source, utm_medium, utm_campaign, ref")
+      .eq("id", data!.id)
+      .single();
+    expect(o).toEqual({
+      utm_source: "instagram",
+      utm_medium: null,
+      utm_campaign: null,
+      ref: "joana",
+    });
+  });
+});

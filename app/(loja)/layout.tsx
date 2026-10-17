@@ -2,6 +2,7 @@ import { BottomNav } from "@/components/loja/bottom-nav";
 import { CookieNotice } from "@/components/loja/cookie-notice";
 import { Footer } from "@/components/loja/footer";
 import { Header, MobileCategoryChips } from "@/components/loja/header";
+import { OriginCapture } from "@/components/loja/origin-capture";
 import { MotionGate } from "@/components/loja/motion-gate";
 import { TopBar } from "@/components/loja/top-bar";
 
@@ -23,6 +24,7 @@ export default function LojaLayout({
       <BottomNav />
       <CookieNotice />
       <MotionGate />
+      <OriginCapture />
     </div>
   );
 }

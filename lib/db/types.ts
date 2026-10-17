@@ -463,11 +463,15 @@ export type Database = {
           numero: string;
           paid_payment_id: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
+          ref: string | null;
           status: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
           total_cents: number;
           updated_at: string;
           user_id: string | null;
+          utm_campaign: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
         };
         Insert: {
           cliente_cpf: string;
@@ -490,11 +494,15 @@ export type Database = {
           numero?: string;
           paid_payment_id?: string | null;
           payment_method: Database["public"]["Enums"]["payment_method"];
+          ref?: string | null;
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents: number;
           total_cents: number;
           updated_at?: string;
           user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
         };
         Update: {
           cliente_cpf?: string;
@@ -517,11 +525,15 @@ export type Database = {
           numero?: string;
           paid_payment_id?: string | null;
           payment_method?: Database["public"]["Enums"]["payment_method"];
+          ref?: string | null;
           status?: Database["public"]["Enums"]["order_status"];
           subtotal_cents?: number;
           total_cents?: number;
           updated_at?: string;
           user_id?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
         };
         Relationships: [
           {
@@ -1108,6 +1120,7 @@ export type Database = {
           p_frete_servico: string;
           p_frete_servico_id: number;
           p_itens: Json;
+          p_origem?: Json;
           p_payment_method: Database["public"]["Enums"]["payment_method"];
           p_user_id: string;
           p_validade: string;

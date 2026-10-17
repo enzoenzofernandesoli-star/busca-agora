@@ -224,6 +224,38 @@ export default async function AdminPedido(
             {endereco.cep ? `CEP ${endereco.cep}` : null}
           </p>
         </section>
+
+        <section className={card} aria-labelledby="origem">
+          <h2 id="origem" className="m-0 font-display text-xl font-bold">
+            Origem
+          </h2>
+          {order.utm_source ||
+          order.utm_medium ||
+          order.utm_campaign ||
+          order.ref ? (
+            <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
+              {(
+                [
+                  ["Fonte", order.utm_source],
+                  ["Meio", order.utm_medium],
+                  ["Campanha", order.utm_campaign],
+                  ["Criador (ref)", order.ref],
+                ] as const
+              )
+                .filter(([, v]) => v)
+                .map(([k, v]) => (
+                  <div key={k} className="contents">
+                    <dt className="text-texto-2">{k}</dt>
+                    <dd className="m-0 font-bold">{v}</dd>
+                  </div>
+                ))}
+            </dl>
+          ) : (
+            <p className="m-0 text-[15px] text-texto-2">
+              Direto (sem UTM nem código de criador nos últimos 30 dias).
+            </p>
+          )}
+        </section>
       </div>
 
       {pago ? (

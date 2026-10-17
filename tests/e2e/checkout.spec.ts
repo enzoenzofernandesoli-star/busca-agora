@@ -106,6 +106,10 @@ test.describe("checkout", () => {
 
   test("compra com Pix até o pedido confirmado", async ({ page }) => {
     const c = await customerWithCart();
+    // Arrived from a creator's link: the order keeps that origin.
+    await page.goto(
+      "/sobre?utm_source=instagram&utm_campaign=lancamento&ref=joana",
+    );
     await login(page, c.email, c.senha);
     await fillCheckout(page);
     // Display total: R$ 100,00 + PAC R$ 23,45.
@@ -126,13 +130,18 @@ test.describe("checkout", () => {
     const numero = page.url().match(/BA-\d+/)![0];
     const { data: order } = await db
       .from("orders")
-      .select("status, total_cents, payment_method")
+      .select(
+        "status, total_cents, payment_method, utm_source, utm_campaign, ref",
+      )
       .eq("numero", numero)
       .single();
     expect(order).toEqual({
       status: "paid",
       total_cents: 12345,
       payment_method: "pix",
+      utm_source: "instagram",
+      utm_campaign: "lancamento",
+      ref: "joana",
     });
     const { data: v } = await db
       .from("product_variants")
