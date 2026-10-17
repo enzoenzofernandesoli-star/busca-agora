@@ -51,6 +51,16 @@ export const serverEnvSchema = publicEnvSchema.extend({
       .default("homologacao"),
   ),
 
+  // Fake Mercado Pago for development and e2e tests (phase 5). Refused in
+  // production by lib/payments (never takes real money paths).
+  PAYMENTS_FAKE: z.preprocess(
+    emptyToUndefined,
+    z
+      .enum(["true", "false"], { error: 'precisa ser "true" ou "false"' })
+      .default("false")
+      .transform((value) => value === "true"),
+  ),
+
   // Optional at boot; demanded at the point of use through requireEnv().
   MP_ACCESS_TOKEN: optionalString,
   MP_WEBHOOK_SECRET: optionalString,

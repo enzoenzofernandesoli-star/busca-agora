@@ -22,6 +22,8 @@ const LIMITS = {
   "rastreio:ip": { max: 10, janelaSegundos: 15 * 60 },
   "rastreio:pedido": { max: 5, janelaSegundos: 15 * 60 },
   "devolucao:usuario": { max: 5, janelaSegundos: 60 * 60 },
+  // Each attempt reserves stock and opens a payment: no loops.
+  "checkout:usuario": { max: 10, janelaSegundos: 15 * 60 },
 } as const;
 
 export type RateLimitKind = keyof typeof LIMITS;

@@ -1,5 +1,7 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
+
 import { randomUUID } from "node:crypto";
 
 import { revalidatePath, updateTag } from "next/cache";
@@ -11,6 +13,8 @@ import { requireAdmin } from "@/lib/auth/session";
 import { cepSchema } from "@/lib/br/cep";
 import { isValidCpf } from "@/lib/br/cpf";
 import { createAdminClient } from "@/lib/db/admin";
+import type { Json } from "@/lib/db/types";
+import { getPaymentProvider } from "@/lib/payments";
 import { publicEnv } from "@/lib/env-public";
 import { echoValues, type FormState } from "@/lib/forms/state";
 import { kickJobs } from "@/lib/jobs/run";
@@ -492,6 +496,60 @@ export async function cancelOrder(formData: FormData): Promise<ActionResult> {
     };
   }
   await logAdminAction(admin, parsed.data.orderId, user.email, "cancelou", {
+    motivo: parsed.data.motivo ?? null,
+  });
+  revalidateOrder();
+  return { ok: true };
+}
+
+/**
+ * Refunds a paid order through the payment provider. The status only moves
+ * after the provider confirms: the payment is fetched again and
+ * record_payment() marks refunded (the webhook would do the same).
+ */
+export async function refundOrder(formData: FormData): Promise<ActionResult> {
+  const user = await requireAdmin();
+  const parsed = orderActionSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { ok: false, message: "Pedido inválido." };
+  const admin = createAdminClient();
+  const { data: payment } = await admin
+    .from("payments")
+    .select("mp_payment_id")
+    .eq("order_id", parsed.data.orderId)
+    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!payment) {
+    return {
+      ok: false,
+      message: "Este pedido não tem pagamento aprovado para estornar.",
+    };
+  }
+  const provider = getPaymentProvider();
+  try {
+    await provider.refund(payment.mp_payment_id);
+    const info = await provider.getPayment(payment.mp_payment_id);
+    const { error } = await admin.rpc("record_payment", {
+      p_order_id: parsed.data.orderId,
+      p_mp_payment_id: info.id,
+      p_status: info.status,
+      p_metodo: info.metodo,
+      p_valor_cents: info.valorCents,
+      p_moeda: info.moeda,
+      p_parcelas: info.parcelas,
+      p_raw: info.raw as Json,
+    });
+    if (error) throw new Error(`record_payment: ${error.message}`);
+  } catch (e) {
+    Sentry.captureException(e);
+    return {
+      ok: false,
+      message:
+        "O Mercado Pago não confirmou o estorno agora. Tente de novo em instantes.",
+    };
+  }
+  await logAdminAction(admin, parsed.data.orderId, user.email, "estornou", {
     motivo: parsed.data.motivo ?? null,
   });
   revalidateOrder();
