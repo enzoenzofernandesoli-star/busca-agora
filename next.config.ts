@@ -3,11 +3,32 @@ import type { NextConfig } from "next";
 
 import { isLocalSupabase, supabaseStoragePatterns } from "./lib/images";
 
+// Security headers on every response (security audit of 24/10). The CSP
+// only carries directives that cannot break Next's inline scripts or the
+// redirects to Google and Mercado Pago: no framing by other sites, no
+// <base> hijack, no plugins.
+const securityHeaders = [
+  {
+    key: "Content-Security-Policy",
+    value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+  },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  },
+];
+
 const nextConfig: NextConfig = {
+  // Do not announce the framework.
+  poweredByHeader: false,
   // The service worker must never be cached by the browser or the CDN, or a
   // fixed version would stay installed on phones.
   async headers() {
     return [
+      { source: "/:path*", headers: securityHeaders },
       {
         source: "/sw.js",
         headers: [
