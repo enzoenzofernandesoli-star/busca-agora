@@ -14,6 +14,51 @@ import {
 
 const API = "https://api.mercadopago.com";
 
+// Generic error names Mercado Pago uses in the "error" field. Anything else
+// is dropped: an unknown value could be data echoed from the request.
+const KNOWN_ERRORS = new Set([
+  "bad_request",
+  "unauthorized",
+  "forbidden",
+  "not_found",
+  "conflict",
+  "invalid_parameter",
+  "invalid_parameters",
+  "internal_error",
+  "internal_server_error",
+  "too_many_requests",
+  "service_unavailable",
+]);
+
+/**
+ * Machine codes of a Mercado Pago error body: the "error" name only when it
+ * is a known generic one, and numeric cause codes of at most 6 digits (a
+ * CPF has 11, a phone 10+). Free text is always dropped.
+ */
+export function providerCodes(body: string): string[] {
+  let json: unknown;
+  try {
+    json = JSON.parse(body);
+  } catch {
+    return [];
+  }
+  if (!json || typeof json !== "object") return [];
+  const o = json as { error?: unknown; cause?: unknown };
+  const out: string[] = [];
+  if (typeof o.error === "string" && KNOWN_ERRORS.has(o.error)) {
+    out.push(o.error);
+  }
+  if (Array.isArray(o.cause)) {
+    for (const c of o.cause.slice(0, 5)) {
+      if (!c || typeof c !== "object") continue;
+      const code = (c as { code?: unknown }).code;
+      const s = typeof code === "number" ? String(code) : code;
+      if (typeof s === "string" && /^\d{1,6}$/.test(s)) out.push(s);
+    }
+  }
+  return [...new Set(out)];
+}
+
 async function mp(
   path: string,
   init: RequestInit & { idempotencyKey?: string } = {},
@@ -49,8 +94,12 @@ async function mp(
       res.status < 500 &&
       res.status !== 408 &&
       res.status !== 429;
+    // Never the provider's text: a validation message may echo the payer's
+    // e-mail, CPF or address, and this error goes to Sentry and job logs.
+    // Only the status and the provider's machine codes.
+    const codes = providerCodes(text);
     throw new PaymentProviderError(
-      `mercadopago ${route}: HTTP ${res.status} ${text.slice(0, 300)}`,
+      `mercadopago ${route}: HTTP ${res.status}${codes.length ? ` códigos ${codes.join(",")}` : ""}`,
       definitive,
     );
   }
