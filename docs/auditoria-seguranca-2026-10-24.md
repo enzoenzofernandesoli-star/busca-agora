@@ -1,6 +1,6 @@
 # Auditoria de segurança e desempenho — 24/10/2026
 
-Pedido do Enzo: avaliar a loja "como um hacker" antes de entrar dinheiro de verdade. Branch `auditoria-seguranca`. Revisão independente do Codex em paralelo (relatório próprio em `output/auditoria-codex.md`).
+Pedido do Enzo: avaliar a loja "como um hacker" antes de entrar dinheiro de verdade. Branch `auditoria-seguranca`. Revisão independente do Codex em paralelo, sobre a `main` em cópia separada (relatório próprio em `output/auditoria-codex.md`): 4 achados (1 alta, 2 médias, 1 baixa). Dois coincidiram com os meus (Next.js e enquadramento); os outros dois (A02 e A03) entraram na tabela abaixo. O Codex também confirmou, com provas próprias, isolamento entre clientes, RLS, regras de dinheiro, webhook, CSRF das Server Actions e limites dos uploads.
 
 Tudo foi testado contra o **ambiente local** (Supabase em Docker e `next dev`/`next start`). Na produção só houve leitura comum (GET de páginas, cabeçalhos e Lighthouse), nenhum ataque.
 
@@ -26,6 +26,9 @@ Tudo foi testado contra o **ambiente local** (Supabase em Docker e `next dev`/`n
 | 4 | Média | Sem proteção contra a loja ser aberta dentro de outro site (clickjacking) nem `nosniff`/`Referrer-Policy`/`Permissions-Policy` | **Corrigido**: cabeçalhos em todas as respostas (`next.config.ts`) |
 | 5 | Baixa | Cabeçalho `X-Powered-By: Next.js` revelava a tecnologia | **Corrigido**: `poweredByHeader: false` |
 | 6 | Baixa (desempenho) | 3 chaves estrangeiras das tabelas de métricas sem índice | **Corrigido** na migration `20261024090000_audit_indexes` (só no banco local) |
+| 7 | Média (Codex A02) | Beacon de métricas aceitava envio de qualquer origem e sem limite; trocando o cookie de visitante dava para inflar views | **Corrigido**: recusa origem de outro site (403) e envio grande (413) e limita a 60 por IP a cada 10 min, independente do cookie |
+| 8 | Média (Codex A03) | Erro do Mercado Pago copiava 300 caracteres da resposta deles para a mensagem (que vai ao Sentry e à fila); se a resposta trouxesse e-mail ou CPF do pagador, eles iriam junto | **Corrigido**: a mensagem leva só o status HTTP e os códigos de erro do Mercado Pago, nunca o texto; teste garante que e-mail, CPF e endereço não aparecem |
+| 9 | Baixa (Codex, dev) | Vitest 4.1.11 com falhas conhecidas (só desenvolvimento) | **Corrigido**: 4.1.12; `npm audit` zerado também no desenvolvimento |
 
 ## O que foi atacado e resistiu
 
@@ -71,5 +74,7 @@ O ponto fraco é a página de produto: 0,9 s de estilo/layout e 1 s de script no
 1. **CSP completa** (`script-src` com nonce): bloqueia scripts injetados mesmo se surgir uma falha de XSS. Exige nonce em todas as páginas e deixa as páginas estáticas dinâmicas; avaliar quando o tráfego crescer.
 2. **Proteção contra senhas vazadas** no Supabase Auth (aviso do Supabase): ligar em Authentication → Policies (é do painel; quem liga é o Enzo).
 3. **Aplicar** `20261024090000_audit_indexes` no Supabase remoto (só com autorização).
-4. **Limites de tentativa** (login, frete, rastreio, checkout) já existem e têm testes de banco; não dá para medi-los no servidor local (ele libera o próprio computador).
+4. **Limites de tentativa** (login, frete, rastreio, checkout, beacon) já existem e têm testes de banco; não dá para medi-los no servidor local (ele libera o próprio computador). Eles usam o IP de `x-forwarded-for`, que a Vercel preenche.
+6. **Download da etiqueta** (Codex): aceita a URL HTTPS que o Melhor Envio devolve e segue redirecionamentos; cliente nenhum controla essa URL, mas vale limitar domínio, redirecionamentos e tamanho quando a etiqueta real for ligada.
+7. **Cookies de sessão do Supabase** (Codex): legíveis por JavaScript por desenho do cliente do Supabase; a CSP de scripts (item 1) é a proteção indicada.
 5. Rodar esta auditoria de novo antes do lançamento e a cada mudança em pagamento.
