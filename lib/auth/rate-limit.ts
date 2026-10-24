@@ -24,6 +24,10 @@ const LIMITS = {
   "devolucao:usuario": { max: 5, janelaSegundos: 60 * 60 },
   // Each attempt reserves stock and opens a payment: no loops.
   "checkout:usuario": { max: 10, janelaSegundos: 15 * 60 },
+  // Product-page beacon (metrics): a person browsing opens a few dozen
+  // products in minutes; a script changing its visitor cookie does not get
+  // past this per-IP ceiling (audit of 24/10).
+  "metricas:ip": { max: 60, janelaSegundos: 10 * 60 },
 } as const;
 
 export type RateLimitKind = keyof typeof LIMITS;
