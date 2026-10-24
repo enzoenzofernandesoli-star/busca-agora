@@ -14,9 +14,26 @@ import {
 
 const API = "https://api.mercadopago.com";
 
+// Generic error names Mercado Pago uses in the "error" field. Anything else
+// is dropped: an unknown value could be data echoed from the request.
+const KNOWN_ERRORS = new Set([
+  "bad_request",
+  "unauthorized",
+  "forbidden",
+  "not_found",
+  "conflict",
+  "invalid_parameter",
+  "invalid_parameters",
+  "internal_error",
+  "internal_server_error",
+  "too_many_requests",
+  "service_unavailable",
+]);
+
 /**
- * Machine-readable error codes of a Mercado Pago error body ("error" and
- * cause[].code), kept only when they look like codes. Free text is dropped.
+ * Machine codes of a Mercado Pago error body: the "error" name only when it
+ * is a known generic one, and numeric cause codes of at most 6 digits (a
+ * CPF has 11, a phone 10+). Free text is always dropped.
  */
 export function providerCodes(body: string): string[] {
   let json: unknown;
@@ -28,14 +45,15 @@ export function providerCodes(body: string): string[] {
   if (!json || typeof json !== "object") return [];
   const o = json as { error?: unknown; cause?: unknown };
   const out: string[] = [];
-  const keep = (v: unknown) => {
-    const s = typeof v === "number" ? String(v) : v;
-    if (typeof s === "string" && /^[A-Za-z0-9_]{1,40}$/.test(s)) out.push(s);
-  };
-  keep(o.error);
+  if (typeof o.error === "string" && KNOWN_ERRORS.has(o.error)) {
+    out.push(o.error);
+  }
   if (Array.isArray(o.cause)) {
     for (const c of o.cause.slice(0, 5)) {
-      if (c && typeof c === "object") keep((c as { code?: unknown }).code);
+      if (!c || typeof c !== "object") continue;
+      const code = (c as { code?: unknown }).code;
+      const s = typeof code === "number" ? String(code) : code;
+      if (typeof s === "string" && /^\d{1,6}$/.test(s)) out.push(s);
     }
   }
   return [...new Set(out)];

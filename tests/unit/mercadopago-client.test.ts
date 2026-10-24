@@ -89,3 +89,24 @@ describe("erros do Mercado Pago nunca carregam dados pessoais", () => {
     expect(e.message).toBe("mercadopago /v1/payments/123/refunds: HTTP 502");
   });
 });
+
+describe("códigos do Mercado Pago: só os conhecidos", () => {
+  it("CPF ou e-mail no campo error ou no código da causa não passam", async () => {
+    const e = (await refundError(async () =>
+      Response.json(
+        {
+          error: "52998224725",
+          cause: [
+            { code: "52998224725" },
+            { code: "maria@example.test" },
+            { code: 2063 },
+          ],
+        },
+        { status: 400 },
+      ),
+    )) as PaymentProviderError;
+    expect(e.message).toBe(
+      "mercadopago /v1/payments/123/refunds: HTTP 400 códigos 2063",
+    );
+  });
+});

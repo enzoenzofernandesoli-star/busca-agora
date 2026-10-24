@@ -26,15 +26,41 @@ function foreignOrigin(request: Request): boolean {
   }
 }
 
+/**
+ * The body as text, reading at most `limit` bytes: a sender without (or
+ * lying in) Content-Length cannot make the server buffer a large upload.
+ * Null when the body is larger than the limit.
+ */
+async function readLimited(
+  request: Request,
+  limit: number,
+): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return new TextDecoder().decode(Buffer.concat(chunks));
+}
+
 export async function POST(request: Request) {
   // Cheap refusals first: wrong origin, oversized body.
   if (foreignOrigin(request)) return new Response(null, { status: 403 });
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (declared > MAX_BODY) return new Response(null, { status: 413 });
+  const raw = await readLimited(request, MAX_BODY);
+  if (raw === null) return new Response(null, { status: 413 });
   let productId: string;
   try {
-    const raw = await request.text();
-    if (raw.length > MAX_BODY) return new Response(null, { status: 413 });
     productId = bodySchema.parse(JSON.parse(raw)).productId;
   } catch {
     return new Response(null, { status: 400 });
