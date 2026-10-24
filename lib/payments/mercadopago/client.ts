@@ -14,6 +14,33 @@ import {
 
 const API = "https://api.mercadopago.com";
 
+/**
+ * Machine-readable error codes of a Mercado Pago error body ("error" and
+ * cause[].code), kept only when they look like codes. Free text is dropped.
+ */
+export function providerCodes(body: string): string[] {
+  let json: unknown;
+  try {
+    json = JSON.parse(body);
+  } catch {
+    return [];
+  }
+  if (!json || typeof json !== "object") return [];
+  const o = json as { error?: unknown; cause?: unknown };
+  const out: string[] = [];
+  const keep = (v: unknown) => {
+    const s = typeof v === "number" ? String(v) : v;
+    if (typeof s === "string" && /^[A-Za-z0-9_]{1,40}$/.test(s)) out.push(s);
+  };
+  keep(o.error);
+  if (Array.isArray(o.cause)) {
+    for (const c of o.cause.slice(0, 5)) {
+      if (c && typeof c === "object") keep((c as { code?: unknown }).code);
+    }
+  }
+  return [...new Set(out)];
+}
+
 async function mp(
   path: string,
   init: RequestInit & { idempotencyKey?: string } = {},
@@ -49,8 +76,12 @@ async function mp(
       res.status < 500 &&
       res.status !== 408 &&
       res.status !== 429;
+    // Never the provider's text: a validation message may echo the payer's
+    // e-mail, CPF or address, and this error goes to Sentry and job logs.
+    // Only the status and the provider's machine codes.
+    const codes = providerCodes(text);
     throw new PaymentProviderError(
-      `mercadopago ${route}: HTTP ${res.status} ${text.slice(0, 300)}`,
+      `mercadopago ${route}: HTTP ${res.status}${codes.length ? ` códigos ${codes.join(",")}` : ""}`,
       definitive,
     );
   }

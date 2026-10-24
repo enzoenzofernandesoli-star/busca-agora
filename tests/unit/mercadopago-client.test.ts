@@ -63,3 +63,29 @@ describe("estorno no Mercado Pago: recusa certa x resultado incerto", () => {
     expect(e).toBeNull();
   });
 });
+
+describe("erros do Mercado Pago nunca carregam dados pessoais", () => {
+  it("só o status e os códigos, sem o texto devolvido", async () => {
+    const e = (await refundError(async () =>
+      Response.json(
+        {
+          error: "bad_request",
+          message: "payer cliente@example.test cpf 529.982.247-25 rua X 100",
+          cause: [{ code: 4296, description: "cliente@example.test" }],
+        },
+        { status: 400 },
+      ),
+    )) as PaymentProviderError;
+    expect(e.message).toContain("HTTP 400");
+    expect(e.message).toContain("bad_request");
+    expect(e.message).toContain("4296");
+    expect(e.message).not.toMatch(/@|529.982|rua/i);
+  });
+
+  it("corpo que não é JSON vira só o status", async () => {
+    const e = (await refundError(
+      async () => new Response("erro de cliente@example.test", { status: 502 }),
+    )) as PaymentProviderError;
+    expect(e.message).toBe("mercadopago /v1/payments/123/refunds: HTTP 502");
+  });
+});
