@@ -11,6 +11,7 @@ import { Marquee } from "@/components/loja/marquee";
 import { ShippingQuote } from "@/components/loja/shipping-quote";
 import { removeFromCart, setCartQuantity } from "@/lib/cart/actions";
 import { getCart } from "@/lib/cart/server";
+import { promessasDaLoja } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Carrinho",
@@ -101,13 +102,7 @@ export default async function CarrinhoPage() {
       )}
       {cart.linhas.length > 0 ? (
         <Marquee
-          itens={[
-            "Nota fiscal em todo pedido",
-            "Despacho em até 24 h",
-            "Troca em até 7 dias",
-            "Pix aprovado na hora",
-            "Buscou? Tá aqui.",
-          ]}
+          itens={[...promessasDaLoja(), "Buscou? Tá aqui."]}
           className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full md:rounded-[22px]"
         />
       ) : null}

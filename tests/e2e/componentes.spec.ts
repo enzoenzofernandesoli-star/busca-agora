@@ -72,7 +72,7 @@ test.describe("vitrine de componentes", () => {
     );
     await expect(
       page.getByRole("link", { name: /Fone Bluetooth/ }),
-    ).toContainText("em até 12x no cartão");
+    ).toContainText("em até 12x");
   });
 });
 

@@ -37,7 +37,7 @@ export function SearchedHeader({ total }: { total: number }) {
             style={{ animationDelay: "160ms" }}
             className="ba-entra m-0 max-w-[460px] text-[15px] font-medium md:text-base"
           >
-            O que todo mundo está buscando agora.{" "}
+            Os destaques da loja.{" "}
             <span className="text-lima">Buscou? Tá aqui.</span>
           </p>
           <p

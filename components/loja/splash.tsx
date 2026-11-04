@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { SplashController } from "@/components/loja/splash-controller";
+import { LOJA } from "@/lib/config/empresa";
 
 /**
  * Opening animation of the Home. The markup is a Server Component (nothing
@@ -91,9 +92,12 @@ export function Splash() {
           </svg>
         </button>
       </div>
-      <p className="ba-splash-subtitle absolute inset-x-0 bottom-8 m-0 hidden text-center text-sm tracking-[0.08em] text-lavanda-500 md:block">
-        BUSCAAGORA.COM.BR
-      </p>
+      {/* Only once the domain is registered (lib/config/empresa.ts). */}
+      {LOJA.dominioProprio ? (
+        <p className="ba-splash-subtitle absolute inset-x-0 bottom-8 m-0 hidden text-center text-sm tracking-[0.08em] text-lavanda-500 md:block">
+          {LOJA.dominioProprio.toUpperCase()}
+        </p>
+      ) : null}
       <style>{`
         @keyframes ba-splash-up {
           from { opacity: 0; transform: translateY(24px) scale(.96); }

@@ -1,8 +1,11 @@
-const items = [
-  { label: "Pix aprovado na hora", dot: "bg-lima" },
-  { label: "Frete calculado no seu CEP", dot: "bg-ciano" },
-  { label: "Troca em até 7 dias", dot: "bg-rosa" },
-];
+import { promessasDaLoja } from "@/lib/site";
+
+const DOTS = ["bg-lima", "bg-ciano", "bg-rosa", "bg-lavanda"];
+
+const items = promessasDaLoja().map((label, i) => ({
+  label,
+  dot: DOTS[i % DOTS.length],
+}));
 
 export function TopBar() {
   return (

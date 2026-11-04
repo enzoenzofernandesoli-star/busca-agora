@@ -1,15 +1,25 @@
 import {
   ExchangeIcon,
+  PinIcon,
   PixIcon,
   ReceiptIcon,
   TruckIcon,
 } from "@/components/loja/icons";
+import { LOJA } from "@/lib/config/empresa";
 import { cn } from "@/lib/utils";
 
 // Store promises (not product claims): the same four for every product; the
 // category only changes the look (docs/design/produto-prompts.md, G50).
+// The invoice one only while LOJA.emiteNotaFiscal is on; until then the
+// fourth card is the CEP quote, which the store does keep.
 const vantagens = [
-  { titulo: "Nota fiscal", texto: "Em todo pedido", Icon: ReceiptIcon },
+  LOJA.emiteNotaFiscal
+    ? { titulo: "Nota fiscal", texto: "Em todo pedido", Icon: ReceiptIcon }
+    : {
+        titulo: "Frete no seu CEP",
+        texto: "Prazo e valor antes de pagar",
+        Icon: PinIcon,
+      },
   { titulo: "Despacho em 24 h", texto: "Depois do pagamento", Icon: TruckIcon },
   {
     titulo: "Troca em 7 dias",

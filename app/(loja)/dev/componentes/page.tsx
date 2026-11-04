@@ -75,7 +75,7 @@ export default function ComponentesPage() {
       >
         <SectionHeader
           id="mais-buscados"
-          eyebrow="O que todo mundo está buscando"
+          eyebrow="Os destaques da loja"
           title="Mais buscados"
           link={{ href: "/busca?filtro=mais-buscados", label: "Ver todos" }}
         />

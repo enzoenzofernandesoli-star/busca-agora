@@ -1,5 +1,26 @@
+import { LOJA } from "@/lib/config/empresa";
+
 // Static store config for phase 0. Categories move to the `categories` table
-// (phase 1); legal data lives in `settings` (lib/store-info.ts, phase 9).
+// (phase 1); legal data lives in lib/config/empresa.ts.
+
+/**
+ * What the operation keeps today, in the store's short words (top bar,
+ * running bands, benefits). Nothing here that it cannot deliver.
+ */
+export const PROMESSAS = [
+  "Pix aprovado na hora",
+  "Frete e prazo no seu CEP",
+  "Troca em até 7 dias",
+  "Despacho em até 24 h",
+] as const;
+
+/** Shown only while LOJA.emiteNotaFiscal is on. */
+export const NOTA_FISCAL = "Nota fiscal em todo pedido";
+
+/** PROMESSAS plus the invoice one when it is true. */
+export function promessasDaLoja(): string[] {
+  return [...PROMESSAS, ...(LOJA.emiteNotaFiscal ? [NOTA_FISCAL] : [])];
+}
 
 export type CategorySlug = "eletronicos" | "cosmeticos";
 
@@ -28,7 +49,7 @@ export const categoryBand: Record<CategorySlug, string[]> = {
     "Relógios",
     "Caixas de som",
     "Carregadores",
-    "Nota fiscal em todo pedido",
+    ...(LOJA.emiteNotaFiscal ? [NOTA_FISCAL] : []),
     "Despacho em até 24 h",
   ],
   cosmeticos: [
@@ -36,7 +57,7 @@ export const categoryBand: Record<CategorySlug, string[]> = {
     "Cabelo",
     "Corpo",
     "Proteção solar",
-    "Nota fiscal em todo pedido",
+    ...(LOJA.emiteNotaFiscal ? [NOTA_FISCAL] : []),
     "Despacho em até 24 h",
   ],
 };

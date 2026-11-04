@@ -102,9 +102,7 @@ export function ProductCard({
           size="sm"
           className="md:text-2xl md:tracking-[-0.02em]"
         />
-        <span className="text-xs text-texto-2 md:text-[13px]">
-          em até 12x no cartão
-        </span>
+        <span className="text-xs text-texto-2 md:text-[13px]">em até 12x</span>
       </div>
     </Link>
   );

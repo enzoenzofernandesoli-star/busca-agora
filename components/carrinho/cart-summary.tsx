@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
-import { ExchangeIcon, ReceiptIcon, TruckIcon } from "@/components/loja/icons";
+import {
+  ExchangeIcon,
+  PixIcon,
+  ReceiptIcon,
+  TruckIcon,
+} from "@/components/loja/icons";
+import { LOJA } from "@/lib/config/empresa";
 import { formatBRL } from "@/lib/format";
 
 export function CartSummary({
@@ -64,9 +70,12 @@ export function CartSummary({
         className="m-0 flex list-none flex-col gap-2 p-0 text-sm text-texto-2"
       >
         {[
-          { text: "Nota fiscal em todo pedido", Icon: ReceiptIcon },
+          ...(LOJA.emiteNotaFiscal
+            ? [{ text: "Nota fiscal em todo pedido", Icon: ReceiptIcon }]
+            : []),
           { text: "Despacho em até 24 h", Icon: TruckIcon },
           { text: "Troca em até 7 dias", Icon: ExchangeIcon },
+          { text: "Pix aprovado na hora", Icon: PixIcon },
         ].map(({ text, Icon }) => (
           <li key={text} className="flex items-center gap-2">
             <Icon size={18} className="shrink-0 text-ultramar" />
