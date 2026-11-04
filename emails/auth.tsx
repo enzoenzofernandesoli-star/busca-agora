@@ -29,6 +29,7 @@ function AuthEmail({
 }) {
   return (
     <EmailLayout
+      identidade={false}
       siteUrl={SITE}
       preview={preview}
       motivo="Você recebeu este e-mail por causa da sua conta na Busca Agora."

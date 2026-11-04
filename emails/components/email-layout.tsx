@@ -11,6 +11,7 @@ import {
   Text,
 } from "@react-email/components";
 import type { EmailAddress } from "@/emails/types";
+import { EMPRESA, enderecoEmLinha, formatCnpj } from "@/lib/config/empresa";
 
 export const EMAIL_TITLE_STYLE: React.CSSProperties = {
   fontFamily: "Sora, Arial, Helvetica, sans-serif",
@@ -76,12 +77,19 @@ export function EmailLayout({
   preview,
   children,
   motivo = "Você recebeu este e-mail porque fez um pedido na Busca Agora.",
+  identidade = true,
 }: {
   siteUrl: string;
   preview: string;
   children: React.ReactNode;
   /** Why the person got this e-mail (footer). */
   motivo?: string;
+  /**
+   * Seller identity (legal name, CNPJ, address) in the footer: on in order
+   * e-mails. The account e-mails (auth.tsx) turn it off, because their HTML
+   * is pasted into Supabase's dashboard templates.
+   */
+  identidade?: boolean;
 }) {
   const linkStyle: React.CSSProperties = {
     color: "#DCDFFF",
@@ -161,6 +169,15 @@ export function EmailLayout({
             >
               {motivo}
             </Text>
+            {identidade ? (
+              <Text
+                style={{ color: "#DCDFFF", fontSize: 12, lineHeight: "18px" }}
+              >
+                {EMPRESA.razaoSocial} · CNPJ {formatCnpj(EMPRESA.cnpj)}
+                <br />
+                {enderecoEmLinha()} · {EMPRESA.email}
+              </Text>
+            ) : null}
           </Section>
         </Container>
       </Body>

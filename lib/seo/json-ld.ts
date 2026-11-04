@@ -1,3 +1,10 @@
+import {
+  EMPRESA,
+  formatCep,
+  formatCnpj,
+  type Empresa,
+} from "@/lib/config/empresa";
+
 export type ProductJsonLdInput = {
   siteUrl: string;
   slug: string;
@@ -19,6 +26,41 @@ function priceString(cents: number): string {
   return `${Math.trunc(cents / 100)}.${String(cents % 100).padStart(2, "0")}`;
 }
 
+/** Same id on every page, so the product seller points at the store. */
+export function organizationId(siteUrl: string): string {
+  return `${siteUrl}/#organization`;
+}
+
+/** The seller (schema.org Organization), from lib/config/empresa.ts. */
+export function organizationJsonLd(siteUrl: string, e: Empresa = EMPRESA) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": organizationId(siteUrl),
+    name: e.nomeFantasia,
+    legalName: e.razaoSocial,
+    taxID: formatCnpj(e.cnpj),
+    url: siteUrl,
+    logo: `${siteUrl}/brand/logo-e-escuro.svg`,
+    email: e.email,
+    ...(e.whatsapp ? { telephone: `+${e.whatsapp}` } : {}),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: [
+        e.endereco.logradouro,
+        e.endereco.numero,
+        e.endereco.complemento,
+      ]
+        .filter(Boolean)
+        .join(", "),
+      addressLocality: e.endereco.cidade,
+      addressRegion: e.endereco.uf,
+      postalCode: formatCep(e.endereco.cep),
+      addressCountry: "BR",
+    },
+  };
+}
+
 export function productJsonLd(input: ProductJsonLdInput) {
   const price = priceString(input.precoCents);
   const maxPrice =
@@ -29,7 +71,11 @@ export function productJsonLd(input: ProductJsonLdInput) {
     priceCurrency: "BRL",
     availability: `https://schema.org/${input.emEstoque ? "InStock" : "OutOfStock"}`,
     url: `${input.siteUrl}/p/${input.slug}`,
-    seller: { "@type": "Organization", name: "Busca Agora" },
+    seller: {
+      "@type": "Organization",
+      "@id": organizationId(input.siteUrl),
+      name: EMPRESA.nomeFantasia,
+    },
   };
   return {
     "@context": "https://schema.org",

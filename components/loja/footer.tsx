@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { LogoD } from "@/components/loja/logo";
-import { A_PREENCHER } from "@/components/legal/legal-page";
+import { formatTelefone } from "@/lib/config/empresa";
 import { getStoreInfo, type StoreInfo } from "@/lib/store-info";
 
 const institucional = [
@@ -45,7 +45,7 @@ function FooterColumn({
 function FooterDesktop({ info }: { info: StoreInfo }) {
   return (
     <footer className="hidden bg-noite text-lavanda md:block">
-      <div className="mx-auto flex max-w-[1760px] flex-col gap-10 px-8 2xl:px-14 pt-14 pb-7">
+      <div className="mx-auto flex max-w-[1760px] flex-col gap-10 px-8 pt-14 pb-7 2xl:px-14">
         {/* Brand sign-off, rising in as the visitor reaches the end. */}
         <p
           aria-hidden="true"
@@ -94,7 +94,12 @@ function FooterDesktop({ info }: { info: StoreInfo }) {
 function FooterMobile({ info }: { info: StoreInfo }) {
   return (
     <footer className="px-4 pt-2 pb-6 text-center text-xs leading-[1.6] text-texto-2 md:hidden">
-      {info.marca} · {info.documento ?? `CPF/CNPJ ${A_PREENCHER}`}
+      {/* Company identity on mobile too (Decreto 7.962/2013, art. 2). */}
+      {[info.marca, info.razaoSocial, `CNPJ ${info.cnpj}`].join(" · ")}
+      <br />
+      {info.endereco}
+      <br />
+      {contatos(info).join(" · ")}
       <br />
       <Link href="/termos" className="text-ultramar">
         Termos
@@ -111,14 +116,22 @@ function FooterMobile({ info }: { info: StoreInfo }) {
   );
 }
 
-/** Seller identity required on the site (Decreto 7.962/2013, art. 2). */
+/** E-mail and, when there is one, the phone/WhatsApp. */
+function contatos(info: StoreInfo): string[] {
+  return [
+    info.email,
+    info.whatsapp ? `WhatsApp ${formatTelefone(info.whatsapp)}` : null,
+  ].filter((x): x is string => !!x);
+}
+
+/** Company identity required on the site (Decreto 7.962/2013, art. 2). */
 function legalLine(info: StoreInfo): string {
   return [
     info.marca,
-    info.vendedor ?? `Vendedor ${A_PREENCHER}`,
-    info.documento ?? `CPF/CNPJ ${A_PREENCHER}`,
-    info.endereco ?? `Endereço ${A_PREENCHER}`,
-    info.email ?? `E-mail ${A_PREENCHER}`,
+    info.razaoSocial,
+    `CNPJ ${info.cnpj}`,
+    info.endereco,
+    ...contatos(info),
   ].join(" · ");
 }
 

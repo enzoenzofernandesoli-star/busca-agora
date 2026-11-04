@@ -30,8 +30,8 @@ export default async function TermsPage() {
     >
       <h2 id="quem-somos">Quem somos</h2>
       <p>
-        A Busca Agora vende eletrônicos e cosméticos pela internet, com um único
-        vendedor.
+        A Busca Agora vende eletrônicos e cosméticos pela internet. Todos os
+        produtos são vendidos e entregues pela própria loja.
       </p>
       <StoreIdentity info={info} />
       <h2 id="conta">Conta e cadastro</h2>

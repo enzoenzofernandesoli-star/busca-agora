@@ -86,8 +86,13 @@ test.describe("páginas legais", () => {
     page,
   }) => {
     await page.goto("/privacidade");
-    await expect(page.getByText("Vendedor:")).toBeVisible();
-    await expect(page.getByText("CPF/CNPJ:")).toBeVisible();
+    const identidade = page.getByRole("main").getByRole("listitem");
+    await expect(identidade.filter({ hasText: "Razão social:" })).toBeVisible();
+    await expect(
+      identidade.filter({ hasText: "CNPJ: 69.919.406/0001-79" }),
+    ).toBeVisible();
+    await expect(page.getByText("Vendedor:")).toHaveCount(0);
+    await expect(page.getByText("[a preencher]")).toHaveCount(0);
   });
 });
 

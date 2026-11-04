@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 
 import type { StoreInfo } from "@/lib/store-info";
 
-export const A_PREENCHER = "[a preencher]";
-
 /** "5511999998888" -> "+55 11 99999-8888". */
 export function formatWhatsapp(d: string): string {
   const m = /^(\d{2})(\d{2})(\d{4,5})(\d{4})$/.exec(d);
@@ -81,34 +79,30 @@ export function LegalPage({
   );
 }
 
-/** Seller identity block (name, CPF/CNPJ, address, contact). */
+/** Company identity block (name, CNPJ, address, contact). */
 export function StoreIdentity({ info }: { info: StoreInfo }) {
-  const v = (x: string | null) => x ?? A_PREENCHER;
   return (
     <ul className="!list-none !pl-0">
       <li>
         <strong>Loja:</strong> {info.marca}
       </li>
       <li>
-        <strong>Vendedor:</strong> {v(info.vendedor)}
+        <strong>Razão social:</strong> {info.razaoSocial}
       </li>
       <li>
-        <strong>CPF/CNPJ:</strong> {v(info.documento)}
+        <strong>CNPJ:</strong> {info.cnpj}
       </li>
       <li>
-        <strong>Endereço:</strong> {v(info.endereco)}
+        <strong>Endereço:</strong> {info.endereco}
       </li>
       <li>
         <strong>E-mail:</strong>{" "}
-        {info.email ? (
-          <a href={`mailto:${info.email}`}>{info.email}</a>
-        ) : (
-          A_PREENCHER
-        )}
+        <a href={`mailto:${info.email}`}>{info.email}</a>
       </li>
-      <li>
-        <strong>WhatsApp:</strong>{" "}
-        {info.whatsapp ? (
+      {/* Shown only when there is one: never a fake number. */}
+      {info.whatsapp ? (
+        <li>
+          <strong>WhatsApp:</strong>{" "}
           <a
             href={`https://wa.me/${info.whatsapp}`}
             target="_blank"
@@ -117,10 +111,8 @@ export function StoreIdentity({ info }: { info: StoreInfo }) {
             {formatWhatsapp(info.whatsapp)}
             <span className="sr-only"> (abre em nova aba)</span>
           </a>
-        ) : (
-          A_PREENCHER
-        )}
-      </li>
+        </li>
+      ) : null}
     </ul>
   );
 }

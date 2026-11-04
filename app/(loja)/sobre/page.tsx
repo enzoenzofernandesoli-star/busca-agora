@@ -41,9 +41,8 @@ export default async function AboutPage() {
           </h1>
           <p className="m-0 max-w-[560px] text-[16px] leading-relaxed text-pretty text-lavanda md:text-[18px]">
             Somos uma loja online de eletrônicos e cosméticos. Aqui, você compra
-            de um único vendedor: a Busca Agora. Somos um negócio de família.
-            Cuidamos da escolha dos produtos, do atendimento e do envio para sua
-            casa.
+            da própria Busca Agora. Somos um negócio de família. Cuidamos da
+            escolha dos produtos, do atendimento e do envio para sua casa.
           </p>
         </div>
       </header>

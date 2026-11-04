@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { EMPRESA, formatCnpj } from "@/lib/config/empresa";
 import { MARKETING_LABEL } from "@/components/conta/marketing-checkbox";
 import { useActionState, useEffect, useId, useState } from "react";
 import { z } from "zod";
@@ -660,6 +661,9 @@ export function CheckoutForm({
               Política de privacidade
             </Link>
             . Pagamento processado pelo Mercado Pago.
+          </p>
+          <p className="text-center text-[13px] leading-[1.5] text-texto-2">
+            Vendido por {EMPRESA.razaoSocial} · CNPJ {formatCnpj(EMPRESA.cnpj)}
           </p>
         </aside>
       </div>

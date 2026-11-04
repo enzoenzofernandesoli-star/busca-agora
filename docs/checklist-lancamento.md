@@ -21,14 +21,20 @@ Decisão de 07/10: a conta de produção fica no nome do Enzo (CPF), que também
 
 - [ ] Vendendo no CPF: manter `NFE_ENABLED=false`. A etiqueta sai com declaração de conteúdo e o pedido fica marcado para emissão manual no admin.
 - [ ] Antes de virar operação regular: confirmar com um contador o limite de vendas no CPF. Com MEI ou CNPJ + inscrição estadual + certificado A1, ligar a NF-e (`NFE_ENABLED=true`, `NFE_API_TOKEN`, `NFE_ENV=producao`).
+- [ ] Quando a NF-e estiver ativa: ligar `emiteNotaFiscal: true` em `lib/config/empresa.ts` e trocar a seção "Nota fiscal" dos Termos pela versão explícita: "Quando a venda exige nota fiscal, ela é emitida em nome da Busca Agora (CNPJ 69.919.406/0001-79) e enviada para o e-mail do pedido. Se precisar de uma via ou tiver dúvida, fale com a gente." (decisão de 04/11).
 
 ## Ainda a preencher nas próximas fases
 
 - [ ] Mercado Pago: credenciais de produção (fase 5 começa com as de teste).
-- [ ] Dados legais no rodapé (razão social ou nome, CPF/CNPJ, endereço, e-mail).
+- [ ] **Obrigatório:** tirar o boleto do Checkout Pro (`payment_methods.excluded_payment_types: [{ id: "ticket" }]` na preferência, em `lib/payments/mercadopago/preference-body.ts`). Boleto está fora da v1 e o site já não oferece; sem isso, a tela do Mercado Pago ainda mostraria (decisão de 04/11).
+- [x] Dados legais no rodapé (razão social, CNPJ, endereço, e-mail): `lib/config/empresa.ts`, branch feat/dados-empresa.
 - [ ] Domínio `buscaagora.com.br` apontado para a Vercel e Site URL no Supabase.
 - [ ] Supabase Auth: URLs de redirecionamento, política de senha e, se quiser, login com Google.
 - [ ] PrintNode, Resend e Telegram (fases 6 e 7).
+
+## Dívida técnica (antes da fase 10)
+
+- [ ] e2e de login instável quando os testes rodam em paralelo: o botão fica em "Aguarde..." por mais de 30 s (`admin.spec`, `conta.spec`). Passa isolado e também falha na `main` (04/11). Investigar número de workers, timeout e compilação do `next dev` antes da fase 10.
 
 ## Rotina depois de abrir (prometido na Política de privacidade)
 

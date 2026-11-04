@@ -25,7 +25,10 @@ test.describe("layout da loja", () => {
       ).toHaveAttribute("aria-current", "page");
     } else {
       await expect(bottomNav).toBeHidden();
-      await expect(page.getByTestId("dados-legais")).toContainText("CPF/CNPJ");
+      const legal = page.getByTestId("dados-legais");
+      await expect(legal).toContainText("CNPJ 69.919.406/0001-79");
+      await expect(legal).not.toContainText("Vendedor");
+      await expect(legal).not.toContainText("[a preencher]");
     }
   });
 
