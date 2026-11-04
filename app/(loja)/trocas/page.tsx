@@ -66,9 +66,8 @@ export default async function ReturnsPage() {
       <h2 id="pagamento">Formas de pagamento</h2>
       <p>
         Pix tem aprovação na hora; cartão de crédito tem parcelamento
-        apresentado no pagamento; boleto vence em 3 dias e a compensação pode
-        levar até 2 dias úteis depois de pago. Tudo é processado pelo Mercado
-        Pago. A loja não vê o número do cartão.
+        apresentado no pagamento. Tudo é processado pelo Mercado Pago. A loja
+        não vê o número do cartão.
       </p>
       <h2 id="entrega">Entrega</h2>
       <p>

@@ -5,17 +5,17 @@ import Link from "next/link";
 import { EmptyState } from "@/components/loja/empty-state";
 import {
   BottleIcon,
-  CardIcon,
   ExchangeIcon,
   HeadphonesIcon,
+  PinIcon,
   PixIcon,
   TruckIcon,
 } from "@/components/loja/icons";
 import { ProductCard } from "@/components/loja/product-card";
 import { SectionHeader } from "@/components/loja/section-header";
 import { Splash } from "@/components/loja/splash";
-import { Marquee } from "@/components/loja/marquee";
 import { HeroShowcase } from "@/components/loja/hero-showcase";
+import { Marquee } from "@/components/loja/marquee";
 import {
   HERO_WORD_COLORS,
   HERO_WORDS,
@@ -29,6 +29,7 @@ import {
   type HomeBanner,
   type ProductSummary,
 } from "@/lib/catalog/queries";
+import { promessasDaLoja } from "@/lib/site";
 
 // Same HTML for every visitor (the opening animation decides in the
 // browser), so the Home is cached and refreshed at most every 5 minutes.
@@ -47,19 +48,19 @@ const vantagens = [
     Icon: PixIcon,
   },
   {
-    titulo: "Até 12x no cartão",
-    texto: "Com a segurança do Mercado Pago",
-    Icon: CardIcon,
-  },
-  {
     titulo: "Frete no seu CEP",
     texto: "Prazo e valor antes de pagar",
-    Icon: TruckIcon,
+    Icon: PinIcon,
   },
   {
     titulo: "Troca em até 7 dias",
     texto: "Arrependeu? A gente resolve",
     Icon: ExchangeIcon,
+  },
+  {
+    titulo: "Despacho em até 24 h",
+    texto: "Depois da confirmação do pagamento",
+    Icon: TruckIcon,
   },
 ];
 
@@ -112,7 +113,7 @@ function Hero() {
       />
       <div className="relative flex flex-col items-start gap-4 md:gap-5">
         <span className="inline-flex rounded-full bg-lima px-3 py-[5px] text-xs font-bold tracking-[.06em] text-noite md:px-3.5 md:py-1.5 md:text-[13px]">
-          NOVIDADES TODA SEMANA
+          ELETRÔNICOS E COSMÉTICOS
         </span>
         {/* "Buscou fone? / sérum? / batom?" — the word rotates (loja viva);
             the accessible name stays the slogan. Short words: one line at
@@ -129,13 +130,7 @@ function Hero() {
           <span className="text-lima">Tá aqui.</span>
         </h1>
         <p className="m-0 max-w-[56%] text-[15px] leading-normal text-lavanda md:max-w-[420px] md:text-lg md:leading-[1.55]">
-          <span className="hidden md:inline">
-            Eletrônicos e cosméticos selecionados, com frete calculado no seu
-            CEP e nota fiscal em todo pedido.
-          </span>
-          <span className="md:hidden">
-            Frete calculado no seu CEP e nota fiscal em todo pedido.
-          </span>
+          Frete e prazo no seu CEP, antes de pagar.
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
@@ -227,8 +222,7 @@ function CategoryCards() {
 function Vantagens() {
   return (
     <section aria-label="Vantagens">
-      {/* Mobile: the running lime band below replaces the chips. */}
-      {/* Desktop: four cards. */}
+      {/* Desktop only: on mobile the running band above says the same. */}
       <ul className="m-0 hidden list-none grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0 md:grid">
         {vantagens.map(({ titulo, texto, Icon }) => (
           <li
@@ -374,17 +368,12 @@ export default async function HomePage() {
         <CategoryCards />
       </section>
 
+      {/* One benefits row per screen: the running band on mobile, the four
+          cards on desktop (they used to show both). */}
       <Marquee
-        itens={[
-          "Pix aprovado na hora",
-          "Despacho em até 24 h",
-          "Troca em até 7 dias",
-          "Nota fiscal em todo pedido",
-          "Buscou? Tá aqui.",
-        ]}
-        className="-mx-4 w-[calc(100%+2rem)] md:mx-0 md:w-full md:rounded-[22px]"
+        itens={[...promessasDaLoja(), "Buscou? Tá aqui."]}
+        className="-mx-4 w-[calc(100%+2rem)] md:hidden"
       />
-
       <Vantagens />
 
       <section
@@ -393,7 +382,8 @@ export default async function HomePage() {
       >
         <SectionHeader
           id="mais-buscados"
-          eyebrow="O que todo mundo está buscando"
+          // Featured by hand in the admin, not ranked by views.
+          eyebrow="Os destaques da loja"
           title="Mais buscados"
           link={
             maisBuscados.length > 0

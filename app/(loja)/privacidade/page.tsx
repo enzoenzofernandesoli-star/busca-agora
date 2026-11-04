@@ -131,8 +131,7 @@ export default async function PrivacyPage() {
       </p>
       <ul>
         <li>
-          <strong>Mercado Pago:</strong> processa o pagamento (Pix, cartão,
-          boleto).
+          <strong>Mercado Pago:</strong> processa o pagamento (Pix e cartão).
         </li>
         <li>
           <strong>Melhor Envio e transportadoras</strong> (como os Correios):

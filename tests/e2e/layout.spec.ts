@@ -7,6 +7,9 @@ test.describe("layout da loja", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: /Buscou\?/ }),
     ).toBeVisible();
+    // Promises the store cannot keep yet stay off (LOJA.emiteNotaFiscal).
+    await expect(page.locator("body")).not.toContainText(/nota fiscal/i);
+    await expect(page.locator("body")).not.toContainText(/boleto/i);
     await expect(
       page.getByRole("img", { name: "Busca Agora" }).first(),
     ).toBeVisible();

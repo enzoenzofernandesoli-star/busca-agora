@@ -52,6 +52,30 @@ export const EMPRESA: Empresa = {
   horario: null,
 };
 
+/**
+ * What the store can promise today. Each one is a feature flag: while it is
+ * off, the site never mentions it (no claim the operation cannot keep).
+ */
+export const LOJA = {
+  /** NF-e on every order: on only once the automatic invoice works. */
+  emiteNotaFiscal: false,
+  /** Own domain (e.g. "buscaagora.com.br"), or null until it is registered. */
+  dominioProprio: null as string | null,
+  /**
+   * Sample products (slug "exemplo-…"): only in local development and tests,
+   * never in production or preview.
+   */
+  mostrarProdutosExemplo: process.env.NODE_ENV !== "production",
+};
+
+/** Slug prefix of the sample products. */
+export const PREFIXO_EXEMPLO = "exemplo-";
+
+/** Whether a product slug may be shown in the store. */
+export function produtoVisivel(slug: string): boolean {
+  return LOJA.mostrarProdutosExemplo || !slug.startsWith(PREFIXO_EXEMPLO);
+}
+
 /** 69.919.406/0001-79 */
 export function formatCnpj(digits: string): string {
   return digits.replace(

@@ -79,7 +79,11 @@ test.describe("vitrine", () => {
       page.getByRole("heading", { level: 1, name: /Fone Bluetooth/ }),
     ).toBeVisible();
     await expect(page.getByText("R$ 89,90").first()).toBeVisible();
-    await expect(page.getByText("em até 12x no cartão").first()).toBeVisible();
+    await expect(
+      page.getByText(
+        /em até 12x no cartão \(sujeito a juros do Mercado Pago\)/,
+      ),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "Azul (esgotado)" }).click();
     // Sold-out variant: a single disabled "Esgotado" button.

@@ -49,9 +49,9 @@ export default async function TermsPage() {
       </p>
       <h2 id="pagamento">Pagamento</h2>
       <p>
-        Pix, cartão e boleto são processados pelo Mercado Pago. A loja não vê
-        nem guarda os dados do cartão. O Pix vence em 30 minutos e o boleto em 3
-        dias; sem pagamento no prazo, o pedido é cancelado e nada é cobrado.
+        Pix e cartão são processados pelo Mercado Pago. A loja não vê nem guarda
+        os dados do cartão. O Pix vence em 30 minutos; sem pagamento no prazo, o
+        pedido é cancelado e nada é cobrado.
       </p>
       <h2 id="entrega">Entrega</h2>
       <p>

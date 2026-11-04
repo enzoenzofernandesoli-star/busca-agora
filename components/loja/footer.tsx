@@ -18,7 +18,8 @@ const ajuda = [
   { label: "Formas de pagamento", href: "/trocas#pagamento" },
 ];
 
-const pagamentos = ["Pix", "Cartão de crédito", "Boleto"];
+// Boleto is out of v1: only what the checkout offers.
+const pagamentos = ["Pix", "Cartão de crédito"];
 
 const footLink = "text-lavanda-500 no-underline hover:text-white";
 

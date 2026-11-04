@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 
+import { produtoVisivel } from "@/lib/config/empresa";
 import type { Database } from "@/lib/db/types";
 import { publicEnv } from "@/lib/env-public";
 import type { CategorySlug } from "@/lib/site";
@@ -72,7 +73,10 @@ function toSummary(
     !row.slug ||
     !row.nome ||
     row.preco_cents === null ||
-    !isCategorySlug(row.categoria_slug)
+    !isCategorySlug(row.categoria_slug) ||
+    // Sample products (slug "exemplo-…") stay out of the store outside
+    // local development: listings, search, related.
+    !produtoVisivel(row.slug)
   ) {
     return null;
   }
@@ -177,9 +181,13 @@ export async function searchCatalog(
     total = Number(first.data?.[0]?.total ?? 0);
   }
 
+  const produtos = toSummaries(rows);
+  // Hidden sample products leave this page; the count drops by them. Others
+  // on other pages still count (search_products knows nothing of the flag).
+  total = Math.max(0, total - (rows.length - produtos.length));
   const paginas = Math.max(1, Math.ceil(total / PAGE_SIZE));
   return {
-    produtos: toSummaries(rows),
+    produtos,
     total,
     paginas,
     foraDoIntervalo: rows.length === 0 && total > 0 && filters.pagina > paginas,
@@ -214,7 +222,7 @@ export async function suggestProducts(
   });
   if (error) fail("suggest", error);
   return (data ?? []).flatMap((row) =>
-    isCategorySlug(row.categoria_slug)
+    isCategorySlug(row.categoria_slug) && produtoVisivel(row.slug)
       ? [{ slug: row.slug, nome: row.nome, categoria: row.categoria_slug }]
       : [],
   );
@@ -242,6 +250,8 @@ export type ProductDetail = {
 };
 
 export async function getProduct(slug: string): Promise<ProductDetail | null> {
+  // A sample product's direct link is a 404 outside local development.
+  if (!produtoVisivel(slug)) return null;
   const supabase = catalogClient();
   const { data: product, error } = await supabase
     .from("products")
@@ -332,10 +342,12 @@ export async function getAllProductSlugs(): Promise<
     .order("updated_at", { ascending: false })
     .limit(5000);
   if (error) fail("sitemap", error);
-  return (data ?? []).map((row) => ({
-    slug: row.slug,
-    updatedAt: row.updated_at,
-  }));
+  return (data ?? [])
+    .filter((row) => produtoVisivel(row.slug))
+    .map((row) => ({
+      slug: row.slug,
+      updatedAt: row.updated_at,
+    }));
 }
 
 export type HomeBanner = {

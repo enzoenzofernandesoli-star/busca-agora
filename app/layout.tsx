@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { NavigationProgress } from "@/components/navegacao/navigation-progress";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
+import { LOJA } from "@/lib/config/empresa";
 
 import "./globals.css";
 
@@ -29,8 +30,7 @@ export const metadata: Metadata = {
     default: "Busca Agora · Buscou? Tá aqui.",
     template: "%s · Busca Agora",
   },
-  description:
-    "Eletrônicos e cosméticos selecionados, com frete calculado no seu CEP e nota fiscal em todo pedido.",
+  description: `Eletrônicos e cosméticos selecionados, com frete e prazo calculados no seu CEP${LOJA.emiteNotaFiscal ? " e nota fiscal em todo pedido" : ""}.`,
   // Default share image: app/opengraph-image.png (logo + slogan).
   // Installed app on iPhone (Android reads app/manifest.ts).
   appleWebApp: {

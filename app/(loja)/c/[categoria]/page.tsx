@@ -8,6 +8,7 @@ import { CategoryArt } from "@/components/loja/category-art";
 import { Marquee } from "@/components/loja/marquee";
 import { filtersHref, parseFilters } from "@/lib/catalog/filters";
 import { getBrands, searchCatalog } from "@/lib/catalog/queries";
+import { LOJA } from "@/lib/config/empresa";
 import { categoryBand, categoryStyles, type CategorySlug } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +46,7 @@ export async function generateMetadata(
   const nome = categoryStyles[categoria].nome;
   return {
     title: nome,
-    description: `${nome}: ${intro[categoria].toLowerCase()}. Frete calculado no seu CEP e nota fiscal em todo pedido.`,
+    description: `${nome}: ${intro[categoria].toLowerCase()}. Frete e prazo calculados no seu CEP${LOJA.emiteNotaFiscal ? " e nota fiscal em todo pedido" : ""}.`,
     alternates: { canonical: `/c/${categoria}` },
   };
 }

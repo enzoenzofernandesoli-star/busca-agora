@@ -83,7 +83,8 @@ export function ProductBuyBox({ variantes }: ProductBuyBoxProps) {
           </span>
         ) : null}
         <span className="text-[15px] text-texto-2">
-          em até 12x no cartão · ou no Pix, aprovado na hora
+          em até 12x no cartão (sujeito a juros do Mercado Pago) · ou no Pix,
+          aprovado na hora
         </span>
       </div>
 

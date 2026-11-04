@@ -64,7 +64,7 @@ test.describe("páginas legais", () => {
     ["/termos", "Termos de uso"],
     ["/privacidade", "Política de privacidade"],
     ["/trocas", "Trocas e devoluções"],
-    ["/sobre", "Uma loja de família."],
+    ["/sobre", "Buscou? Tá aqui."],
     ["/contato", "Fale com a Busca Agora"],
   ] as const) {
     test(`${url} abre com título e sem rolagem para o lado`, async ({
