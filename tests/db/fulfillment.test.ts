@@ -87,16 +87,13 @@ beforeAll(async () => {
   const admin = serviceClient();
   const { data } = await admin
     .from("settings")
-    .select("razao_social, cpf_vendedor, email_contato, endereco_origem")
+    .select("endereco_origem")
     .eq("id", true)
     .single();
   settingsBefore = data;
   await admin
     .from("settings")
     .update({
-      razao_social: "Loja de Teste",
-      cpf_vendedor: "52998224725",
-      email_contato: "sac@example.test",
       endereco_origem: {
         cep: "01001000",
         rua: "Praça da Sé",
@@ -217,6 +214,18 @@ describe("fulfillment chain", () => {
     st = await orderState(order.id);
     expect(st.status).toBe("label_ready");
     expect(st.shipment?.resumo_path).toBe(`resumos/${order.numero}.pdf`);
+  });
+
+  it("label sender is the company from lib/config/empresa.ts", async () => {
+    const order = await paidOrder();
+    const { loadFulfillment } = await import("@/lib/orders/fulfillment-data");
+    const { EMPRESA } = await import("@/lib/config/empresa");
+    const f = await loadFulfillment(order.id);
+    expect(f.label(1).remetente).toMatchObject({
+      nome: EMPRESA.razaoSocial,
+      documento: EMPRESA.cnpj,
+      email: EMPRESA.email,
+    });
   });
 
   it("a retry after a failure never buys a second label", async () => {

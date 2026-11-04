@@ -103,3 +103,13 @@ describe("breadcrumbJsonLd", () => {
     ]);
   });
 });
+
+describe("product seller", () => {
+  it("points at the store Organization", () => {
+    expect(productJsonLd(input).offers.seller).toEqual({
+      "@type": "Organization",
+      "@id": "https://buscaagora.com.br/#organization",
+      name: "Busca Agora",
+    });
+  });
+});

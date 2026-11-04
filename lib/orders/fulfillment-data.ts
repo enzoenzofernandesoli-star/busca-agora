@@ -1,5 +1,6 @@
 import "server-only";
 
+import { EMPRESA } from "@/lib/config/empresa";
 import { createAdminClient } from "@/lib/db/admin";
 import type { Database } from "@/lib/db/types";
 import type {
@@ -36,7 +37,9 @@ export async function loadFulfillment(orderId: string) {
     admin
       .from("settings")
       .select(
-        "razao_social, cnpj, cpf_vendedor, email_contato, whatsapp, endereco_origem, printer_id",
+        // Seller identity comes from lib/config/empresa.ts; the database keeps
+        // only the shipping origin and the printer.
+        "endereco_origem, printer_id",
       )
       .eq("id", true)
       .single(),
@@ -47,13 +50,15 @@ export async function loadFulfillment(orderId: string) {
 
   const endereco = parseOrderAddress(o.endereco);
   const origem = parseOrderAddress(s?.endereco_origem ?? null);
-  const telefoneLoja = s?.whatsapp ? s.whatsapp.replace(/^55/, "") : null;
+  const telefoneLoja = EMPRESA.whatsapp
+    ? EMPRESA.whatsapp.replace(/^55/, "")
+    : null;
 
   const remetente: LabelParty = {
-    nome: s?.razao_social ?? "",
+    nome: EMPRESA.razaoSocial,
     telefone: telefoneLoja,
-    email: s?.email_contato ?? null,
-    documento: s?.cnpj ?? s?.cpf_vendedor ?? "",
+    email: EMPRESA.email,
+    documento: EMPRESA.cnpj,
     rua: origem.rua,
     numero: origem.numero,
     complemento: origem.complemento,

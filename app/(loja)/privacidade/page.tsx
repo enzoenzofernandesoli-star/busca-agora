@@ -16,7 +16,7 @@ export default async function PrivacyPage() {
   return (
     <LegalPage
       titulo="Política de privacidade"
-      atualizadoEm="18/10/2026"
+      atualizadoEm="01/11/2026"
       aviso
       indice={[
         { id: "controlador", label: "Quem cuida dos seus dados" },
@@ -43,8 +43,9 @@ export default async function PrivacyPage() {
 
       <h2 id="controlador">Quem cuida dos seus dados</h2>
       <p>
-        O controlador dos dados é a Busca Agora, identificada abaixo. É quem
-        decide como os dados são usados e responde por eles.
+        O controlador dos dados (LGPD, art. 5º, VI) é a {info.marca}, nome
+        fantasia de {info.razaoSocial}, CNPJ {info.cnpj}, identificada abaixo. É
+        quem decide como os dados são usados e responde por eles.
       </p>
       <StoreIdentity info={info} />
 
@@ -295,15 +296,9 @@ export default async function PrivacyPage() {
       <h2 id="encarregado">Encarregado de dados e contato</h2>
       <p>
         Para qualquer assunto sobre seus dados, fale com o encarregado pelo
-        e-mail de contato da loja
-        {info.email ? (
-          <>
-            : <a href={`mailto:${info.email}`}>{info.email}</a>
-          </>
-        ) : (
-          " [a preencher]"
-        )}
-        .
+        e-mail de contato da loja :{" "}
+        <a href={`mailto:${info.email}`}>{info.email}</a>. Endereço para
+        correspondência: {info.endereco}.
       </p>
 
       <h2 id="mudancas">Mudanças nesta política</h2>

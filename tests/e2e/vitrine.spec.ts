@@ -96,9 +96,10 @@ test.describe("vitrine", () => {
       page.getByRole("button", { name: "Adicionar ao carrinho" }),
     ).toBeEnabled();
 
-    const jsonLd = await page
-      .locator('script[type="application/ld+json"]')
-      .textContent();
+    // The store layout adds the Organization block; the product one has offers.
+    const jsonLd = (
+      await page.locator('script[type="application/ld+json"]').allTextContents()
+    ).find((t) => t.includes('"Product"'));
     expect(jsonLd).toContain('"price":"89.90"');
   });
 
